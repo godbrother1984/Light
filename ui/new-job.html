@@ -1,0 +1,324 @@
+<!-- 
+  path: /ui/new-job.html
+  version: 1.3
+  date: 2025-09-02
+  time: 15:12:00
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สร้างงานใหม่ - Light Measurement System</title>
+    
+    <!-- Using the same styles and libraries for consistency -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Choices.js CSS for searchable dropdowns -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+
+    <style>
+        :root {
+            --primary-color: #003366;
+            --secondary-color: #4a6fa5;
+            --accent-color: #fca311;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --header-text-color: #ffffff;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .navbar-brand {
+            color: var(--header-text-color) !important;
+            font-weight: 700;
+        }
+
+        .main-header {
+            background-color: #ffffff;
+            padding: 1.5rem 2rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .main-header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .breadcrumb {
+            margin-bottom: 0;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .card-header {
+            background-color: var(--secondary-color);
+            color: var(--header-text-color);
+            font-weight: 500;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .choices__inner {
+            background-color: #fff;
+            border-radius: .375rem;
+            border: 1px solid #ced4da;
+            padding: 0.2rem 0.5rem;
+        }
+        .choices[data-type*="select-one"].is-focused .choices__inner {
+             border-color: var(--secondary-color);
+             box-shadow: 0 0 0 0.25rem rgba(74, 111, 165, 0.25);
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-lightbulb me-2"></i>
+                Light Measurement System
+            </a>
+            <div class="d-flex">
+                 <span class="navbar-text text-white">
+                    ผู้ใช้งาน: สมชาย ใจดี (Senior Programmer)
+                 </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid p-4">
+
+        <!-- Page Header -->
+        <div class="main-header">
+             <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/ui/main.html">รายการงานตรวจวัดแสง</a></li>
+                    <li class="breadcrumb-item active" aria-current-page">สร้างงานใหม่</li>
+                </ol>
+            </nav>
+            <h1 class="mt-2"><i class="fas fa-plus-circle me-3"></i>สร้างงานใหม่ (New Job)</h1>
+        </div>
+
+        <!-- New Job Form Card -->
+        <div class="card">
+            <div class="card-body p-4">
+                <form>
+                    <!-- Customer Information Section -->
+                    <h5 class="mb-3 text-primary">ส่วนที่ 1: ข้อมูลลูกค้า (Customer Information)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="customerName" class="form-label">ชื่อลูกค้า</label>
+                            <select id="customerName" placeholder="ค้นหาชื่อลูกค้า..."></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="customerBranch" class="form-label">สาขา / สถานที่</label>
+                            <select id="customerBranch" placeholder="เลือกสาขา..."></select>
+                        </div>
+                        <div class="col-12">
+                            <label for="customerAddress" class="form-label">ที่อยู่</label>
+                            <textarea class="form-control" id="customerAddress" rows="2" placeholder="ที่อยู่จะแสดงอัตโนมัติหลังเลือกสาขา" readonly></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="contactPerson" class="form-label">ผู้ประสานงาน</label>
+                            <input type="text" class="form-control" id="contactPerson" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="contactPhone" class="form-label">เบอร์โทรศัพท์ติดต่อ</label>
+                            <input type="tel" class="form-control" id="contactPhone" readonly>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Job Information Section -->
+                    <h5 class="mb-3 text-primary">ส่วนที่ 2: ข้อมูลการตรวจวัด (Job Information)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="jobName" class="form-label">ชื่องาน</label>
+                            <input type="text" class="form-control" id="jobName" placeholder="เช่น ตรวจวัดแสงสว่างประจำปี 2568" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="measurementDate" class="form-label">วันที่กำหนดตรวจวัด</label>
+                            <input type="date" class="form-control" id="measurementDate" required>
+                        </div>
+                         <div class="col-md-6">
+                            <label for="measurementStaff" class="form-label">ผู้รับผิดชอบการตรวจวัด</label>
+                            <select id="measurementStaff">
+                                <option value="">-- เลือกผู้รับผิดชอบ --</option>
+                                <option value="1">นายณัฐวัฒน์ สินอนันต์</option>
+                                <option value="2">นางสาวดุษฎี วรรณหาร</option>
+                                <option value="3">ทีมตรวจวัด A</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="standard" class="form-label">มาตรฐานอ้างอิง</label>
+                            <select id="standard">
+                                <option value="กฎกระทรวงฯ พ.ศ. ๒๕๕๙">กฎกระทรวงฯ พ.ศ. ๒๕๕๙</option>
+                                <option value="มาตรฐานกรมโรงงานอุตสาหกรรม">มาตรฐานกรมโรงงานอุตสาหกรรม</option>
+                                <option value="มาตรฐานสากล ISO 8995-1:2002">มาตรฐานสากล ISO 8995-1:2002</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end">
+                        <a href="/ui/main.html" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times-circle me-2"></i>ยกเลิก
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>บันทึกและสร้างงาน
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Master Data Structure
+            const masterData = [
+                { 
+                    id: 1, 
+                    name: 'ธนาคารกรุงเทพ จำกัด (มหาชน)', 
+                    branches: [
+                        { branchId: 101, name: 'สาขาฉะเชิงเทรา', address: '191/74 ถนนมหาจักรพรรดิ์ ต.หน้าเมือง อ.เมืองฉะเชิงเทรา จ.ฉะเชิงเทรา 24000', contact: 'คุณสมหญิง', phone: '038-514982' },
+                        { branchId: 102, name: 'สาขาสีลม', address: '333 ถนนสีลม แขวงสีลม เขตบางรัก กรุงเทพมหานคร', contact: 'ผู้จัดการสาขา', phone: '02-231-4333' },
+                        { branchId: 103, name: 'สาขาเชียงใหม่', address: '123 ถนนท่าแพ ต.ช้างคลาน อ.เมืองเชียงใหม่ จ.เชียงใหม่', contact: 'คุณมานี', phone: '053-270-270' }
+                    ]
+                },
+                { 
+                    id: 2, 
+                    name: 'บริษัท ABC Manufacturing จำกัด', 
+                    branches: [
+                         { branchId: 201, name: 'โรงงานสมุทรปราการ', address: 'นิคมอุตสาหกรรมบางพลี จ.สมุทรปราการ', contact: 'คุณวิชัย', phone: '02-333-4444' }
+                    ]
+                }
+            ];
+
+            const choicesConfig = {
+                searchEnabled: true,
+                itemSelectText: 'กดเพื่อเลือก',
+                placeholder: true,
+                removeItemButton: true,
+            };
+
+            const customerElement = document.getElementById('customerName');
+            const branchElement = document.getElementById('customerBranch');
+            
+            // Initialize Choices.js
+            const customerSelect = new Choices(customerElement, choicesConfig);
+            const branchSelect = new Choices(branchElement, {...choicesConfig, placeholderValue: 'กรุณาเลือกบริษัทแม่ก่อน'});
+            
+            // Populate customer dropdown
+            const customerChoices = masterData.map(c => ({ value: c.id, label: c.name }));
+            customerSelect.setChoices([{ value: '', label: 'ค้นหาหรือเลือกบริษัท...', selected: true, disabled: true }, ...customerChoices], 'value', 'label', false);
+            
+            // Initially disable branch dropdown
+            branchSelect.disable();
+
+            // Clear and reset form fields
+            const clearFormDetails = () => {
+                document.getElementById('customerAddress').value = '';
+                document.getElementById('contactPerson').value = '';
+                document.getElementById('contactPhone').value = '';
+            };
+
+            // Customer selection event
+            customerElement.addEventListener('change', function(event) {
+                clearFormDetails();
+                branchSelect.clearStore();
+                
+                const selectedCustomerId = event.detail.value;
+                const selectedCustomer = masterData.find(c => c.id == selectedCustomerId);
+
+                if (selectedCustomer && selectedCustomer.branches.length > 0) {
+                    branchSelect.enable();
+                    const branchChoices = selectedCustomer.branches.map(b => ({
+                        value: b.branchId,
+                        label: b.name
+                    }));
+                    branchSelect.setChoices([{ value: '', label: 'เลือกสาขา...', selected: true, disabled: true }, ...branchChoices], 'value', 'label', false);
+                } else {
+                    branchSelect.disable();
+                    branchSelect.setChoices([{ value: '', label: 'ไม่มีสาขาสำหรับลูกค้านี้', disabled: true }], 'value', 'label', false);
+                }
+            });
+
+            // Branch selection event
+            branchElement.addEventListener('change', function(event) {
+                const selectedBranchId = event.detail.value;
+                const selectedCustomerId = customerSelect.getValue(true);
+                const customer = masterData.find(c => c.id == selectedCustomerId);
+                
+                if (customer) {
+                    const branch = customer.branches.find(b => b.branchId == selectedBranchId);
+                    if (branch) {
+                        document.getElementById('customerAddress').value = branch.address;
+                        document.getElementById('contactPerson').value = branch.contact;
+                        document.getElementById('contactPhone').value = branch.phone;
+                    }
+                }
+            });
+
+            // Initialize other dropdowns
+            new Choices('#measurementStaff', { searchEnabled: true, itemSelectText: 'กดเพื่อเลือก' });
+            new Choices('#standard', { searchEnabled: true, itemSelectText: 'กดเพื่อเลือก' });
+        });
+    </script>
+</body>
+</html>
+

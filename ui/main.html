@@ -1,0 +1,241 @@
+<!-- 
+  path: /ui/main.html
+  version: 1.0
+  date: 2025-09-02
+  time: 15:02:30
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกผลการตรวจวัดแสง - Light Measurement System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts (Sarabun) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #003366; /* Deep blue */
+            --secondary-color: #4a6fa5; /* Lighter blue */
+            --accent-color: #fca311; /* Accent color for buttons/highlights */
+            --background-color: #f8f9fa; /* Light grey background */
+            --text-color: #333;
+            --header-text-color: #ffffff;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .navbar-brand {
+            color: var(--header-text-color) !important;
+            font-weight: 700;
+        }
+
+        .main-header {
+            background-color: #ffffff;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .main-header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .table thead {
+            background-color: var(--secondary-color);
+            color: var(--header-text-color);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .badge-status {
+            font-size: 0.85em;
+            padding: 0.5em 0.9em;
+            border-radius: 0.25rem;
+        }
+
+        .status-new { background-color: #17a2b8; } /* Info */
+        .status-progress { background-color: #ffc107; } /* Warning */
+        .status-completed { background-color: #28a745; } /* Success */
+        .status-reported { background-color: #6c757d; } /* Secondary */
+
+        .action-icon {
+            margin-right: 8px;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+        .action-icon:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-lightbulb me-2"></i>
+                Light Measurement System
+            </a>
+            <div class="d-flex">
+                 <span class="navbar-text text-white">
+                    ผู้ใช้งาน: สมชาย ใจดี (Senior Programmer)
+                 </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid p-4">
+
+        <!-- Page Header -->
+        <div class="main-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-tasks me-3"></i>รายการงานตรวจวัดแสง</h1>
+                <p class="text-muted mb-0">จัดการและติดตามสถานะงานตรวจวัดทั้งหมด</p>
+            </div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="card">
+            <div class="card-body">
+                
+                <!-- Action Bar: Search and Create Button -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 mb-md-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="ค้นหาชื่องาน, ลูกค้า...">
+                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-auto">
+                        <button class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>สร้างงานใหม่ (New Job)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Jobs Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Job ID</th>
+                                <th scope="col">ลูกค้า (Customer)</th>
+                                <th scope="col">สถานที่ (Location)</th>
+                                <th scope="col">วันที่ตรวจวัด</th>
+                                <th scope="col" class="text-center">สถานะ (Status)</th>
+                                <th scope="col" class="text-center">จัดการ (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>JOB-2568-001</strong></td>
+                                <td>ธนาคารกรุงเทพ จำกัด (มหาชน)</td>
+                                <td>สาขาฉะเชิงเทรา</td>
+                                <td>15 พ.ย. 2567</td>
+                                <td class="text-center">
+                                    <span class="badge text-white status-reported badge-status">ออกรายงานแล้ว</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas fa-file-alt action-icon" title="ดูรายงาน"></i>
+                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
+                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>JOB-2568-002</strong></td>
+                                <td>บริษัท ABC Manufacturing จำกัด</td>
+                                <td>โรงงานสมุทรปราการ</td>
+                                <td>28 ส.ค. 2568</td>
+                                <td class="text-center">
+                                    <span class="badge text-white status-completed badge-status">ตรวจวัดเสร็จสิ้น</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas fa-file-alt action-icon" title="ดูรายงาน"></i>
+                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
+                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>JOB-2568-003</strong></td>
+                                <td>อาคารสำนักงาน XYZ</td>
+                                <td>ชั้น 15, กรุงเทพมหานคร</td>
+                                <td>01 ก.ย. 2568</td>
+                                <td class="text-center">
+                                    <span class="badge text-dark status-progress badge-status">กำลังดำเนินการ</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas fa-keyboard action-icon" title="บันทึกผล"></i>
+                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
+                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td><strong>JOB-2568-004</strong></td>
+                                <td>ห้างสรรพสินค้า Central World</td>
+                                <td>ลานกิจกรรมชั้น 1</td>
+                                <td>05 ก.ย. 2568</td>
+                                <td class="text-center">
+                                    <span class="badge text-white status-new badge-status">ใหม่</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas fa-play-circle action-icon" title="เริ่มตรวจวัด"></i>
+                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
+                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
