@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/report-generation.html
-  version: 1.0
+  version: 2.2
   date: 2025-09-02
-  time: 15:48:00
+  time: 16:14:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -47,6 +47,9 @@
             border-radius: 0.5rem;
             padding: 1.5rem;
             transition: box-shadow 0.3s ease-in-out;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         .report-item:hover {
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
@@ -55,12 +58,23 @@
             font-size: 3rem;
             color: var(--primary-color);
         }
+        .report-item .form-label {
+            font-weight: 500;
+        }
+        .report-item .btn {
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--primary-color);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fas fa-lightbulb me-2"></i>Light Measurement System</a>
+            <a class="navbar-brand fw-bold" href="/ui/main.html"><i class="fas fa-lightbulb me-2"></i>Light Measurement System</a>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/template-content-manager.html"><i class="fas fa-edit me-2"></i>จัดการเนื้อหา Template</a>
+                </li>
+            </ul>
         </div>
     </nav>
 
@@ -73,56 +87,154 @@
                     <li class="breadcrumb-item active" aria-current="page">สร้างรายงาน</li>
                 </ol>
             </nav>
-            <h1 class="mt-2"><i class="fas fa-file-export me-3"></i>เลือกรายงานที่ต้องการสร้าง</h1>
+            <h1 class="mt-2"><i class="fas fa-file-export me-3"></i>สร้างและดาวน์โหลดรายงาน</h1>
         </div>
         
         <div class="card">
             <div class="card-body p-4">
-                <p class="text-muted">เลือกประเภทของรายงานที่ต้องการสร้างจากข้อมูลการตรวจวัดสำหรับ <strong>JOB-2568-001</strong> ระบบจะทำการสร้างไฟล์เอกสาร Microsoft Word (.docx) ให้โดยอัตโนมัติ</p>
+                 <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="fas fa-info-circle me-3 fs-4"></i>
+                    <div>
+                        ระบบจะรวมข้อมูล 2 ส่วนเข้าด้วยกัน: <strong>Layout Template (.docx)</strong> ที่คุณอัปโหลด และ <strong>Content Template</strong> ที่คุณจัดการในระบบ 
+                        <a href="/ui/template-content-manager.html" class="alert-link">คลิกที่นี่เพื่อจัดการเนื้อหา</a>
+                    </div>
+                </div>
+                
+                <div id="alert-container"></div>
+
                 <div class="row g-4 mt-3">
-                    
                     <div class="col-md-6 col-lg-3">
                         <div class="report-item text-center">
                             <i class="fas fa-file-alt report-icon mb-3"></i>
                             <h5>หนังสือรับรอง</h5>
-                            <p class="small text-muted">แบบฟอร์ม 1</p>
-                            <button class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างเอกสาร</button>
+                            <p class="small text-muted mb-3">อัปโหลด Layout Template สำหรับหนังสือรับรอง</p>
+                            <div class="mb-3 text-start">
+                                <label for="template1" class="form-label small">ไฟล์ Layout (.docx):</label>
+                                <input class="form-control form-control-sm" type="file" id="template1" accept=".docx">
+                            </div>
+                            <button id="generateBtn1" class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างและดาวน์โหลด</button>
                         </div>
                     </div>
-
                     <div class="col-md-6 col-lg-3">
                         <div class="report-item text-center">
                             <i class="fas fa-file-signature report-icon mb-3"></i>
                             <h5>แบบ รสส.</h5>
-                            <p class="small text-muted">แบบฟอร์ม 2</p>
-                            <button class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างเอกสาร</button>
+                            <p class="small text-muted mb-3">อัปโหลด Layout Template สำหรับแบบ รสส.</p>
+                            <div class="mb-3 text-start">
+                                <label for="template2" class="form-label small">ไฟล์ Layout (.docx):</label>
+                                <input class="form-control form-control-sm" type="file" id="template2" accept=".docx">
+                            </div>
+                            <button id="generateBtn2" class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างและดาวน์โหลด</button>
                         </div>
                     </div>
-
                      <div class="col-md-6 col-lg-3">
                         <div class="report-item text-center">
                             <i class="fas fa-book report-icon mb-3"></i>
                             <h5>เล่มรายงานฉบับสมบูรณ์</h5>
-                             <p class="small text-muted">แบบฟอร์ม 3</p>
-                            <button class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างเอกสาร</button>
+                            <p class="small text-muted mb-3">อัปโหลด Layout Template สำหรับเล่มรายงาน</p>
+                             <div class="mb-3 text-start">
+                                <label for="template3" class="form-label small">ไฟล์ Layout (.docx):</label>
+                                <input class="form-control form-control-sm" type="file" id="template3" accept=".docx">
+                            </div>
+                            <button id="generateBtn3" class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างและดาวน์โหลด</button>
                         </div>
                     </div>
-
                     <div class="col-md-6 col-lg-3">
                         <div class="report-item text-center">
                             <i class="fas fa-vial report-icon mb-3"></i>
                             <h5>Test Report (แนบท้าย)</h5>
-                             <p class="small text-muted">แบบฟอร์ม 4</p>
-                            <button class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างเอกสาร</button>
+                            <p class="small text-muted mb-3">อัปโหลด Layout Template สำหรับ Test Report</p>
+                             <div class="mb-3 text-start">
+                                <label for="template4" class="form-label small">ไฟล์ Layout (.docx):</label>
+                                <input class="form-control form-control-sm" type="file" id="template4" accept=".docx">
+                            </div>
+                            <button id="generateBtn4" class="btn btn-primary w-100"><i class="fas fa-download me-2"></i>สร้างและดาวน์โหลด</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.5/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.47.2/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const showAlert = (message, type = 'danger') => {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = '';
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert"><div>${message}</div><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+            alertContainer.append(wrapper);
+        };
+
+        const generateReport = (templateFile, jobData, reportName) => {
+            if (!templateFile) {
+                showAlert(`กรุณาเลือกไฟล์ Layout Template (.docx) สำหรับ "${reportName}" ก่อน`);
+                return;
+            }
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(templateFile);
+            reader.onerror = (error) => showAlert('เกิดข้อผิดพลาดในการอ่านไฟล์ Template');
+
+            reader.onload = (event) => {
+                try {
+                    const content = event.target.result;
+                    const zip = new PizZip(content);
+                    const doc = new docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+                    
+                    const savedContentData = JSON.parse(localStorage.getItem('templateContentData') || '{}');
+                    const results_spot = jobData.results.filter(r => r.measurementType === 'spot');
+                    const results_area = jobData.results.filter(r => r.measurementType === 'area');
+
+                    // Merge job data with content data
+                    const dataForTemplate = {
+                        ...jobData,
+                        ...savedContentData,
+                        results_spot: results_spot,
+                        results_area: results_area,
+                        spot_pass_count: results_spot.filter(r => r.evaluation === 'ผ่าน').length,
+                        spot_fail_count: results_spot.filter(r => r.evaluation === 'ไม่ผ่าน').length,
+                        area_pass_count: results_area.filter(r => r.evaluation === 'ผ่าน').length,
+                        area_fail_count: results_area.filter(r => r.evaluation === 'ไม่ผ่าน').length,
+                    };
+
+                    doc.render(dataForTemplate);
+
+                    const out = doc.getZip().generate({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+                    const safeReportName = reportName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const fileName = `${safeReportName}-${jobData.jobId}-${new Date().toISOString().slice(0,10)}.docx`;
+                    saveAs(out, fileName);
+
+                } catch (error) {
+                    console.error('Error during report generation:', error);
+                    showAlert(`เกิดข้อผิดพลาดระหว่างการสร้างรายงาน "${reportName}" อาจเป็นเพราะ Template ไม่ถูกต้อง หรือ Tag ไม่ตรงกัน`);
+                }
+            };
+        };
+        
+        const setupGenerateButton = (buttonId, templateId, reportName) => {
+             document.getElementById(buttonId).addEventListener('click', () => {
+                const templateFile = document.getElementById(templateId).files[0];
+                const savedData = localStorage.getItem('currentJobData');
+
+                if (!savedData) {
+                    showAlert('ไม่พบข้อมูลที่บันทึกไว้ กรุณากลับไปที่หน้ารายละเอียดงานและกด "บันทึกข้อมูล" ก่อน');
+                    return;
+                }
+                
+                const jobData = JSON.parse(savedData);
+                generateReport(templateFile, jobData, reportName);
+            });
+        };
+
+        setupGenerateButton('generateBtn1', 'template1', 'หนังสือรับรอง');
+        setupGenerateButton('generateBtn2', 'template2', 'แบบ-รสส');
+        setupGenerateButton('generateBtn3', 'template3', 'เล่มรายงานฉบับสมบูรณ์');
+        setupGenerateButton('generateBtn4', 'template4', 'Test-Report');
+    </script>
 </body>
 </html>
+

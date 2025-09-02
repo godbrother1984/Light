@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/job-details.html
-  version: 2.3
+  version: 2.4
   date: 2025-09-02
-  time: 15:48:00
+  time: 16:06:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -155,6 +155,12 @@
 
         .result-input-group { display: flex; gap: 4px; }
         .result-input-group input { min-width: 60px; }
+        
+        #save-feedback {
+            display: none;
+            color: var(--success-color);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -178,7 +184,7 @@
         <div class="card mb-4"><div class="card-body p-4"><div class="info-grid">
             <div class="info-item"><h6><i class="fas fa-building me-2"></i>ลูกค้า</h6><p id="customerNameDisplay">ธนาคารกรุงเทพ จำกัด (มหาชน)</p></div>
             <div class="info-item"><h6><i class="fas fa-map-marker-alt me-2"></i>สาขา / สถานที่</h6><p id="locationNameDisplay">สาขาฉะเชิงเทรา</p></div>
-            <div class="info-item"><h6><i class="fas fa-calendar-alt me-2"></i>วันที่ตรวจวัด</h6><p>15 พฤศจิกายน 2567</p></div>
+            <div class="info-item"><h6><i class="fas fa-calendar-alt me-2"></i>วันที่ตรวจวัด</h6><p id="jobDateDisplay">15 พฤศจิกายน 2567</p></div>
             <div class="info-item"><h6><i class="fas fa-user-hard-hat me-2"></i>ผู้รับผิดชอบ</h6><p>นายณัฐวัฒน์ สินอนันต์</p></div>
         </div></div></div>
 
@@ -188,6 +194,7 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <h4 class="text-primary mb-0">บันทึกผลการตรวจวัด</h4>
                     <div class="d-flex align-items-center gap-2">
+                        <span id="save-feedback" class="me-2"><i class="fas fa-check-circle"></i> บันทึกข้อมูลแล้ว!</span>
                         <div class="btn-group">
                             <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cogs me-2"></i>จัดการ Template</button>
                             <ul class="dropdown-menu">
@@ -195,6 +202,7 @@
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#saveTemplateModal"><i class="fas fa-save me-2"></i>บันทึกเป็น Template</a></li>
                             </ul>
                         </div>
+                        <button id="saveDataBtn" class="btn btn-primary btn-sm"><i class="fas fa-save me-2"></i>บันทึกข้อมูล</button>
                         <button class="btn btn-success btn-sm" onclick="window.location.href='/ui/report-generation.html'"><i class="fas fa-file-word me-2"></i>สร้างรายงาน</button>
                     </div>
                 </div>
@@ -275,16 +283,16 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="text-center"></td>
-                    <td><input type="text" class="form-control form-control-sm" value="${defaults.layout || ''}"></td>
-                    <td><input type="text" class="form-control form-control-sm" value="${defaults.area || ''}"></td>
-                    <td><select class="work-type-select"></select></td>
-                    <td><select class="form-select form-select-sm measurement-type">
+                    <td><input type="text" class="form-control form-control-sm" value="${defaults.layout || ''}" data-field="layout"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${defaults.area || ''}" data-field="area"></td>
+                    <td><select class="work-type-select" data-field="workType"></select></td>
+                    <td><select class="form-select form-select-sm measurement-type" data-field="measurementType">
                         <option value="spot" selected>จุด</option>
                         <option value="area">พื้นที่</option>
                     </select></td>
-                    <td class="text-center standard-value"></td>
+                    <td class="text-center standard-value" data-field="standard"></td>
                     <td class="result-input-cell"></td>
-                    <td class="text-center evaluation-result"></td>
+                    <td class="text-center evaluation-result" data-field="evaluation"></td>
                     <td class="text-center"><i class="fas fa-trash-alt action-icon action-icon-delete delete-row"></i></td>
                 `;
 
@@ -307,7 +315,7 @@
                 if (defaults.workType) {
                     choices.setValue([defaults.workType]);
                 }
-                updateRowState(tr); // Initial setup
+                updateRowState(tr);
                 return tr;
             };
             
@@ -323,18 +331,18 @@
                 if (workTypeInfo) {
                     if (measurementType === 'spot') {
                         stdText = workTypeInfo.stdSpot;
-                        resultInputCell.innerHTML = `<input type="number" class="form-control form-control-sm text-center measured-value spot-value" placeholder="LUX">`;
+                        resultInputCell.innerHTML = `<input type="number" class="form-control form-control-sm text-center measured-value spot-value" placeholder="LUX" data-field="spotValue">`;
                     } else { // area
-                        stdText = `Avg≥${workTypeInfo.stdAreaAvg}<br>Min≥${workTypeInfo.stdAreaMin}`;
+                        stdText = `Avg≥${workTypeInfo.stdAreaAvg} Min≥${workTypeInfo.stdAreaMin}`;
                          resultInputCell.innerHTML = `<div class="result-input-group">
-                            <input type="number" class="form-control form-control-sm text-center measured-value area-avg-value" placeholder="เฉลี่ย">
-                            <input type="number" class="form-control form-control-sm text-center measured-value area-min-value" placeholder="ต่ำสุด">
+                            <input type="number" class="form-control form-control-sm text-center measured-value area-avg-value" placeholder="เฉลี่ย" data-field="areaAvgValue">
+                            <input type="number" class="form-control form-control-sm text-center measured-value area-min-value" placeholder="ต่ำสุด" data-field="areaMinValue">
                          </div>`;
                     }
                 } else {
                     resultInputCell.innerHTML = '';
                 }
-                standardCell.innerHTML = stdText;
+                standardCell.innerHTML = stdText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 evaluateResult(tr);
             };
 
@@ -378,7 +386,7 @@
                 if (e.target.classList.contains('work-type-select') || e.target.classList.contains('measurement-type')) {
                     updateRowState(tr);
                     if(e.target.classList.contains('work-type-select')) {
-                        setTimeout(() => tr.querySelector('.form-select')?.focus(), 0);
+                        setTimeout(() => tr.querySelector('.measurement-type')?.focus(), 0);
                     }
                 }
             });
@@ -393,7 +401,8 @@
                 e.preventDefault();
                 const focusableSelector = 'input:not([readonly]), .choices, select';
                 const allFocusable = Array.from(tableBody.querySelectorAll(focusableSelector));
-                const currentIdx = allFocusable.indexOf(e.target.closest('.choices') || e.target);
+                const currentElement = e.target.closest('.choices') || e.target;
+                const currentIdx = allFocusable.findIndex(el => el === currentElement || el.contains(currentElement));
                 const nextFocusable = allFocusable[currentIdx + 1];
 
                 if (nextFocusable) {
@@ -406,8 +415,42 @@
                     tableBody.lastElementChild.querySelector('input:not([readonly])')?.focus();
                 }
             });
+            
+             // --- Save Data Logic ---
+            document.getElementById('saveDataBtn').addEventListener('click', () => {
+                const jobData = {
+                    jobId: 'JOB-2568-001',
+                    customer: document.getElementById('customerNameDisplay').textContent,
+                    location: document.getElementById('locationNameDisplay').textContent,
+                    date: document.getElementById('jobDateDisplay').textContent,
+                    results: []
+                };
 
-            // Modal Logic
+                tableBody.querySelectorAll('tr').forEach((tr, index) => {
+                    const rowData = {
+                        seq: index + 1,
+                        layout: tr.querySelector('[data-field="layout"]').value,
+                        area: tr.querySelector('[data-field="area"]').value,
+                        workType: tr.querySelector('[data-field="workType"]').value,
+                        measurementType: tr.querySelector('[data-field="measurementType"]').value,
+                        standard: tr.querySelector('[data-field="standard"]').textContent,
+                        spotValue: tr.querySelector('[data-field="spotValue"]') ? tr.querySelector('[data-field="spotValue"]').value : null,
+                        areaAvgValue: tr.querySelector('[data-field="areaAvgValue"]') ? tr.querySelector('[data-field="areaAvgValue"]').value : null,
+                        areaMinValue: tr.querySelector('[data-field="areaMinValue"]') ? tr.querySelector('[data-field="areaMinValue"]').value : null,
+                        evaluation: tr.querySelector('[data-field="evaluation"]').textContent
+                    };
+                    jobData.results.push(rowData);
+                });
+                
+                localStorage.setItem('currentJobData', JSON.stringify(jobData));
+                
+                const feedback = document.getElementById('save-feedback');
+                feedback.style.display = 'inline';
+                setTimeout(() => { feedback.style.display = 'none'; }, 2000);
+            });
+
+
+            // --- Modal Logic ---
             const bulkAddModalEl = document.getElementById('bulkAddModal');
             const bulkAddModal = new bootstrap.Modal(bulkAddModalEl);
             const applyBulkAddBtn = document.getElementById('applyBulkAddBtn');
