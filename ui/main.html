@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/main.html
-  version: 1.0
+  version: 2.8
   date: 2025-09-02
-  time: 15:02:30
+  time: 18:22:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -11,103 +11,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบันทึกผลการตรวจวัดแสง - Light Measurement System</title>
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts (Sarabun) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
         :root {
-            --primary-color: #003366; /* Deep blue */
-            --secondary-color: #4a6fa5; /* Lighter blue */
-            --accent-color: #fca311; /* Accent color for buttons/highlights */
-            --background-color: #f8f9fa; /* Light grey background */
+            --primary-color: #003366;
+            --secondary-color: #4a6fa5;
+            --background-color: #f8f9fa;
             --text-color: #333;
             --header-text-color: #ffffff;
             --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-        }
-
-        .navbar {
-            background-color: var(--primary-color);
-            box-shadow: var(--card-shadow);
-        }
-
-        .navbar-brand {
-            color: var(--header-text-color) !important;
-            font-weight: 700;
-        }
-
-        .main-header {
-            background-color: #ffffff;
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-        }
-
-        .main-header h1 {
-            color: var(--primary-color);
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .card {
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: var(--card-shadow);
-        }
-
-        .table thead {
-            background-color: var(--secondary-color);
-            color: var(--header-text-color);
-        }
-        
-        .table-hover tbody tr:hover {
-            background-color: #e9ecef;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-
-        .badge-status {
-            font-size: 0.85em;
-            padding: 0.5em 0.9em;
-            border-radius: 0.25rem;
-        }
-
-        .status-new { background-color: #17a2b8; } /* Info */
-        .status-progress { background-color: #ffc107; } /* Warning */
-        .status-completed { background-color: #28a745; } /* Success */
-        .status-reported { background-color: #6c757d; } /* Secondary */
-
-        .action-icon {
-            margin-right: 8px;
-            cursor: pointer;
-            color: var(--secondary-color);
-        }
-        .action-icon:hover {
-            color: var(--primary-color);
-        }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--background-color); color: var(--text-color); }
+        .navbar { background-color: var(--primary-color); box-shadow: var(--card-shadow); }
+        .navbar-brand { color: var(--header-text-color) !important; font-weight: 700; }
+        .main-header { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 0.5rem; box-shadow: var(--card-shadow); margin-bottom: 2rem; }
+        .main-header h1 { color: var(--primary-color); font-weight: 700; margin: 0; }
+        .card { border: none; border-radius: 0.5rem; box-shadow: var(--card-shadow); }
+        .table thead { background-color: var(--secondary-color); color: var(--header-text-color); }
+        .table-hover tbody tr:hover { background-color: #e9ecef; }
+        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary:hover { background-color: var(--secondary-color); border-color: var(--secondary-color); }
+        .badge-status { font-size: 0.85em; padding: 0.5em 0.9em; border-radius: 0.25rem; }
+        .status-new { background-color: #17a2b8; color: #fff; }
+        .status-progress { background-color: #ffc107; color: #000; }
+        .status-completed { background-color: #28a745; color: #fff; }
+        .status-reported { background-color: #6c757d; color: #fff; }
+        .action-icon { margin-right: 8px; cursor: pointer; color: var(--secondary-color); }
+        .action-icon:hover { color: var(--primary-color); }
+        #loading-spinner { display: block; }
     </style>
 </head>
 <body>
@@ -115,127 +49,205 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-lightbulb me-2"></i>
-                Light Measurement System
-            </a>
-            <div class="d-flex">
-                 <span class="navbar-text text-white">
-                    ผู้ใช้งาน: สมชาย ใจดี (Senior Programmer)
-                 </span>
-            </div>
+            <a class="navbar-brand" href="main.html"><i class="fas fa-lightbulb me-2"></i>Light Measurement System</a>
+            <span class="navbar-text text-white" id="user-display">กำลังเชื่อมต่อ...</span>
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container-fluid p-4">
-
-        <!-- Page Header -->
-        <div class="main-header d-flex justify-content-between align-items-center">
-            <div>
-                <h1><i class="fas fa-tasks me-3"></i>รายการงานตรวจวัดแสง</h1>
-                <p class="text-muted mb-0">จัดการและติดตามสถานะงานตรวจวัดทั้งหมด</p>
-            </div>
+        <div class="main-header">
+            <h1><i class="fas fa-tasks me-3"></i>รายการงานตรวจวัดแสง</h1>
+            <p class="text-muted mb-0">จัดการและติดตามสถานะงานตรวจวัดทั้งหมด (ข้อมูล Real-time จากฐานข้อมูล)</p>
         </div>
 
-        <!-- Content Card -->
         <div class="card">
             <div class="card-body">
-                
-                <!-- Action Bar: Search and Create Button -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                    <div class="col-12 col-md-6 col-lg-4 mb-2 mb-md-0">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="ค้นหาชื่องาน, ลูกค้า...">
-                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="input-group" style="max-width: 400px;">
+                        <input type="text" class="form-control" placeholder="ค้นหาชื่องาน, ลูกค้า...">
+                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
                     </div>
-                    <div class="col-12 col-md-auto">
-                        <button class="btn btn-primary w-100">
-                            <i class="fas fa-plus-circle me-2"></i>สร้างงานใหม่ (New Job)
-                        </button>
-                    </div>
+                    <button class="btn btn-primary" onclick="window.location.href='new-job.html'"><i class="fas fa-plus-circle me-2"></i>สร้างงานใหม่</button>
                 </div>
 
-                <!-- Jobs Table -->
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th scope="col">Job ID</th>
-                                <th scope="col">ลูกค้า (Customer)</th>
-                                <th scope="col">สถานที่ (Location)</th>
-                                <th scope="col">วันที่ตรวจวัด</th>
-                                <th scope="col" class="text-center">สถานะ (Status)</th>
-                                <th scope="col" class="text-center">จัดการ (Actions)</th>
+                                <th>Job ID</th>
+                                <th>ลูกค้า (Customer)</th>
+                                <th>สถานที่ (Location)</th>
+                                <th>วันที่ตรวจวัด</th>
+                                <th class="text-center">สถานะ (Status)</th>
+                                <th class="text-center">จัดการ (Actions)</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>JOB-2568-001</strong></td>
-                                <td>ธนาคารกรุงเทพ จำกัด (มหาชน)</td>
-                                <td>สาขาฉะเชิงเทรา</td>
-                                <td>15 พ.ย. 2567</td>
-                                <td class="text-center">
-                                    <span class="badge text-white status-reported badge-status">ออกรายงานแล้ว</span>
-                                </td>
-                                <td class="text-center">
-                                    <i class="fas fa-file-alt action-icon" title="ดูรายงาน"></i>
-                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
-                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>JOB-2568-002</strong></td>
-                                <td>บริษัท ABC Manufacturing จำกัด</td>
-                                <td>โรงงานสมุทรปราการ</td>
-                                <td>28 ส.ค. 2568</td>
-                                <td class="text-center">
-                                    <span class="badge text-white status-completed badge-status">ตรวจวัดเสร็จสิ้น</span>
-                                </td>
-                                <td class="text-center">
-                                    <i class="fas fa-file-alt action-icon" title="ดูรายงาน"></i>
-                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
-                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>JOB-2568-003</strong></td>
-                                <td>อาคารสำนักงาน XYZ</td>
-                                <td>ชั้น 15, กรุงเทพมหานคร</td>
-                                <td>01 ก.ย. 2568</td>
-                                <td class="text-center">
-                                    <span class="badge text-dark status-progress badge-status">กำลังดำเนินการ</span>
-                                </td>
-                                <td class="text-center">
-                                    <i class="fas fa-keyboard action-icon" title="บันทึกผล"></i>
-                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
-                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
-                                </td>
-                            </tr>
-                             <tr>
-                                <td><strong>JOB-2568-004</strong></td>
-                                <td>ห้างสรรพสินค้า Central World</td>
-                                <td>ลานกิจกรรมชั้น 1</td>
-                                <td>05 ก.ย. 2568</td>
-                                <td class="text-center">
-                                    <span class="badge text-white status-new badge-status">ใหม่</span>
-                                </td>
-                                <td class="text-center">
-                                    <i class="fas fa-play-circle action-icon" title="เริ่มตรวจวัด"></i>
-                                    <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
-                                    <i class="fas fa-edit action-icon" title="แก้ไข"></i>
-                                </td>
-                            </tr>
+                        <tbody id="jobs-table-body">
+                           <!-- Data will be populated by JavaScript -->
                         </tbody>
                     </table>
+                     <div id="loading-spinner" class="text-center p-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, getDocs, query, limit, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const jobsTableBody = document.getElementById('jobs-table-body');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const userDisplay = document.getElementById('user-display');
+
+        const statusMap = {
+            new: { text: 'ใหม่', class: 'status-new' },
+            progress: { text: 'กำลังดำเนินการ', class: 'status-progress' },
+            completed: { text: 'ตรวจวัดเสร็จสิ้น', class: 'status-completed' },
+            reported: { text: 'ออกรายงานแล้ว', class: 'status-reported' }
+        };
+
+        function renderJobs(docs) {
+            jobsTableBody.innerHTML = ''; 
+            loadingSpinner.style.display = 'none';
+
+            if (docs.empty) {
+                 jobsTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4">ไม่พบข้อมูลงานในระบบ</td></tr>';
+                 return;
+            }
+            
+            docs.forEach(doc => {
+                const job = doc.data();
+                const statusInfo = statusMap[job.status] || { text: job.status, class: '' };
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.onclick = () => {
+                    window.location.href = `job-details.html?id=${doc.id}`; 
+                };
+                tr.innerHTML = `
+                    <td><strong>${job.jobId}</strong></td>
+                    <td>${job.customer}</td>
+                    <td>${job.location}</td>
+                    <td>${job.date}</td>
+                    <td class="text-center">
+                        <span class="badge ${statusInfo.class} badge-status">${statusInfo.text}</span>
+                    </td>
+                    <td class="text-center">
+                        <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
+                        <i class="fas fa-edit action-icon" title="แก้ไข"></i>
+                    </td>
+                `;
+                jobsTableBody.appendChild(tr);
+            });
+        }
+        
+        async function seedInitialData(db, appId) {
+            const jobsCollectionRef = collection(db, `/artifacts/${appId}/public/data/jobs`);
+            const q = query(jobsCollectionRef, limit(1));
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) {
+                console.log("Database is empty. Seeding initial data...");
+                const sampleJob = {
+                    jobId: 'JOB-2568-001',
+                    customer: 'ธนาคารกรุงเทพ จำกัด (มหาชน)',
+                    location: 'สาขาฉะเชิงเทรา',
+                    date: '15 พ.ย. 2567',
+                    status: 'progress',
+                    results: []
+                };
+                await setDoc(doc(jobsCollectionRef, sampleJob.jobId), sampleJob);
+                console.log("Initial data seeded.");
+            }
+        }
+        
+        async function main() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measurement-app';
+            let finalFirebaseConfig;
+            let configSource = 'none';
+
+            // Priority: 1. Injected Config, 2. Manual Config File
+            try {
+                const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+                if (envConfig && envConfig.projectId) {
+                    finalFirebaseConfig = envConfig;
+                    configSource = 'environment';
+                } else if (window.firebaseConfig && window.firebaseConfig.projectId) {
+                    finalFirebaseConfig = window.firebaseConfig;
+                    configSource = 'file';
+                }
+            } catch (e) {
+                 console.error("Could not parse Firebase config:", e);
+                 loadingSpinner.innerHTML = `<tr><td colspan="6"><div class="alert alert-danger m-2">เกิดข้อผิดพลาดในการอ่านค่า Config</div></td></tr>`;
+                 return;
+            }
+            
+            if (configSource === 'none') {
+                console.error("Firebase config not found or invalid.");
+                userDisplay.textContent = 'Config ผิดพลาด';
+                let errorMessage = `<strong>Error: ไม่สามารถเชื่อมต่อฐานข้อมูลได้</strong> 
+                                    <br>โปรดตรวจสอบไฟล์ <strong>firebase-config.js</strong> อีกครั้ง`;
+                
+                if (typeof window.firebaseConfig === 'undefined') {
+                    errorMessage += `<br><br><small class="text-muted">คำแนะนำ: ระบบไม่พบตัวแปร <code>window.firebaseConfig</code> เลย อาจเป็นเพราะไฟล์ <code>firebase-config.js</code> โหลดไม่สำเร็จ หรือมีข้อผิดพลาดในไฟล์</small>`;
+                } else if (!window.firebaseConfig.projectId) {
+                    errorMessage += `<br><br><small class="text-muted">คำแนะนำ: ระบบพบ <code>window.firebaseConfig</code> แต่ไม่พบค่า <code>projectId</code> ที่ถูกต้องอยู่ข้างใน Object</small>`;
+                }
+                jobsTableBody.innerHTML = `<tr><td colspan="6"><div class="alert alert-danger m-2 text-start">${errorMessage}</div></td></tr>`;
+                loadingSpinner.style.display = 'none';
+                return;
+            }
+
+            console.log(`Using Firebase config from: ${configSource}`);
+            const app = initializeApp(finalFirebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            setLogLevel('debug');
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                const user = auth.currentUser;
+                userDisplay.textContent = `UserID: ${user.uid.substring(0, 8)}...`;
+
+                await seedInitialData(db, appId);
+
+                const jobsCollectionRef = collection(db, `/artifacts/${appId}/public/data/jobs`);
+                
+                onSnapshot(jobsCollectionRef, 
+                    (querySnapshot) => {
+                        console.log("Received real-time update from Firestore.");
+                        renderJobs(querySnapshot);
+                    }, 
+                    (error) => {
+                        console.error("Error fetching jobs in real-time:", error);
+                        loadingSpinner.innerHTML = `<p class="text-danger">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ${error.message}. โปรดตรวจสอบ Security Rules.</p>`;
+                    }
+                );
+
+            } catch (error) {
+                console.error("Authentication or initialization failed:", error);
+                userDisplay.textContent = 'การเชื่อมต่อล้มเหลว';
+                loadingSpinner.innerHTML = `<p class="text-danger">การยืนันตัวตนล้มเหลว: ${error.message}</p>`;
+            }
+        }
+        
+        main();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
