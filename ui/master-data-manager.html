@@ -1,0 +1,326 @@
+<!-- 
+  path: /ui/master-data-manager.html
+  version: 5.3 (Added Inspector License Field)
+  date: 2025-09-03
+  time: 14:30:00
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ศูนย์จัดการข้อมูลหลัก - Light Measurement System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #0d47a1;
+            --secondary-color: #1976d2;
+            --background-color: #f4f7f9;
+            --sidebar-width: 260px;
+            --sidebar-mini-width: 80px;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --transition-speed: 0.3s;
+        }
+        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
+        #wrapper { display: flex; }
+        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
+        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
+        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
+        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
+        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
+        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
+        .list-group-item i { font-size: 1.25rem; }
+        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
+        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
+        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
+        #page-content-wrapper { flex-grow: 1; }
+        .navbar { box-shadow: var(--card-shadow); }
+        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
+        .nav-pills .nav-link.active { background-color: var(--primary-color); }
+        .nav-pills .nav-link { color: var(--primary-color); }
+        .table-action-btn { width: 40px; }
+        .branch-details-link { cursor: pointer; text-decoration: underline; color: var(--secondary-color); }
+    </style>
+</head>
+<body>
+    
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+                <a class="list-group-item active" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
+                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item me-2">
+                           <button id="seedDataBtn" class="btn btn-outline-success btn-sm mt-1"><i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)</button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <h1 class="h3 mb-3">ศูนย์จัดการข้อมูลหลัก (Master Data)</h1>
+                <div id="alert-placeholder"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-pills card-header-pills">
+                            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#customers-tab">ลูกค้า</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#work-types-tab">ลักษณะงาน</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#inspectors-tab">บุคลากร</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#instruments-tab">เครื่องมือ</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#company-info-tab">ข้อมูลบริษัท</a></li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Tab: Customers -->
+                            <div class="tab-pane fade show active" id="customers-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-user-tie me-2"></i>จัดการลูกค้า</h4><button id="addCustomerBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มลูกค้า</button></div>
+                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อลูกค้า</th><th>จำนวนสาขา</th><th class="text-center">Action</th></tr></thead><tbody id="customers-table"></tbody></table></div>
+                            </div>
+                            <!-- Tab: Work Types -->
+                             <div class="tab-pane fade" id="work-types-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-briefcase me-2"></i>จัดการลักษณะงาน</h4><button id="addWorkTypeBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มลักษณะงาน</button></div>
+                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light align-middle text-center"><tr><th rowspan="2">ชื่อลักษณะงาน</th><th colspan="2">ค่ามาตรฐาน (แบบจุด)</th><th colspan="2">ค่ามาตรฐาน (แบบพื้นที่)</th><th rowspan="2">Action</th></tr><tr><th>Min (Lux)</th><th>Max (Lux)</th><th>Avg (Lux)</th><th>Min (Lux)</th></tr></thead><tbody id="work-types-table"></tbody></table></div>
+                            </div>
+                            <!-- Tab: Inspectors -->
+                            <div class="tab-pane fade" id="inspectors-tab">
+                                 <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-users me-2"></i>จัดการบุคลากร</h4><button id="addInspectorBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มบุคลากร</button></div>
+                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>เลขที่ใบอนุญาต</th><th class="text-center">Action</th></tr></thead><tbody id="inspectors-table"></tbody></table></div>
+                            </div>
+                            <!-- Tab: Instruments -->
+                            <div class="tab-pane fade" id="instruments-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-tools me-2"></i>จัดการเครื่องมือ</h4><button id="addInstrumentBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มเครื่องมือ</button></div>
+                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ/รุ่น</th><th>Serial No.</th><th>วันสอบเทียบครั้งถัดไป</th><th class="text-center">Action</th></tr></thead><tbody id="instruments-table"></tbody></table></div>
+                            </div>
+                            <!-- Tab: Company Info -->
+                            <div class="tab-pane fade" id="company-info-tab">
+                                <h4><i class="fas fa-building me-2"></i>จัดการข้อมูลบริษัทและผู้ลงนาม</h4>
+                                <div class="row mt-3"><div class="col-md-6"><h5>ข้อมูลใบอนุญาต</h5><form id="company-info-form"><div class="mb-3"><label class="form-label">เลขทะเบียน ว-๓๒๙</label><input type="text" class="form-control" id="license_factory"></div><div class="mb-3"><label class="form-label">ใบอนุญาตตรวจวัดแสงสว่าง</label><input type="text" class="form-control" id="license_welfare_light"></div><button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกข้อมูลบริษัท</button></form></div><div class="col-md-6"><h5>ผู้ลงนามในรายงาน</h5><button id="addSignatoryBtn" class="btn btn-primary btn-sm mb-2"><i class="fas fa-user-plus me-2"></i>เพิ่มผู้ลงนาม</button><div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th class="text-center">Action</th></tr></thead><tbody id="signatories-table"></tbody></table></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal fade" id="branchListModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="branchListModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="branchListModalBody"></div></div></div></div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">ยืนยันการลบ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="confirmDeleteModalBody">คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?</p></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="button" class="btn btn-danger" id="confirmDeleteBtn">ยืนยัน</button></div></div></div></div>
+    <div class="modal fade" id="customerModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customerModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="customerForm"><input type="hidden" id="customerId"><div class="mb-3"><label class="form-label">ชื่อลูกค้า</label><input type="text" class="form-control" id="customerName" required></div><h6><i class="fas fa-map-marker-alt me-2"></i>สาขา / สถานที่</h6><div id="branches-container"></div><button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-branch-btn"><i class="fas fa-plus me-2"></i>เพิ่มสาขา</button></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="customerForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="workTypeModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="workTypeModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="workTypeForm"><input type="hidden" id="workTypeId"><div class="mb-3"><label class="form-label">ชื่อลักษณะงาน</label><input type="text" class="form-control" id="workTypeName" required></div><fieldset class="border p-2"><legend class="float-none w-auto p-2 h6">ค่ามาตรฐาน</legend><div class="row"><div class="col-md-6"><h6>แบบจุด</h6><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdSpotMin"><label class="form-label">ค่าสูงสุด (Max)</label><input type="number" class="form-control mb-2" id="stdSpotMax"></div><div class="col-md-6"><h6>แบบพื้นที่</h6><label class="form-label">ค่าเฉลี่ย (Avg)</label><input type="number" class="form-control mb-2" id="stdAreaAvg"><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdAreaMin"></div></div></fieldset></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="workTypeForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="inspectorModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="inspectorModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="inspectorForm"><input type="hidden" id="inspectorId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="inspectorName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="inspectorTitle" required></div><div class="mb-3"><label class="form-label">เลขที่ใบอนุญาต</label><input type="text" class="form-control" id="inspectorLicense"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="inspectorForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="instrumentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="instrumentModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="instrumentForm"><input type="hidden" id="instrumentId"><div class="mb-3"><label class="form-label">ชื่อ/รุ่น</label><input type="text" class="form-control" id="instrumentName" required></div><div class="mb-3"><label class="form-label">Serial No.</label><input type="text" class="form-control" id="instrumentSerial" required></div><div class="mb-3"><label class="form-label">วันสอบเทียบครั้งถัดไป</label><input type="date" class="form-control" id="instrumentCalDate"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="instrumentForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="signatoryModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="signatoryModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="signatoryForm"><input type="hidden" id="signatoryId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="signatoryName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="signatoryTitle" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="signatoryForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+        let db;
+
+        const Modals = {
+            branchList: new bootstrap.Modal(document.getElementById('branchListModal')),
+            confirmDelete: new bootstrap.Modal(document.getElementById('confirmDeleteModal')),
+            customer: new bootstrap.Modal(document.getElementById('customerModal')),
+            workType: new bootstrap.Modal(document.getElementById('workTypeModal')),
+            inspector: new bootstrap.Modal(document.getElementById('inspectorModal')),
+            instrument: new bootstrap.Modal(document.getElementById('instrumentModal')),
+            signatory: new bootstrap.Modal(document.getElementById('signatoryModal'))
+        };
+
+        const showAlert = (message, type = 'success', duration = 4000) => {
+            const alertPlaceholder = document.getElementById('alert-placeholder');
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+            alertPlaceholder.innerHTML = '';
+            alertPlaceholder.append(wrapper);
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+                if(alert) alert.close();
+            }, duration);
+        };
+
+        async function seedInitialData() {
+            const seedBtn = document.getElementById('seedDataBtn');
+            seedBtn.disabled = true;
+            seedBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Seeding...`;
+            const batch = writeBatch(db);
+            const dataToSeed = {
+                customers: [ { id: 'BBL', name: 'ธนาคารกรุงเทพ จำกัด (มหาชน)', branches: [ { location: 'สาขาฉะเชิงเทรา', address: '191/74 ถ.มหาจักรพรรดิ์'}, { location: 'สาขาสีลม', address: '333 ถนนสีลม'}, { location: 'สาขาสำนักงานใหญ่พระราม 3', address: '333/3 ถนนพระราม 3'}, { location: 'สาขาเยาวราช', address: '182-192 ถนนเยาวราช'}, { location: 'สาขาสุขุมวิท 41', address: '1110/5-6 ถนนสุขุมวิท'}, { location: 'สาขาเซ็นทรัลพลาซา ชลบุรี', address: '55/90-91 หมู่ 1 ต.เสม็ด'} ] }, { id: 'SAMPLE', name: 'บริษัท ตัวอย่าง อุตสาหกรรม จำกัด', branches: [{ location: 'โรงงาน จ.ระยอง', address: 'ที่อยู่ตัวอย่าง จ.ระยอง' }] } ],
+                work_types: [ { id: 'DOCS', workTypeName: 'งานเอกสาร', stdSpotMin: 400, stdSpotMax: 500 }, { id: 'DOCS_COMP', workTypeName: 'งานเอกสาร-คอมพิวเตอร์', stdSpotMin: 400, stdSpotMax: 500, stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'SERVICE', workTypeName: 'พื้นที่บริการลูกค้า', stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'PARKING', workTypeName: 'ลานจอดรถ', stdAreaAvg: 50, stdAreaMin: 25 }, { id: 'RESTROOM', workTypeName: 'ห้องน้ำ', stdAreaAvg: 100, stdAreaMin: 50 } ],
+                inspectors: [ { id: 'INSP01', inspectorName: 'นายณัฐวัฒน์ สินอนันต์', inspectorTitle: 'ผู้ควบคุมดูแลห้องปฏิบัติการวิเคราะห์', inspectorLicense: 'ว-๓๒๙-ค-๙๖๓๙' }, { id: 'INSP02', inspectorName: 'นางสาวดุษฎี วรรณหาร', inspectorTitle: 'เจ้าหน้าที่ความปลอดภัยในการทำงานระดับวิชาชีพ', inspectorLicense: 'จป.ว-XXXXX' }, { id: 'INSP03', inspectorName: 'นางสาวสุกานดา คำก๋อง', inspectorTitle: 'ผู้จัดทำรายงาน', inspectorLicense: 'ว-๓๒๙-ค-๐๐๐๓' } ],
+                instruments: [ { id: 'INST01', instrumentName: 'Light Meter Digicon/Model LX-73', instrumentSerial: 'T.034939', instrumentCalDate: '2025-02-01' } ]
+            };
+            try {
+                for (const [collectionName, items] of Object.entries(dataToSeed)) {
+                    for (const item of items) {
+                        const docRef = doc(db, `/artifacts/${appId}/public/data/${collectionName}`, item.id);
+                        const docSnap = await getDoc(docRef);
+                        if (!docSnap.exists()) { const { id, ...data } = item; batch.set(docRef, data); }
+                    }
+                }
+                const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info`, 'main');
+                const companyDocSnap = await getDoc(companyDocRef);
+                if (!companyDocSnap.exists()) { batch.set(companyDocRef, { license_factory: 'ว-๓๒๙', license_welfare_light: '๐๔๐๒-๐๓-๒๕๖๕-๐๐๔๒', signatories: [{ id: `sig_${Date.now()}`, name: 'นางสาวสุกานดา คำก๋อง', title: 'ผู้ควบคุมห้องปฏิบัติการวิเคราะห์' }] }); }
+                await batch.commit();
+                showAlert('เติมข้อมูลเริ่มต้นสำเร็จ!');
+            } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } 
+            finally { seedBtn.disabled = false; seedBtn.innerHTML = `<i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)`; }
+        }
+
+        const renderCustomers = (docs) => { const tableBody = document.getElementById('customers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const branchCount = d.branches ? d.branches.length : 0; const branchDisplay = branchCount > 0 ? `<a href="#" class="branch-details-link" data-id="${doc.id}">${branchCount} สาขา</a>` : 'ไม่มีสาขา'; return `<tr><td>${d.name || ''}</td><td>${branchDisplay}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderWorkTypes = (docs) => { const tableBody = document.getElementById('work-types-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.workTypeName || ''}</td><td class="text-center">${d.stdSpotMin || '-'}</td><td class="text-center">${d.stdSpotMax || '-'}</td><td class="text-center">${d.stdAreaAvg || '-'}</td><td class="text-center">${d.stdAreaMin || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderInspectors = (docs) => { const tableBody = document.getElementById('inspectors-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.inspectorName || ''}</td><td>${d.inspectorTitle || ''}</td><td>${d.inspectorLicense || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderInstruments = (docs) => { const tableBody = document.getElementById('instruments-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.instrumentName || ''}</td><td>${d.instrumentSerial || ''}</td><td>${d.instrumentCalDate || ''}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderSignatories = (signatories = []) => { const tableBody = document.getElementById('signatories-table'); if (signatories.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>'; return; } tableBody.innerHTML = signatories.map((s) => `<tr><td>${s.name}</td><td>${s.title}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${s.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${s.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`).join(''); };
+
+        function setupTab(db, { collectionName, tableId, modal, formId, addBtnId, modalLabelId, renderFn, populateFormFn, onFormSubmit }) {
+            const collectionRef = collection(db, `/artifacts/${appId}/public/data/${collectionName}`);
+            onSnapshot(collectionRef, (snapshot) => renderFn(snapshot.docs));
+            document.getElementById(addBtnId).addEventListener('click', () => { const form = document.getElementById(formId); form.reset(); form.querySelector('input[type=hidden]').value = ''; if (populateFormFn) populateFormFn(null, form); document.getElementById(modalLabelId).textContent = `เพิ่มข้อมูลใหม่`; modal.show(); });
+            document.getElementById(tableId).addEventListener('click', async (e) => {
+                const target = e.target.closest('button, a');
+                if (!target) return;
+                const docId = target.dataset.id;
+                const docRef = doc(db, `/artifacts/${appId}/public/data/${collectionName}`, docId);
+                if (target.classList.contains('edit-btn')) {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const form = document.getElementById(formId);
+                        form.reset();
+                        form.querySelector('input[type=hidden]').value = docId;
+                        Object.keys(data).forEach(key => { if(form.elements[key]) form.elements[key].value = data[key]; });
+                        if (populateFormFn) populateFormFn(data, form);
+                        document.getElementById(modalLabelId).textContent = `แก้ไขข้อมูล`;
+                        modal.show();
+                    }
+                } else if (target.classList.contains('delete-btn')) {
+                    document.getElementById('confirmDeleteBtn').dataset.docPath = docRef.path;
+                    Modals.confirmDelete.show();
+                } else if (target.classList.contains('branch-details-link')) {
+                    e.preventDefault();
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        document.getElementById('branchListModalLabel').textContent = `สาขาทั้งหมดของ: ${data.name}`;
+                        const body = document.getElementById('branchListModalBody');
+                        if (data.branches && data.branches.length > 0) {
+                            body.innerHTML = '<ul class="list-group">' + data.branches.map(b => `<li class="list-group-item"><strong>${b.location}</strong><br><small class="text-muted">${b.address || ''}</small></li>`).join('') + '</ul>';
+                        } else {
+                            body.innerHTML = '<p>ไม่มีข้อมูลสาขา</p>';
+                        }
+                        Modals.branchList.show();
+                    }
+                }
+            });
+            document.getElementById(formId).addEventListener('submit', (e) => onFormSubmit(e, db, modal));
+        }
+
+        function setupCompanyInfo(db) {
+            const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info/main`);
+            onSnapshot(companyDocRef, (docSnap) => { if(docSnap.exists()) { const data = docSnap.data(); document.getElementById('license_factory').value = data.license_factory || ''; document.getElementById('license_welfare_light').value = data.license_welfare_light || ''; renderSignatories(data.signatories); } });
+            document.getElementById('company-info-form').addEventListener('submit', async (e) => { e.preventDefault(); const data = { license_factory: document.getElementById('license_factory').value, license_welfare_light: document.getElementById('license_welfare_light').value }; await setDoc(companyDocRef, data, { merge: true }); showAlert('บันทึกข้อมูลบริษัทสำเร็จแล้ว'); });
+            document.getElementById('addSignatoryBtn').addEventListener('click', () => { document.getElementById('signatoryForm').reset(); document.getElementById('signatoryId').value = ''; document.getElementById('signatoryModalLabel').textContent = 'เพิ่มผู้ลงนาม'; Modals.signatory.show(); });
+            document.getElementById('signatoryForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('signatoryId').value; const signatory = { id: id || `sig_${Date.now()}`, name: document.getElementById('signatoryName').value, title: document.getElementById('signatoryTitle').value }; const docSnap = await getDoc(companyDocRef); const signatories = docSnap.exists() && docSnap.data().signatories ? docSnap.data().signatories : []; if (id) { const index = signatories.findIndex(s => s.id === id); if (index > -1) signatories[index] = signatory; } else { signatories.push(signatory); } await setDoc(companyDocRef, { signatories }, { merge: true }); showAlert('บันทึกข้อมูลผู้ลงนามสำเร็จ'); Modals.signatory.hide(); });
+            document.getElementById('signatories-table').addEventListener('click', async (e) => { const target = e.target.closest('button'); if (!target) return; const id = target.dataset.id; if (target.classList.contains('edit-btn')) { const docSnap = await getDoc(companyDocRef); const signatory = (docSnap.data().signatories || []).find(s => s.id === id); if (signatory) { document.getElementById('signatoryId').value = signatory.id; document.getElementById('signatoryName').value = signatory.name; document.getElementById('signatoryTitle').value = signatory.title; document.getElementById('signatoryModalLabel').textContent = 'แก้ไขผู้ลงนาม'; Modals.signatory.show(); } } else if (target.classList.contains('delete-btn')) { document.getElementById('confirmDeleteBtn').dataset.docPath = companyDocRef.path; document.getElementById('confirmDeleteBtn').dataset.signatoryId = id; Modals.confirmDelete.show(); } });
+        }
+        
+        async function main() {
+            let finalFirebaseConfig;
+            try { if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; } catch(e) { console.error(e); }
+            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config', 'danger'); return; }
+
+            const app = initializeApp(finalFirebaseConfig);
+            db = getFirestore(app);
+            const auth = getAuth(app);
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
+            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); }
+            
+            const branchesContainer = document.getElementById('branches-container');
+            const addBranchInput = (branch = { location: '', address: '' }) => { const div = document.createElement('div'); div.className = 'input-group mb-2'; div.innerHTML = `<input type="text" class="form-control branch-location" placeholder="ชื่อสาขา/สถานที่" value="${branch.location}" required><input type="text" class="form-control branch-address" placeholder="ที่อยู่ (ถ้ามี)" value="${branch.address}"><button class="btn btn-outline-danger remove-branch-btn" type="button"><i class="fas fa-trash"></i></button>`; branchesContainer.appendChild(div); };
+            document.getElementById('add-branch-btn').addEventListener('click', () => addBranchInput());
+            branchesContainer.addEventListener('click', e => { if (e.target.closest('.remove-branch-btn')) { e.target.closest('.input-group').remove(); } });
+            
+            setupTab(db, { collectionName: 'customers', tableId: 'customers-table', modal: Modals.customer, formId: 'customerForm', addBtnId: 'addCustomerBtn', modalLabelId: 'customerModalLabel', renderFn: renderCustomers, 
+                populateFormFn: (data, form) => { branchesContainer.innerHTML = ''; if (data && data.branches) { data.branches.forEach(branch => addBranchInput(branch)); } else { addBranchInput(); } },
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .input-group').forEach(group => { const location = group.querySelector('.branch-location').value.trim(); const address = group.querySelector('.branch-address').value.trim(); if(location) branches.push({ location, address }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
+            });
+
+            setupTab(db, { collectionName: 'work_types', tableId: 'work-types-table', modal: Modals.workType, formId: 'workTypeForm', addBtnId: 'addWorkTypeBtn', modalLabelId: 'workTypeModalLabel', renderFn: renderWorkTypes,
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/work_types`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); let data = {}; new FormData(form).forEach((value, key) => { if (form[key] && form[key].type === 'number') data[key] = value ? Number(value) : null; else data[key] = value; }); delete data['workTypeId']; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+            });
+
+            setupTab(db, { collectionName: 'inspectors', tableId: 'inspectors-table', modal: Modals.inspector, formId: 'inspectorForm', addBtnId: 'addInspectorBtn', modalLabelId: 'inspectorModalLabel', renderFn: renderInspectors,
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/inspectors`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { inspectorName: form.inspectorName.value, inspectorTitle: form.inspectorTitle.value, inspectorLicense: form.inspectorLicense.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+            });
+
+            setupTab(db, { collectionName: 'instruments', tableId: 'instruments-table', modal: Modals.instrument, formId: 'instrumentForm', addBtnId: 'addInstrumentBtn', modalLabelId: 'instrumentModalLabel', renderFn: renderInstruments,
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+            });
+            
+            setupCompanyInfo(db);
+            document.getElementById('seedDataBtn').addEventListener('click', seedInitialData);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', async (e) => {
+                const button = e.target;
+                const docPath = button.dataset.docPath;
+                const signatoryId = button.dataset.signatoryId;
+                const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info/main`);
+                try {
+                    if (signatoryId) {
+                        const docSnap = await getDoc(companyDocRef);
+                        const signatories = docSnap.exists() ? docSnap.data().signatories || [] : [];
+                        const updatedSignatories = signatories.filter(s => s.id !== signatoryId);
+                        await updateDoc(companyDocRef, { signatories: updatedSignatories });
+                        showAlert('ลบข้อมูลผู้ลงนามสำเร็จ');
+                    } else if (docPath) {
+                        await deleteDoc(doc(db, docPath));
+                        showAlert('ลบข้อมูลสำเร็จแล้ว');
+                    }
+                } catch(err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
+                } finally { Modals.confirmDelete.hide(); delete button.dataset.docPath; delete button.dataset.signatoryId; }
+            });
+        }
+        main();
+    </script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        });
+    </script>
+</body>
+</html>
+

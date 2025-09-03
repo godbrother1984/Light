@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/new-job.html
-  version: 1.5
-  date: 2025-09-02
-  time: 19:10:00
+  version: 2.0 (Integrated Master Data & Roles)
+  date: 2025-09-03
+  time: 14:10:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -12,307 +12,267 @@
     <title>สร้างงานใหม่ - Light Measurement System</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
 
     <style>
         :root {
-            --primary-color: #003366;
-            --secondary-color: #4a6fa5;
-            --background-color: #f8f9fa;
-            --text-color: #333;
-            --header-text-color: #ffffff;
-            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            --border-color: #dee2e6;
+            --primary-color: #0d47a1;
+            --secondary-color: #1976d2;
+            --background-color: #f4f7f9;
+            --sidebar-width: 260px;
+            --sidebar-mini-width: 80px;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --transition-speed: 0.3s;
         }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-        }
-
-        .navbar {
-            background-color: var(--primary-color);
-        }
-
-        .navbar-brand {
-            color: var(--header-text-color) !important;
-            font-weight: 700;
-        }
-
-        .main-header {
-            background-color: #ffffff;
-            padding: 1.5rem 2rem;
-            border-radius: 0.5rem;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-        }
-        
-        .main-header h1 {
-            color: var(--primary-color);
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .breadcrumb-item a {
-            color: var(--secondary-color);
-            text-decoration: none;
-        }
-
-        .card {
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: var(--card-shadow);
-        }
-        
-        .form-label {
-            font-weight: 500;
-        }
+        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
+        #wrapper { display: flex; }
+        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
+        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
+        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
+        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
+        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
+        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
+        .list-group-item i { font-size: 1.25rem; }
+        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
+        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
+        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
+        #page-content-wrapper { flex-grow: 1; }
+        .navbar { box-shadow: var(--card-shadow); }
+        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
+        .choices__input { background-color: var(--bs-body-bg) !important; }
     </style>
 </head>
 <body>
+    
+    <div class="d-flex" id="wrapper">
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="main.html">
-                <i class="fas fa-lightbulb me-2"></i>
-                Light Measurement System
-            </a>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container-fluid p-4">
-        
-        <div class="main-header">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="main.html">รายการงานตรวจวัดแสง</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">สร้างงานใหม่</li>
-                </ol>
-            </nav>
-            <h1 class="mt-2"><i class="fas fa-plus-circle me-3"></i>สร้างงานตรวจวัดใหม่</h1>
-        </div>
-
-        <div class="card">
-            <div class="card-body p-4">
-                <div id="alert-container"></div>
-                <form id="new-job-form">
-                    <div class="row g-4">
-                        <!-- Customer Information -->
-                        <div class="col-12">
-                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="fas fa-building me-2"></i>ข้อมูลลูกค้า</h5>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="customerName" class="form-label">ชื่อลูกค้า</label>
-                            <select id="customerName" placeholder="ค้นหาหรือเลือกชื่อลูกค้า..."></select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="customerBranch" class="form-label">สาขา / สถานที่</label>
-                            <select id="customerBranch" placeholder="เลือกสาขา..."></select>
-                        </div>
-                        <div class="col-12">
-                            <label for="customerAddress" class="form-label">ที่อยู่</label>
-                            <textarea class="form-control" id="customerAddress" rows="3" placeholder="ที่อยู่จะแสดงอัตโนมัติเมื่อเลือกสาขา" readonly></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="contactPerson" class="form-label">ผู้ประสานงาน</label>
-                            <input type="text" class="form-control" id="contactPerson" placeholder="ชื่อผู้ประสานงาน" readonly>
-                        </div>
-                         <div class="col-md-6">
-                            <label for="contactPhone" class="form-label">เบอร์โทรศัพท์ติดต่อ</label>
-                            <input type="tel" class="form-control" id="contactPhone" placeholder="เบอร์โทรศัพท์" readonly>
-                        </div>
-
-                        <!-- Job Details -->
-                        <div class="col-12 mt-5">
-                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="measurementDate" class="form-label">วันที่กำหนดตรวจวัด</label>
-                            <input type="date" class="form-control" id="measurementDate" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="assignedPerson" class="form-label">ผู้รับผิดชอบการตรวจวัด</label>
-                            <select id="assignedPerson" placeholder="เลือกผู้รับผิดชอบ..."></select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="referenceStandard" class="form-label">มาตรฐานอ้างอิง</label>
-                            <select id="referenceStandard" placeholder="เลือกมาตรฐาน..."></select>
-                        </div>
-                        <div class="col-12">
-                            <label for="jobNotes" class="form-label">หมายเหตุเพิ่มเติม</label>
-                            <textarea class="form-control" id="jobNotes" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top text-end">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='main.html'">
-                            <i class="fas fa-times-circle me-2"></i>ยกเลิก
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>บันทึกและสร้างงาน
-                        </button>
-                    </div>
-                </form>
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+                <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
+                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
             </div>
         </div>
-    </div>
 
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="h3 mb-0">สร้างงานใหม่</h1>
+                     <a href="main.html" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>ยกเลิก</a>
+                </div>
+                 <div id="alert-placeholder"></div>
+                <form id="newJobForm">
+                    <div class="card">
+                        <div class="card-body">
+                            <section class="mb-4">
+                                <h5 class="mb-3"><i class="fas fa-building me-2"></i>ข้อมูลลูกค้า</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="customer-select" class="form-label">ชื่อลูกค้า</label>
+                                        <select id="customer-select" class="form-control" required></select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="branch-select" class="form-label">สาขา / สถานที่</label>
+                                        <select id="branch-select" class="form-control" required></select>
+                                    </div>
+                                </div>
+                            </section>
+                            <hr>
+                             <section class="mb-4">
+                                <h5 class="mb-3"><i class="fas fa-users-cog me-2"></i>ผู้รับผิดชอบ</h5>
+                                <div class="row g-3">
+                                     <div class="col-md-4">
+                                        <label for="inspector-select" class="form-label">ผู้ตรวจวัด (เลือกได้หลายคน)</label>
+                                        <select id="inspector-select" class="form-control" multiple required></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์</label>
+                                        <select id="analyst-select" class="form-control" required></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน</label>
+                                        <select id="report-creator-select" class="form-control" required></select>
+                                    </div>
+                                </div>
+                            </section>
+                            <hr>
+                            <section>
+                                <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="measurementDate" class="form-label">วันที่ตรวจวัด</label>
+                                        <input type="date" class="form-control" id="measurementDate" required>
+                                    </div>
+                                     <div class="col-md-8">
+                                        <label for="jobNotes" class="form-label">หมายเหตุเพิ่มเติม</label>
+                                        <textarea class="form-control" id="jobNotes" rows="1"></textarea>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fas fa-save me-2"></i>บันทึกและสร้างงาน</button>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    
-    <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
-
-    <!-- Firebase SDK and Form Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+        let db, auth;
+        let customersData = [];
+        let inspectorsData = [];
 
-        (async () => {
-             // --- UI Elements ---
-            const form = document.getElementById('new-job-form');
-            const alertContainer = document.getElementById('alert-container');
-            const choicesConfig = { searchEnabled: true, itemSelectText: 'กดเพื่อเลือก' };
+        const showAlert = (message, type = 'danger', duration = 5000) => {
+            const alertPlaceholder = document.getElementById('alert-placeholder');
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+            alertPlaceholder.innerHTML = '';
+            alertPlaceholder.append(wrapper);
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+                if(alert) alert.close();
+            }, duration);
+        };
 
-            const showAlert = (message, type = 'danger') => {
-                const wrapper = document.createElement('div');
-                wrapper.innerHTML = [
-                    `<div class="alert alert-${type} alert-dismissible fade show" role="alert">`,
-                    `   <div>${message}</div>`,
-                    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-                    '</div>'
-                ].join('');
-                alertContainer.innerHTML = ''; // Clear previous alerts
-                alertContainer.append(wrapper);
-            };
-            
-            // --- Mock Data ---
-            const customersData = [
-                { id: 1, name: 'ธนาคารกรุงเทพ จำกัด (มหาชน)' },
-                { id: 2, name: 'บริษัท ABC Manufacturing จำกัด' },
-            ];
-            const branchesData = {
-                1: [ { id: 101, name: 'สาขาฉะเชิงเทรา', address: '191/74 ถ.มหาจักรพรรดิ์ ต.หน้าเมือง อ.เมือง จ.ฉะเชิงเทรา 24000', contact: 'คุณสมหญิง จริงใจ', phone: '038-514982' } ],
-                2: [ { id: 201, name: 'โรงงานสมุทรปราการ', address: '123/4 หมู่ 5 ต.บางปูใหม่ อ.เมือง จ.สมุทรปราการ 10280', contact: 'คุณวิชัย มีมานะ', phone: '02-324-0000' } ]
-            };
-            const assignedPersonData = [ 'นายณัฐวัฒน์ สินอนันต์', 'นางสาวดุษฎี วรรณหาร', 'นางสาวสุกานดา คำก๋อง'];
-            const standardData = [ 'กฎกระทรวงฯ พ.ศ. 2559', 'มาตรฐาน IESNA' ];
+        async function main() {
+            let finalFirebaseConfig;
+            try { if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; } catch(e) { console.error(e); }
+            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config'); return; }
 
-            // --- Initialize Choices.js ---
-            const customerSelect = new Choices('#customerName', choicesConfig);
-            const branchSelect = new Choices('#customerBranch', choicesConfig);
-            const personSelect = new Choices('#assignedPerson', choicesConfig);
-            const standardSelect = new Choices('#referenceStandard', choicesConfig);
+            const app = initializeApp(finalFirebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
 
-            customerSelect.setChoices(customersData.map(c => ({ value: c.id, label: c.name })), 'value', 'label', false);
-            personSelect.setChoices(assignedPersonData.map(p => ({ value: p, label: p })), 'value', 'label', false);
-            standardSelect.setChoices(standardData.map(s => ({ value: s, label: s })), 'value', 'label', false);
-            branchSelect.disable();
+            try {
+                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
+            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); }
 
-            // --- Dynamic Dropdown Logic ---
-            document.getElementById('customerName').addEventListener('change', function(event) {
-                const customerId = event.detail.value;
-                branchSelect.clearStore();
-                const branches = branchesData[customerId] || [];
-                if (branches.length > 0) {
-                     branchSelect.setChoices(branches.map(b => ({ value: b.id, label: b.name, customProperties: b })), 'value', 'label', false);
-                    branchSelect.enable();
-                } else { branchSelect.disable(); }
-                document.getElementById('customerAddress').value = '';
-                document.getElementById('contactPerson').value = '';
-                document.getElementById('contactPhone').value = '';
+            // Initialize Choices.js dropdowns
+            const customerSelect = new Choices('#customer-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกลูกค้า...' });
+            const branchSelect = new Choices('#branch-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกสาขา...' });
+            const inspectorSelect = new Choices('#inspector-select', { searchEnabled: true, removeItemButton: true, itemSelectText: 'เลือก' });
+            const analystSelect = new Choices('#analyst-select', { searchEnabled: true, itemSelectText: 'เลือก' });
+            const reportCreatorSelect = new Choices('#report-creator-select', { searchEnabled: true, itemSelectText: 'เลือก' });
+
+            // Fetch and populate customers
+            const customersRef = collection(db, `/artifacts/${appId}/public/data/customers`);
+            onSnapshot(customersRef, (snapshot) => {
+                customersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const customerChoices = customersData.map(c => ({ value: c.id, label: c.name }));
+                customerSelect.setChoices(customerChoices, 'value', 'label', true);
             });
 
-            document.getElementById('customerBranch').addEventListener('change', function(event) {
-                const selectedChoice = branchSelect.getValue(); // Get the full choice object
-                if (selectedChoice && selectedChoice.customProperties) {
-                     const branchDetails = selectedChoice.customProperties;
-                     document.getElementById('customerAddress').value = branchDetails.address || '';
-                     document.getElementById('contactPerson').value = branchDetails.contact || '';
-                     document.getElementById('contactPhone').value = branchDetails.phone || '';
+            // Fetch and populate inspectors
+            const inspectorsRef = collection(db, `/artifacts/${appId}/public/data/inspectors`);
+            onSnapshot(inspectorsRef, (snapshot) => {
+                inspectorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const inspectorChoices = inspectorsData.map(i => ({ value: i.inspectorName, label: `${i.inspectorName} (${i.inspectorTitle})` }));
+                inspectorSelect.setChoices(inspectorChoices, 'value', 'label', true);
+                analystSelect.setChoices(inspectorChoices, 'value', 'label', true);
+                reportCreatorSelect.setChoices(inspectorChoices, 'value', 'label', true);
+
+                // Set default report creator (example: 'นางสาวสุกานดา คำก๋อง')
+                const defaultCreator = inspectorsData.find(i => i.inspectorTitle === 'ผู้จัดทำรายงาน');
+                if (defaultCreator) {
+                    reportCreatorSelect.setValue([defaultCreator.inspectorName]);
                 }
             });
-            document.getElementById('measurementDate').valueAsDate = new Date();
 
-            // --- Firebase Initialization ---
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measurement-app';
-            let finalFirebaseConfig;
-            try {
-                const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-                if (envConfig && envConfig.projectId) finalFirebaseConfig = envConfig;
-                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig;
-            } catch (e) { console.error("Config Error", e); }
-            if (!finalFirebaseConfig) {
-                showAlert("Firebase config not found. Cannot save data.");
-                return;
-            }
-            const app = initializeApp(finalFirebaseConfig);
-            const db = getFirestore(app);
-            const auth = getAuth(app);
-            setLogLevel('debug');
+            // Handle customer selection change
+            document.getElementById('customer-select').addEventListener('change', (event) => {
+                const customerId = event.detail.value;
+                const selectedCustomer = customersData.find(c => c.id === customerId);
+                branchSelect.clearStore();
+                if (selectedCustomer && selectedCustomer.branches) {
+                    const branchChoices = selectedCustomer.branches.map(b => ({ value: b.location, label: `${b.location} - ${b.address || ''}`}));
+                    branchSelect.setChoices(branchChoices, 'value', 'label', true);
+                }
+            });
 
-            // --- Form Submission Logic ---
-            form.addEventListener('submit', async (e) => {
+            // Form submission
+            document.getElementById('newJobForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const submitButton = e.submitter;
+                const submitButton = document.getElementById('submit-btn');
                 submitButton.disabled = true;
-                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึก...`;
-
+                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง...`;
+                
                 try {
-                    // Authenticate first
-                    if (!auth.currentUser) {
-                         if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    }
-
-                    // Generate a new Job ID
                     const year = new Date().getFullYear() + 543;
-                    const timestamp = Date.now().toString().slice(-5);
-                    const jobId = `JOB-${year}-${timestamp}`;
+                    const jobId = `JOB-${year}-${String(Date.now()).slice(-4)}`;
+                    
+                    const customerId = customerSelect.getValue(true);
+                    const customer = customersData.find(c => c.id === customerId);
+                    const branchLocation = branchSelect.getValue(true);
+                    const branch = customer.branches.find(b => b.location === branchLocation);
 
                     const newJobData = {
-                        jobId: jobId,
-                        customer: customerSelect.getValue(true) ? customersData.find(c => c.id == customerSelect.getValue(true))?.name : '',
-                        location: branchSelect.getValue(true) ? (branchesData[customerSelect.getValue(true)] || []).find(b => b.id == branchSelect.getValue(true))?.name : '',
-                        address: document.getElementById('customerAddress').value,
-                        contactPerson: document.getElementById('contactPerson').value,
-                        contactPhone: document.getElementById('contactPhone').value,
+                        customerId: customerId,
+                        customerName: customer.name,
+                        location: branch.location,
+                        address: branch.address || '',
                         date: document.getElementById('measurementDate').value,
-                        assignedPerson: personSelect.getValue(true) || '',
-                        standard: standardSelect.getValue(true) || '',
+                        inspectors: inspectorSelect.getValue(true) || [],
+                        analyst: analystSelect.getValue(true) || '',
+                        reportCreator: reportCreatorSelect.getValue(true) || '',
                         notes: document.getElementById('jobNotes').value,
-                        status: 'new',
-                        results: []
+                        status: 'new', // new, in-progress, completed
+                        createdBy: auth.currentUser.uid,
+                        createdAt: new Date().toISOString(),
+                        results: [] // Initialize empty results
                     };
                     
-                    // Save to Firestore using the generated jobId as document ID
                     const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
                     await setDoc(doc(db, jobsCollectionPath, jobId), newJobData);
 
-                    // Redirect to the new job's detail page
                     window.location.href = `job-details.html?id=${jobId}`;
 
                 } catch (error) {
-                    console.error("Error creating new job:", error);
                     showAlert(`เกิดข้อผิดพลาดในการสร้างงาน: ${error.message}`);
                     submitButton.disabled = false;
                     submitButton.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกและสร้างงาน`;
                 }
             });
-
-        })();
+        }
+        main();
+    </script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        });
     </script>
 </body>
 </html>

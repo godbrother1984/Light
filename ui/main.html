@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/main.html
-  version: 2.8
-  date: 2025-09-02
-  time: 18:22:00
+  version: 4.2 (Restored Full Functionality)
+  date: 2025-09-03
+  time: 11:31:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -17,237 +17,211 @@
 
     <style>
         :root {
-            --primary-color: #003366;
-            --secondary-color: #4a6fa5;
-            --background-color: #f8f9fa;
-            --text-color: #333;
-            --header-text-color: #ffffff;
-            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --primary-color: #0d47a1;
+            --secondary-color: #1976d2;
+            --background-color: #f4f7f9;
+            --sidebar-width: 260px;
+            --sidebar-mini-width: 80px;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --transition-speed: 0.3s;
         }
-        body { font-family: 'Sarabun', sans-serif; background-color: var(--background-color); color: var(--text-color); }
-        .navbar { background-color: var(--primary-color); box-shadow: var(--card-shadow); }
-        .navbar-brand { color: var(--header-text-color) !important; font-weight: 700; }
-        .main-header { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 0.5rem; box-shadow: var(--card-shadow); margin-bottom: 2rem; }
-        .main-header h1 { color: var(--primary-color); font-weight: 700; margin: 0; }
-        .card { border: none; border-radius: 0.5rem; box-shadow: var(--card-shadow); }
-        .table thead { background-color: var(--secondary-color); color: var(--header-text-color); }
-        .table-hover tbody tr:hover { background-color: #e9ecef; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
+        #wrapper { display: flex; }
+        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
+        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
+        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
+        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
+        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
+        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
+        .list-group-item i { font-size: 1.25rem; }
+        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
+        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
+        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
+        #page-content-wrapper { flex-grow: 1; transition: margin-left var(--transition-speed) ease; padding-left: 0; }
+        .navbar { box-shadow: var(--card-shadow); }
+        .navbar-nav .nav-link { color: #555; }
+        .navbar-nav .nav-link:hover { color: var(--primary-color); }
+        .dropdown-item:active { background-color: var(--primary-color); }
+        .search-form { width: 300px; }
+        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
         .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
-        .btn-primary:hover { background-color: var(--secondary-color); border-color: var(--secondary-color); }
-        .badge-status { font-size: 0.85em; padding: 0.5em 0.9em; border-radius: 0.25rem; }
-        .status-new { background-color: #17a2b8; color: #fff; }
-        .status-progress { background-color: #ffc107; color: #000; }
-        .status-completed { background-color: #28a745; color: #fff; }
-        .status-reported { background-color: #6c757d; color: #fff; }
-        .action-icon { margin-right: 8px; cursor: pointer; color: var(--secondary-color); }
-        .action-icon:hover { color: var(--primary-color); }
-        #loading-spinner { display: block; }
     </style>
 </head>
 <body>
+    
+    <div class="d-flex" id="wrapper">
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="main.html"><i class="fas fa-lightbulb me-2"></i>Light Measurement System</a>
-            <span class="navbar-text text-white" id="user-display">กำลังเชื่อมต่อ...</span>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container-fluid p-4">
-        <div class="main-header">
-            <h1><i class="fas fa-tasks me-3"></i>รายการงานตรวจวัดแสง</h1>
-            <p class="text-muted mb-0">จัดการและติดตามสถานะงานตรวจวัดทั้งหมด (ข้อมูล Real-time จากฐานข้อมูล)</p>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="input-group" style="max-width: 400px;">
-                        <input type="text" class="form-control" placeholder="ค้นหาชื่องาน, ลูกค้า...">
-                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
-                    </div>
-                    <button class="btn btn-primary" onclick="window.location.href='new-job.html'"><i class="fas fa-plus-circle me-2"></i>สร้างงานใหม่</button>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>Job ID</th>
-                                <th>ลูกค้า (Customer)</th>
-                                <th>สถานที่ (Location)</th>
-                                <th>วันที่ตรวจวัด</th>
-                                <th class="text-center">สถานะ (Status)</th>
-                                <th class="text-center">จัดการ (Actions)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="jobs-table-body">
-                           <!-- Data will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                     <div id="loading-spinner" class="text-center p-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
-                    </div>
-                </div>
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+                <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
+                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
             </div>
         </div>
-    </div>
 
-    <!-- Firebase Configuration -->
-    <script src="firebase-config.js"></script>
+        <!-- Page Content Wrapper -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <form class="d-none d-md-flex input-group w-auto my-auto search-form">
+                      <input autocomplete="off" type="search" id="searchInput" class="form-control rounded" placeholder="ค้นหางาน..."/>
+                      <span class="input-group-text border-0"><i class="fas fa-search"></i></span>
+                    </form>
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="h3">รายการงานตรวจวัดทั้งหมด (All Jobs)</h1>
+                    <a href="new-job.html" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i> สร้างงานใหม่
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Job ID</th><th>ชื่อลูกค้า</th><th>สถานที่</th><th>วันที่ตรวจวัด</th><th>สถานะ</th><th class="text-center">การดำเนินการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="job-list-table">
+                                    <tr><td colspan="6" class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
     
-    <!-- Firebase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="firebase-config.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, getDocs, query, limit, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const jobsTableBody = document.getElementById('jobs-table-body');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const userDisplay = document.getElementById('user-display');
+        let allJobs = [];
 
-        const statusMap = {
-            new: { text: 'ใหม่', class: 'status-new' },
-            progress: { text: 'กำลังดำเนินการ', class: 'status-progress' },
-            completed: { text: 'ตรวจวัดเสร็จสิ้น', class: 'status-completed' },
-            reported: { text: 'ออกรายงานแล้ว', class: 'status-reported' }
-        };
-
-        function renderJobs(docs) {
-            jobsTableBody.innerHTML = ''; 
-            loadingSpinner.style.display = 'none';
-
-            if (docs.empty) {
-                 jobsTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4">ไม่พบข้อมูลงานในระบบ</td></tr>';
-                 return;
-            }
-            
-            docs.forEach(doc => {
-                const job = doc.data();
-                const statusInfo = statusMap[job.status] || { text: job.status, class: '' };
-                const tr = document.createElement('tr');
-                tr.style.cursor = 'pointer';
-                tr.onclick = () => {
-                    window.location.href = `job-details.html?id=${doc.id}`; 
-                };
-                tr.innerHTML = `
-                    <td><strong>${job.jobId}</strong></td>
-                    <td>${job.customer}</td>
-                    <td>${job.location}</td>
-                    <td>${job.date}</td>
-                    <td class="text-center">
-                        <span class="badge ${statusInfo.class} badge-status">${statusInfo.text}</span>
-                    </td>
-                    <td class="text-center">
-                        <i class="fas fa-search-plus action-icon" title="ดูรายละเอียด"></i>
-                        <i class="fas fa-edit action-icon" title="แก้ไข"></i>
-                    </td>
-                `;
-                jobsTableBody.appendChild(tr);
-            });
-        }
-        
-        async function seedInitialData(db, appId) {
-            const jobsCollectionRef = collection(db, `/artifacts/${appId}/public/data/jobs`);
-            const q = query(jobsCollectionRef, limit(1));
-            const snapshot = await getDocs(q);
-            if (snapshot.empty) {
-                console.log("Database is empty. Seeding initial data...");
-                const sampleJob = {
-                    jobId: 'JOB-2568-001',
-                    customer: 'ธนาคารกรุงเทพ จำกัด (มหาชน)',
-                    location: 'สาขาฉะเชิงเทรา',
-                    date: '15 พ.ย. 2567',
-                    status: 'progress',
-                    results: []
-                };
-                await setDoc(doc(jobsCollectionRef, sampleJob.jobId), sampleJob);
-                console.log("Initial data seeded.");
-            }
-        }
-        
-        async function main() {
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measurement-app';
-            let finalFirebaseConfig;
-            let configSource = 'none';
-
-            // Priority: 1. Injected Config, 2. Manual Config File
-            try {
-                const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-                if (envConfig && envConfig.projectId) {
-                    finalFirebaseConfig = envConfig;
-                    configSource = 'environment';
-                } else if (window.firebaseConfig && window.firebaseConfig.projectId) {
-                    finalFirebaseConfig = window.firebaseConfig;
-                    configSource = 'file';
-                }
-            } catch (e) {
-                 console.error("Could not parse Firebase config:", e);
-                 loadingSpinner.innerHTML = `<tr><td colspan="6"><div class="alert alert-danger m-2">เกิดข้อผิดพลาดในการอ่านค่า Config</div></td></tr>`;
-                 return;
-            }
-            
-            if (configSource === 'none') {
-                console.error("Firebase config not found or invalid.");
-                userDisplay.textContent = 'Config ผิดพลาด';
-                let errorMessage = `<strong>Error: ไม่สามารถเชื่อมต่อฐานข้อมูลได้</strong> 
-                                    <br>โปรดตรวจสอบไฟล์ <strong>firebase-config.js</strong> อีกครั้ง`;
-                
-                if (typeof window.firebaseConfig === 'undefined') {
-                    errorMessage += `<br><br><small class="text-muted">คำแนะนำ: ระบบไม่พบตัวแปร <code>window.firebaseConfig</code> เลย อาจเป็นเพราะไฟล์ <code>firebase-config.js</code> โหลดไม่สำเร็จ หรือมีข้อผิดพลาดในไฟล์</small>`;
-                } else if (!window.firebaseConfig.projectId) {
-                    errorMessage += `<br><br><small class="text-muted">คำแนะนำ: ระบบพบ <code>window.firebaseConfig</code> แต่ไม่พบค่า <code>projectId</code> ที่ถูกต้องอยู่ข้างใน Object</small>`;
-                }
-                jobsTableBody.innerHTML = `<tr><td colspan="6"><div class="alert alert-danger m-2 text-start">${errorMessage}</div></td></tr>`;
-                loadingSpinner.style.display = 'none';
+        const renderJobs = (jobs) => {
+            const jobTableBody = document.getElementById('job-list-table');
+            if (jobs.length === 0) {
+                jobTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4">ยังไม่มีงานในระบบ</td></tr>';
                 return;
             }
 
-            console.log(`Using Firebase config from: ${configSource}`);
-            const app = initializeApp(finalFirebaseConfig);
-            const db = getFirestore(app);
-            const auth = getAuth(app);
-            setLogLevel('debug');
+            jobTableBody.innerHTML = jobs.map(job => {
+                const jobData = job.data();
+                let statusBadge;
+                switch (jobData.status) {
+                    case 'completed': statusBadge = `<span class="badge bg-success">เสร็จสิ้น</span>`; break;
+                    case 'in-progress': statusBadge = `<span class="badge bg-warning text-dark">กำลังดำเนินการ</span>`; break;
+                    default: statusBadge = `<span class="badge bg-secondary">ใหม่</span>`;
+                }
+                return `
+                    <tr>
+                        <td><span class="badge bg-dark">${job.id}</span></td>
+                        <td>${jobData.customer || ''}</td>
+                        <td>${jobData.location || ''}</td>
+                        <td>${jobData.date || ''}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-center">
+                            <a href="job-details.html?id=${job.id}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-pencil-alt me-1"></i>ดู/แก้ไข</a>
+                            <a href="report-finalizer.html?id=${job.id}" class="btn btn-sm btn-outline-primary"><i class="fas fa-file-pdf me-1"></i>สร้างรายงาน</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        const filterJobs = () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) {
+                renderJobs(allJobs);
+                return;
+            }
+            const filtered = allJobs.filter(job => {
+                const data = job.data();
+                return job.id.toLowerCase().includes(searchTerm) ||
+                       (data.customer && data.customer.toLowerCase().includes(searchTerm)) ||
+                       (data.location && data.location.toLowerCase().includes(searchTerm));
+            });
+            renderJobs(filtered);
+        };
+        
+        async function main() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+            const userDisplay = document.getElementById('user-display');
+            const jobTableBody = document.getElementById('job-list-table');
+
+            let finalFirebaseConfig;
+            try {
+                if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config);
+                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig;
+            } catch(e) { console.error(e); }
+
+            if (!finalFirebaseConfig) {
+                jobTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">ไม่พบ Firebase Config</td></tr>';
+                return;
+            }
 
             try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                const user = auth.currentUser;
-                userDisplay.textContent = `UserID: ${user.uid.substring(0, 8)}...`;
+                const app = initializeApp(finalFirebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
 
-                await seedInitialData(db, appId);
-
+                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+                
+                userDisplay.textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
+                
                 const jobsCollectionRef = collection(db, `/artifacts/${appId}/public/data/jobs`);
                 
                 onSnapshot(jobsCollectionRef, 
-                    (querySnapshot) => {
-                        console.log("Received real-time update from Firestore.");
-                        renderJobs(querySnapshot);
-                    }, 
+                    (snapshot) => {
+                        allJobs = snapshot.docs;
+                        filterJobs(); // Initial render
+                    },
                     (error) => {
-                        console.error("Error fetching jobs in real-time:", error);
-                        loadingSpinner.innerHTML = `<p class="text-danger">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ${error.message}. โปรดตรวจสอบ Security Rules.</p>`;
+                        console.error("Firestore error: ", error);
+                        jobTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}</td></tr>`;
                     }
                 );
+                
+                document.getElementById('searchInput').addEventListener('keyup', filterJobs);
 
             } catch (error) {
-                console.error("Authentication or initialization failed:", error);
+                console.error("Initialization error:", error);
                 userDisplay.textContent = 'การเชื่อมต่อล้มเหลว';
-                loadingSpinner.innerHTML = `<p class="text-danger">การยืนันตัวตนล้มเหลว: ${error.message}</p>`;
+                jobTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">การเชื่อมต่อ Firebase ล้มเหลว: ${error.message}</td></tr>`;
             }
         }
         
         main();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        });
+    </script>
 </body>
 </html>
 
