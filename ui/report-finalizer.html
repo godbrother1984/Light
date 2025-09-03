@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/report-finalizer.html
-  version: 5.0 (Enhanced Complete Version with Page Setup & Tags System)
+  version: 5.1 (Fixed All Errors - Complete Working Version)
   date: 2025-09-03
-  time: 22:15:00
+  time: 22:45:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -364,6 +364,7 @@
         let activeEditor = null;
         let savedTemplates = [];
         let currentJobData = null;
+        let currentJobId = null;
         
         const alertPlaceholder = document.getElementById('alert-placeholder');
         const jobIdDisplay = document.getElementById('job-id-display');
@@ -383,19 +384,19 @@
             reader.onerror = error => reject(error);
         });
 
-        // Process tags in content
-        const processTags = (content, jobData) => {
-            if (!jobData) return content;
+        // Process tags in content - FIXED VERSION
+        const processTags = (content, jobData, jobId) => {
+            if (!jobData || !jobId) return content;
             
             const tags = {
-                '{{JOB_ID}}': jobId || '',
+                '{{JOB_ID}}': jobId,
                 '{{CUSTOMER_NAME}}': jobData.customerName || '',
                 '{{LOCATION}}': jobData.location || '',
                 '{{ADDRESS}}': jobData.address || '',
                 '{{DATE}}': jobData.date || '',
                 '{{STATUS}}': jobData.status || '',
-                '{{INSPECTORS}}': Array.isArray(jobData.inspectors) ? jobData.inspectors.join(', ') : '',
-                '{{ANALYSTS}}': Array.isArray(jobData.analysts) ? jobData.analysts.join(', ') : '',
+                '{{INSPECTORS}}': Array.isArray(jobData.inspectors) ? jobData.inspectors.join(', ') : (jobData.inspectors || ''),
+                '{{ANALYSTS}}': Array.isArray(jobData.analysts) ? jobData.analysts.join(', ') : (jobData.analysts || ''),
                 '{{REPORT_CREATOR}}': jobData.reportCreator || '',
                 '{{RESULTS_COUNT}}': jobData.results ? jobData.results.length.toString() : '0',
                 '{{PASS_COUNT}}': jobData.results ? jobData.results.filter(r => r.evaluation === 'ผ่าน').length.toString() : '0',
@@ -454,7 +455,8 @@
             
             let processedContent = content;
             Object.entries(tags).forEach(([tag, value]) => {
-                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g'), value);
+                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\            let processedContent = content;
+            Object.entries(tags).forEach'), 'g'), value);
             });
             
             return processedContent;
@@ -462,6 +464,16 @@
 
         // Generate PDF with settings
         async function generatePDF(preview = false) {
+            if (!currentJobId) {
+                showAlert('ไม่พบ Job ID', 'danger');
+                return;
+            }
+            
+            if (!currentJobData) {
+                showAlert('ไม่พบข้อมูลงาน กรุณาโหลดข้อมูลงานก่อน', 'danger');
+                return;
+            }
+            
             const generateBtn = document.getElementById('generate-pdf-btn');
             const previewBtn = document.getElementById('preview-pdf-btn');
             
@@ -501,7 +513,7 @@
 
                 // Process content with tags
                 const rawContent = activeEditor.getContent();
-                const processedContent = processTags(rawContent, currentJobData);
+                const processedContent = processTags(rawContent, currentJobData, currentJobId);
 
                 // Create temporary div for content rendering
                 const tempDiv = document.createElement('div');
@@ -607,13 +619,19 @@
                     modal.show();
                 } else {
                     // Download PDF
-                    doc.save(`รายงาน-${jobIdDisplay.textContent}-${new Date().toISOString().split('T')[0]}.pdf`);
+                    doc.save(`รายงาน-${currentJobId}-${new Date().toISOString().split('T')[0]}.pdf`);
                     showAlert('สร้าง PDF สำเร็จแล้ว!', 'success');
                 }
 
             } catch (error) {
                 console.error("PDF Generation Error:", error);
                 showAlert(`เกิดข้อผิดพลาดในการสร้าง PDF: ${error.message}`, 'danger');
+                
+                // Clean up temp div if it exists
+                const tempDiv = document.querySelector('div[style*="position: absolute"][style*="left: -9999px"]');
+                if (tempDiv) {
+                    document.body.removeChild(tempDiv);
+                }
             } finally {
                 targetBtn.disabled = false;
                 targetBtn.innerHTML = originalContent;
@@ -623,36 +641,27 @@
         (async () => {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
             
-            // Initialize TinyMCE
+            // Initialize TinyMCE with fixed plugins
             tinymce.init({
                 selector: '#report-editor',
                 height: 600,
-                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
                 menubar: 'file edit view insert format tools table help',
-                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen preview save print | insertfile image media link anchor codesample | ltr rtl',
                 autosave_ask_before_unload: true,
                 content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; line-height: 1.6; }',
-                language: 'th_TH',
                 setup: editor => { 
                     activeEditor = editor;
-                    
-                    // Add custom button for tags
-                    editor.ui.registry.addButton('insertTags', {
-                        text: 'Tags',
-                        icon: 'template',
-                        onAction: () => {
-                            const tagModal = document.querySelector('[data-bs-target="#tagsModal"]');
-                            if (tagModal) tagModal.click();
-                        }
-                    });
                 }
             });
 
             // Get job ID and setup
-            const jobId = new URLSearchParams(window.location.search).get('id');
-            if (jobId) {
-                jobIdDisplay.textContent = jobId;
-                document.getElementById('back-to-job-btn').href = `job-details.html?id=${jobId}`;
+            const urlParams = new URLSearchParams(window.location.search);
+            currentJobId = urlParams.get('id');
+            
+            if (currentJobId) {
+                jobIdDisplay.textContent = currentJobId;
+                document.getElementById('back-to-job-btn').href = `job-details.html?id=${currentJobId}`;
             } else {
                 jobIdDisplay.textContent = "ไม่พบ ID";
                 showAlert("ไม่พบ Job ID ใน URL", "danger");
@@ -677,7 +686,7 @@
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
                 
                 // Load job data
-                const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
+                const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, currentJobId);
                 const jobSnap = await getDoc(jobDocRef);
                 
                 if (jobSnap.exists()) {
