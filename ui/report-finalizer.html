@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/report-finalizer.html
-  version: 4.2 (Modernized UI - Fully Functional & Complete Code)
+  version: 5.0 (Enhanced Complete Version with Page Setup & Tags System)
   date: 2025-09-03
-  time: 11:27:00
+  time: 22:15:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -47,6 +47,65 @@
         .navbar { box-shadow: var(--card-shadow); }
         .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
         .tox-tinymce { border-radius: .5rem !important; }
+        
+        .tag-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin: 0.125rem;
+            transition: transform 0.1s ease;
+        }
+        
+        .tag-button:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        
+        .tag-category {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .image-preview {
+            max-width: 100px;
+            max-height: 60px;
+            border-radius: 0.25rem;
+            border: 1px solid #dee2e6;
+            object-fit: contain;
+        }
+        
+        .pdf-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            background: white;
+            min-height: 400px;
+            position: relative;
+            overflow: auto;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +116,7 @@
         <div id="sidebar-wrapper">
             <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
             <div class="list-group list-group-flush">
-                <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
                 <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
                 <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
             </div>
@@ -83,8 +142,13 @@
             </nav>
 
             <main class="container-fluid p-4">
-                 <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="h3 mb-0">ตัวสร้างรายงาน PDF สำหรับ Job ID: <span id="job-id-display" class="text-primary">Loading...</span></h1>
+                    <div class="d-flex gap-2">
+                        <a href="#" id="back-to-job-btn" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>กลับไปรายละเอียดงาน
+                        </a>
+                    </div>
                 </div>
                 
                 <div id="alert-placeholder"></div>
@@ -92,42 +156,195 @@
                 <div class="row">
                     <!-- Editor Column -->
                     <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="mb-3 d-flex align-items-center">
-                                    <label for="template-selector" class="form-label me-2 mb-0">เลือก Template:</label>
-                                    <select id="template-selector" class="form-select w-auto"></select>
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>แก้ไขเนื้อหารายงาน</h5>
+                                <div class="d-flex gap-2">
+                                    <select id="template-selector" class="form-select form-select-sm" style="width: auto;">
+                                        <option value="">-- เลือก Template --</option>
+                                    </select>
+                                    <button id="load-template-btn" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-download me-1"></i>โหลด
+                                    </button>
                                 </div>
+                            </div>
+                            <div class="card-body">
                                 <textarea id="report-editor"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Tags/Variables Panel -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tags me-2"></i>Tags สำหรับแทรกข้อมูล
+                                    <small class="text-muted">(คลิกเพื่อแทรกลงในรายงาน)</small>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">ข้อมูลงาน</h6>
+                                            <button class="tag-button" data-tag="{{JOB_ID}}">รหัสงาน</button>
+                                            <button class="tag-button" data-tag="{{CUSTOMER_NAME}}">ชื่อลูกค้า</button>
+                                            <button class="tag-button" data-tag="{{LOCATION}}">สถานที่</button>
+                                            <button class="tag-button" data-tag="{{ADDRESS}}">ที่อยู่</button>
+                                            <button class="tag-button" data-tag="{{DATE}}">วันที่ตรวจวัด</button>
+                                            <button class="tag-button" data-tag="{{STATUS}}">สถานะงาน</button>
+                                        </div>
+                                        
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">บุคลากร</h6>
+                                            <button class="tag-button" data-tag="{{INSPECTORS}}">ผู้ตรวจวัด</button>
+                                            <button class="tag-button" data-tag="{{ANALYSTS}}">ผู้วิเคราะห์</button>
+                                            <button class="tag-button" data-tag="{{REPORT_CREATOR}}">ผู้จัดทำรายงาน</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">ผลการตรวจวัด</h6>
+                                            <button class="tag-button" data-tag="{{RESULTS_TABLE}}">ตารางผลการตรวจวัด</button>
+                                            <button class="tag-button" data-tag="{{RESULTS_COUNT}}">จำนวนจุดตรวจวัด</button>
+                                            <button class="tag-button" data-tag="{{PASS_COUNT}}">จำนวนจุดที่ผ่าน</button>
+                                            <button class="tag-button" data-tag="{{FAIL_COUNT}}">จำนวนจุดที่ไม่ผ่าน</button>
+                                        </div>
+                                        
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">วันที่และเวลา</h6>
+                                            <button class="tag-button" data-tag="{{CURRENT_DATE}}">วันที่ปัจจุบัน</button>
+                                            <button class="tag-button" data-tag="{{CURRENT_TIME}}">เวลาปัจจุบัน</button>
+                                            <button class="tag-button" data-tag="{{THAI_DATE}}">วันที่ไทย</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PDF Settings and Actions Column -->
+                    <!-- Settings and Preview Column -->
                     <div class="col-lg-4">
-                        <div class="card">
+                        <!-- Page Setup -->
+                        <div class="card mb-3">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>ตั้งค่าการสร้าง PDF</h5>
+                                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>ตั้งค่าหน้ากระดาษ</h5>
                             </div>
                             <div class="card-body">
+                                <div class="page-setup-grid">
+                                    <div>
+                                        <label for="page-size" class="form-label">ขนาดกระดาษ</label>
+                                        <select id="page-size" class="form-select form-select-sm">
+                                            <option value="a4">A4 (210×297 mm)</option>
+                                            <option value="a3">A3 (297×420 mm)</option>
+                                            <option value="letter">Letter (216×279 mm)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="page-orientation" class="form-label">การวางกระดาษ</label>
+                                        <select id="page-orientation" class="form-select form-select-sm">
+                                            <option value="portrait">แนวตั้ง (Portrait)</option>
+                                            <option value="landscape">แนวนอน (Landscape)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="margin-top" class="form-label">ขอบบน (mm)</label>
+                                        <input type="number" id="margin-top" class="form-control form-control-sm" value="20" min="0" max="50">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="margin-bottom" class="form-label">ขอบล่าง (mm)</label>
+                                        <input type="number" id="margin-bottom" class="form-control form-control-sm" value="20" min="0" max="50">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="margin-left" class="form-label">ขอบซ้าย (mm)</label>
+                                        <input type="number" id="margin-left" class="form-control form-control-sm" value="15" min="0" max="50">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="margin-right" class="form-label">ขอบขวา (mm)</label>
+                                        <input type="number" id="margin-right" class="form-control form-control-sm" value="15" min="0" max="50">
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
                                 <div class="mb-3">
                                     <label for="header-img" class="form-label">Header Image</label>
-                                    <input class="form-control" type="file" id="header-img" accept="image/*">
+                                    <input class="form-control form-control-sm" type="file" id="header-img" accept="image/*">
+                                    <div id="header-preview" class="mt-2"></div>
                                 </div>
+                                
                                 <div class="mb-3">
                                     <label for="footer-img" class="form-label">Footer Image</label>
-                                    <input class="form-control" type="file" id="footer-img" accept="image/*">
+                                    <input class="form-control form-control-sm" type="file" id="footer-img" accept="image/*">
+                                    <div id="footer-preview" class="mt-2"></div>
                                 </div>
+                                
                                 <div class="mb-3">
                                     <label for="watermark-img" class="form-label">Watermark Image</label>
-                                    <input class="form-control" type="file" id="watermark-img" accept="image/*">
+                                    <input class="form-control form-control-sm" type="file" id="watermark-img" accept="image/*">
+                                    <div id="watermark-preview" class="mt-2"></div>
+                                    <div class="mt-1">
+                                        <label for="watermark-opacity" class="form-label">ความโปร่งใส (%)</label>
+                                        <input type="range" class="form-range" id="watermark-opacity" min="5" max="50" value="15">
+                                        <small class="text-muted"><span id="opacity-value">15</span>%</small>
+                                    </div>
                                 </div>
-                                <hr>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>การดำเนินการ</h5>
+                            </div>
+                            <div class="card-body">
                                 <div class="d-grid gap-2">
-                                     <button id="save-content-btn" class="btn btn-secondary"><i class="fas fa-save me-2"></i>บันทึกเนื้อหาสำหรับงานนี้</button>
-                                     <button id="save-as-template-btn" class="btn btn-info"><i class="fas fa-file-export me-2"></i>บันทึกเป็น Template ใหม่</button>
-                                     <button id="generate-pdf-btn" class="btn btn-primary"><i class="fas fa-file-pdf me-2"></i>สร้าง PDF</button>
+                                    <button id="preview-pdf-btn" class="btn btn-info">
+                                        <i class="fas fa-eye me-2"></i>ดูตัวอย่าง PDF
+                                    </button>
+                                    <button id="save-content-btn" class="btn btn-secondary">
+                                        <i class="fas fa-save me-2"></i>บันทึกเนื้อหาสำหรับงานนี้
+                                    </button>
+                                    <button id="save-as-template-btn" class="btn btn-success">
+                                        <i class="fas fa-file-export me-2"></i>บันทึกเป็น Template ใหม่
+                                    </button>
+                                    <button id="generate-pdf-btn" class="btn btn-primary">
+                                        <i class="fas fa-file-pdf me-2"></i>สร้างและดาวน์โหลด PDF
+                                    </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PDF Preview Modal -->
+                <div class="modal fade" id="pdfPreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-eye me-2"></i>ตัวอย่าง PDF
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="pdf-preview-container" class="pdf-preview">
+                                    <div class="loading-overlay">
+                                        <div class="spinner-border text-primary mb-2"></div>
+                                        <span>กำลังสร้างตัวอย่าง...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                <button type="button" id="confirm-generate-pdf" class="btn btn-primary">
+                                    <i class="fas fa-download me-2"></i>ดาวน์โหลด PDF
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -146,6 +363,7 @@
         const { jsPDF } = window.jspdf;
         let activeEditor = null;
         let savedTemplates = [];
+        let currentJobData = null;
         
         const alertPlaceholder = document.getElementById('alert-placeholder');
         const jobIdDisplay = document.getElementById('job-id-display');
@@ -165,95 +383,276 @@
             reader.onerror = error => reject(error);
         });
 
-        async function generatePDF() {
+        // Process tags in content
+        const processTags = (content, jobData) => {
+            if (!jobData) return content;
+            
+            const tags = {
+                '{{JOB_ID}}': jobId || '',
+                '{{CUSTOMER_NAME}}': jobData.customerName || '',
+                '{{LOCATION}}': jobData.location || '',
+                '{{ADDRESS}}': jobData.address || '',
+                '{{DATE}}': jobData.date || '',
+                '{{STATUS}}': jobData.status || '',
+                '{{INSPECTORS}}': Array.isArray(jobData.inspectors) ? jobData.inspectors.join(', ') : '',
+                '{{ANALYSTS}}': Array.isArray(jobData.analysts) ? jobData.analysts.join(', ') : '',
+                '{{REPORT_CREATOR}}': jobData.reportCreator || '',
+                '{{RESULTS_COUNT}}': jobData.results ? jobData.results.length.toString() : '0',
+                '{{PASS_COUNT}}': jobData.results ? jobData.results.filter(r => r.evaluation === 'ผ่าน').length.toString() : '0',
+                '{{FAIL_COUNT}}': jobData.results ? jobData.results.filter(r => r.evaluation === 'ไม่ผ่าน').length.toString() : '0',
+                '{{CURRENT_DATE}}': new Date().toLocaleDateString('th-TH'),
+                '{{CURRENT_TIME}}': new Date().toLocaleTimeString('th-TH'),
+                '{{THAI_DATE}}': new Date().toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    era: 'short'
+                })
+            };
+            
+            // Process results table
+            if (content.includes('{{RESULTS_TABLE}}') && jobData.results) {
+                let tableHtml = `
+                    <table border="1" style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="padding: 8px; text-align: center;">ลำดับ</th>
+                                <th style="padding: 8px;">Lay Out</th>
+                                <th style="padding: 8px;">พื้นที่ตรวจวัด</th>
+                                <th style="padding: 8px;">ลักษณะงาน</th>
+                                <th style="padding: 8px; text-align: center;">ค่ามาตรฐาน</th>
+                                <th style="padding: 8px; text-align: center;">ผลที่วัดได้</th>
+                                <th style="padding: 8px; text-align: center;">ผลการประเมิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                jobData.results.forEach((result, index) => {
+                    const resultValue = result.measurementType === 'spot' 
+                        ? result.spotValue || '-'
+                        : `${result.areaAvgValue || '-'} / ${result.areaMinValue || '-'}`;
+                    
+                    const evaluationColor = result.evaluation === 'ผ่าน' ? '#28a745' : '#dc3545';
+                    
+                    tableHtml += `
+                        <tr>
+                            <td style="padding: 8px; text-align: center;">${index + 1}</td>
+                            <td style="padding: 8px;">${result.layout || ''}</td>
+                            <td style="padding: 8px;">${result.area || ''}</td>
+                            <td style="padding: 8px;">${result.workType || ''}</td>
+                            <td style="padding: 8px; text-align: center;">${result.standard || ''}</td>
+                            <td style="padding: 8px; text-align: center;">${resultValue}</td>
+                            <td style="padding: 8px; text-align: center; color: ${evaluationColor}; font-weight: bold;">${result.evaluation || ''}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += '</tbody></table>';
+                tags['{{RESULTS_TABLE}}'] = tableHtml;
+            }
+            
+            let processedContent = content;
+            Object.entries(tags).forEach(([tag, value]) => {
+                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g'), value);
+            });
+            
+            return processedContent;
+        };
+
+        // Generate PDF with settings
+        async function generatePDF(preview = false) {
             const generateBtn = document.getElementById('generate-pdf-btn');
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Generating...`;
+            const previewBtn = document.getElementById('preview-pdf-btn');
+            
+            const targetBtn = preview ? previewBtn : generateBtn;
+            const originalContent = targetBtn.innerHTML;
+            
+            targetBtn.disabled = true;
+            targetBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${preview ? 'กำลังสร้างตัวอย่าง...' : 'กำลังสร้าง PDF...'}`;
 
             try {
+                // Get page settings
+                const pageSize = document.getElementById('page-size').value;
+                const orientation = document.getElementById('page-orientation').value;
+                const margins = {
+                    top: parseInt(document.getElementById('margin-top').value),
+                    bottom: parseInt(document.getElementById('margin-bottom').value),
+                    left: parseInt(document.getElementById('margin-left').value),
+                    right: parseInt(document.getElementById('margin-right').value)
+                };
+
+                // Create PDF
                 const doc = new jsPDF({
-                    orientation: 'p',
+                    orientation: orientation === 'landscape' ? 'l' : 'p',
                     unit: 'mm',
-                    format: 'a4'
+                    format: pageSize
                 });
 
+                // Get images
                 const headerFile = document.getElementById('header-img').files[0];
                 const footerFile = document.getElementById('footer-img').files[0];
                 const watermarkFile = document.getElementById('watermark-img').files[0];
+                const watermarkOpacity = parseInt(document.getElementById('watermark-opacity').value) / 100;
 
                 const headerBase64 = headerFile ? await fileToBase64(headerFile) : null;
                 const footerBase64 = footerFile ? await fileToBase64(footerFile) : null;
                 const watermarkBase64 = watermarkFile ? await fileToBase64(watermarkFile) : null;
 
-                const contentElement = activeEditor.getContainer();
-                const canvas = await html2canvas(contentElement.querySelector('.tox-edit-area__iframe').contentDocument.body, {
+                // Process content with tags
+                const rawContent = activeEditor.getContent();
+                const processedContent = processTags(rawContent, currentJobData);
+
+                // Create temporary div for content rendering
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = processedContent;
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.width = '800px';
+                tempDiv.style.padding = '20px';
+                tempDiv.style.fontFamily = 'Sarabun, sans-serif';
+                document.body.appendChild(tempDiv);
+
+                // Render content to canvas
+                const canvas = await html2canvas(tempDiv, {
                     scale: 2,
                     useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
                 });
+
+                document.body.removeChild(tempDiv);
 
                 const imgData = canvas.toDataURL('image/png');
                 const imgProps = doc.getImageProperties(imgData);
                 const pdfWidth = doc.internal.pageSize.getWidth();
                 const pdfHeight = doc.internal.pageSize.getHeight();
-                const imgWidth = pdfWidth - 20; // with margin
-                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                
+                // Calculate content area considering margins
+                const contentWidth = pdfWidth - margins.left - margins.right;
+                const contentHeight = pdfHeight - margins.top - margins.bottom;
+                const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
                 
                 let heightLeft = imgHeight;
                 let position = 0;
                 let pageNumber = 1;
                 
+                // Function to add page assets (header, footer, watermark)
                 function addPageAssets() {
+                    // Add watermark
                     if (watermarkBase64) {
-                        doc.setGState(new doc.GState({opacity: 0.1}));
-                        doc.addImage(watermarkBase64, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                        doc.setGState(new doc.GState({opacity: watermarkOpacity}));
+                        doc.addImage(watermarkBase64, 'PNG', 
+                            margins.left, 
+                            margins.top, 
+                            contentWidth, 
+                            contentHeight
+                        );
                         doc.setGState(new doc.GState({opacity: 1}));
                     }
-                    if (headerBase64) doc.addImage(headerBase64, 'PNG', 0, 0, pdfWidth, 30); // Adjust height as needed
-                    if (footerBase64) doc.addImage(footerBase64, 'PNG', 0, pdfHeight - 20, pdfWidth, 20); // Adjust height as needed
+                    
+                    // Add header
+                    if (headerBase64) {
+                        const headerHeight = 15;
+                        doc.addImage(headerBase64, 'PNG', 
+                            margins.left, 
+                            5, 
+                            contentWidth, 
+                            headerHeight
+                        );
+                    }
+                    
+                    // Add footer
+                    if (footerBase64) {
+                        const footerHeight = 10;
+                        doc.addImage(footerBase64, 'PNG', 
+                            margins.left, 
+                            pdfHeight - footerHeight - 5, 
+                            contentWidth, 
+                            footerHeight
+                        );
+                    }
+                    
+                    // Add page number
+                    doc.setFontSize(10);
+                    doc.text(
+                        `หน้า ${pageNumber}`, 
+                        pdfWidth - margins.right - 20, 
+                        pdfHeight - 10
+                    );
                 }
                 
+                // Add first page
                 addPageAssets();
-                doc.addImage(imgData, 'PNG', 10, 35, imgWidth, imgHeight); // with margin
-                heightLeft -= (pdfHeight - 45);
-
+                doc.addImage(imgData, 'PNG', margins.left, margins.top, contentWidth, Math.min(imgHeight, contentHeight));
+                heightLeft -= contentHeight;
+                
+                // Add additional pages if needed
                 while (heightLeft > 0) {
                     position = heightLeft - imgHeight;
                     doc.addPage();
                     pageNumber++;
                     addPageAssets();
-                    doc.addImage(imgData, 'PNG', 10, position + 35, imgWidth, imgHeight);
-                    heightLeft -= (pdfHeight - 45);
+                    doc.addImage(imgData, 'PNG', margins.left, margins.top + position, contentWidth, imgHeight);
+                    heightLeft -= contentHeight;
                 }
 
-                doc.save(`report-${jobIdDisplay.textContent}.pdf`);
-                showAlert('สร้าง PDF สำเร็จแล้ว!', 'success');
+                if (preview) {
+                    // Show preview in modal
+                    const previewContainer = document.getElementById('pdf-preview-container');
+                    const pdfDataUri = doc.output('datauristring');
+                    previewContainer.innerHTML = `<iframe src="${pdfDataUri}" width="100%" height="600px" style="border: none;"></iframe>`;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
+                    modal.show();
+                } else {
+                    // Download PDF
+                    doc.save(`รายงาน-${jobIdDisplay.textContent}-${new Date().toISOString().split('T')[0]}.pdf`);
+                    showAlert('สร้าง PDF สำเร็จแล้ว!', 'success');
+                }
 
             } catch (error) {
                 console.error("PDF Generation Error:", error);
                 showAlert(`เกิดข้อผิดพลาดในการสร้าง PDF: ${error.message}`, 'danger');
             } finally {
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = `<i class="fas fa-file-pdf me-2"></i>สร้าง PDF`;
+                targetBtn.disabled = false;
+                targetBtn.innerHTML = originalContent;
             }
         }
         
         (async () => {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
             
+            // Initialize TinyMCE
             tinymce.init({
                 selector: '#report-editor',
                 height: 600,
                 plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
                 menubar: 'file edit view insert format tools table help',
-                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen preview save print | insertfile image media template link anchor codesample | ltr rtl',
                 autosave_ask_before_unload: true,
-                content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; }',
-                setup: editor => { activeEditor = editor; }
+                content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; line-height: 1.6; }',
+                language: 'th_TH',
+                setup: editor => { 
+                    activeEditor = editor;
+                    
+                    // Add custom button for tags
+                    editor.ui.registry.addButton('insertTags', {
+                        text: 'Tags',
+                        icon: 'template',
+                        onAction: () => {
+                            const tagModal = document.querySelector('[data-bs-target="#tagsModal"]');
+                            if (tagModal) tagModal.click();
+                        }
+                    });
+                }
             });
 
+            // Get job ID and setup
             const jobId = new URLSearchParams(window.location.search).get('id');
-            if(jobId) {
+            if (jobId) {
                 jobIdDisplay.textContent = jobId;
+                document.getElementById('back-to-job-btn').href = `job-details.html?id=${jobId}`;
             } else {
                 jobIdDisplay.textContent = "ไม่พบ ID";
                 showAlert("ไม่พบ Job ID ใน URL", "danger");
@@ -277,47 +676,72 @@
                 
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
                 
-                const templatesCollectionPath = `/artifacts/${appId}/public/data/report_templates`;
+                // Load job data
                 const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
-
+                const jobSnap = await getDoc(jobDocRef);
+                
+                if (jobSnap.exists()) {
+                    currentJobData = jobSnap.data();
+                    console.log('Loaded job data:', currentJobData);
+                } else {
+                    showAlert('ไม่พบข้อมูลงาน', 'danger');
+                }
+                
+                // Load templates
+                const templatesCollectionPath = `/artifacts/${appId}/public/data/report_templates`;
                 onSnapshot(collection(db, templatesCollectionPath), (snapshot) => {
                     const currentVal = templateSelector.value;
-                    templateSelector.innerHTML = '';
+                    templateSelector.innerHTML = '<option value="">-- เลือก Template --</option>';
                     savedTemplates = [];
-                    if(snapshot.empty) { 
-                        templateSelector.innerHTML = '<option value="">ไม่พบ Template</option>'; 
-                        loadJobContent(); 
+                    
+                    if (snapshot.empty) {
                         return;
                     }
+                    
                     snapshot.forEach(doc => {
                         savedTemplates.push({ id: doc.id, ...doc.data() });
-                        templateSelector.add(new Option(doc.data().name, doc.id));
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = doc.data().name;
+                        templateSelector.appendChild(option);
                     });
+                    
                     if (currentVal) templateSelector.value = currentVal;
+                    
+                    // Load job content or default template
                     loadJobContent();
                 });
 
                 async function loadJobContent() {
-                    const jobDoc = await getDoc(jobDocRef);
-                    if (jobDoc.exists() && jobDoc.data().reportContent) {
-                        activeEditor.setContent(jobDoc.data().reportContent);
+                    if (currentJobData && currentJobData.reportContent) {
+                        activeEditor.setContent(currentJobData.reportContent);
                         showAlert("โหลดเนื้อหาที่เคยบันทึกไว้สำหรับงานนี้แล้ว", "success");
-                    } else {
-                        templateSelector.dispatchEvent(new Event('change'));
+                    } else if (savedTemplates.length > 0) {
+                        // Load first template as default
+                        const firstTemplate = savedTemplates[0];
+                        activeEditor.setContent(firstTemplate.content);
+                        templateSelector.value = firstTemplate.id;
                     }
                 }
 
-                templateSelector.addEventListener('change', () => {
+                // Template loading
+                document.getElementById('load-template-btn').addEventListener('click', () => {
                     const selectedId = templateSelector.value;
+                    if (!selectedId) {
+                        showAlert('กรุณาเลือก Template ก่อน', 'warning');
+                        return;
+                    }
+                    
                     const template = savedTemplates.find(t => t.id === selectedId);
-                    if(template && activeEditor) {
+                    if (template && activeEditor) {
                         activeEditor.setContent(template.content);
-                    } else if (activeEditor) {
-                        activeEditor.setContent('');
+                        showAlert(`โหลด Template "${template.name}" สำเร็จ`, 'success');
                     }
                 });
 
+                // Event listeners
                 document.getElementById('save-content-btn').addEventListener('click', async () => {
+                    const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, currentJobId);
                     await setDoc(jobDocRef, { reportContent: activeEditor.getContent() }, { merge: true });
                     showAlert("บันทึกเนื้อหาสำหรับงานนี้สำเร็จ", "success");
                 });
@@ -325,23 +749,71 @@
                 document.getElementById('save-as-template-btn').addEventListener('click', async () => {
                     const name = prompt("กรุณาตั้งชื่อ Template ใหม่:");
                     if (name && name.trim() !== '') {
-                        await addDoc(collection(db, templatesCollectionPath), {
-                            name: name,
-                            content: activeEditor.getContent()
+                        const templatesRef = collection(db, `/artifacts/${appId}/public/data/report_templates`);
+                        await addDoc(templatesRef, {
+                            name: name.trim(),
+                            content: activeEditor.getContent(),
+                            createdAt: new Date().toISOString(),
+                            createdBy: auth.currentUser.uid
                         });
                         showAlert(`บันทึกเป็น Template ใหม่ชื่อ "${name}" สำเร็จ`, "success");
                     }
                 });
                 
-                document.getElementById('generate-pdf-btn').addEventListener('click', generatePDF);
+                document.getElementById('preview-pdf-btn').addEventListener('click', () => generatePDF(true));
+                document.getElementById('generate-pdf-btn').addEventListener('click', () => generatePDF(false));
+                document.getElementById('confirm-generate-pdf').addEventListener('click', () => {
+                    bootstrap.Modal.getInstance(document.getElementById('pdfPreviewModal')).hide();
+                    generatePDF(false);
+                });
 
-            } catch (error) { showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger'); }
+                // Tags system
+                document.querySelectorAll('.tag-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tag = button.dataset.tag;
+                        if (activeEditor) {
+                            activeEditor.insertContent(tag);
+                            showAlert(`แทรก ${tag} สำเร็จ`, 'info', 2000);
+                        }
+                    });
+                });
+
+                // File preview handlers
+                const setupFilePreview = (inputId, previewId) => {
+                    document.getElementById(inputId).addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        const previewDiv = document.getElementById(previewId);
+                        
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                previewDiv.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="Preview">`;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            previewDiv.innerHTML = '';
+                        }
+                    });
+                };
+
+                setupFilePreview('header-img', 'header-preview');
+                setupFilePreview('footer-img', 'footer-preview');
+                setupFilePreview('watermark-img', 'watermark-preview');
+
+                // Watermark opacity slider
+                document.getElementById('watermark-opacity').addEventListener('input', function(e) {
+                    document.getElementById('opacity-value').textContent = e.target.value;
+                });
+
+            } catch (error) { 
+                showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger'); 
+            }
         })();
 
+        // Sidebar toggle
         document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.getElementById('wrapper').classList.toggle('sidebar-mini');
         });
     </script>
 </body>
 </html>
-

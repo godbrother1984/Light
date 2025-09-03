@@ -1,54 +1,8 @@
-<main class="container-fluid p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="h3 mb-0" id="page-title">สร้างงานใหม่</h1>
-                     <a href="main.html" class="btn btn-outline-secondary" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
-                </div>
-                 <div id="alert-placeholder"></div>
-                <form id="newJobForm">
-                    <input type="hidden" id="edit-job-id" value="">
-                    <div class="card">
-                        <div class="card-body">
-                            <section class="mb-4">
-                                <h5 class="mb-3"><i class="fas fa-building me-2"></i>ข้อมูลลูกค้า</h5>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="customer-select" class="form-label">ชื่อลูกค้า</label>
-                                        <select id="customer-select" class="form-control" required></select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="branch-select" class="form-label">สาขา / สถานที่</label>
-                                        <select id="branch-select" class="form-control" required></select>
-                                    </div>
-                                </div>
-                            </section>
-                            <hr>
-                             <section class="mb-4">
-                                <h5 class="mb-3"><i class="fas fa-users-cog me-2"></i>ผู้รับผิดชอบ</h5>
-                                <div class="row g-3">
-                                     <div class="col-md-4">
-                                        <label for="inspector-select" class="form-label">ผู้ตรวจวัด (เลือกได้หลายคน)</label>
-                                        <select id="inspector-select" class="form-control" multiple required></select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์ (เลือกได้หลายคน)</label>
-                                        <select id="analyst-select" class="form-control" multiple required></select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน</label>
-                                        <select id="report-creator-select" class="form-control" required></select>
-                                    </div>
-                                </div>
-                            </section>
-                            <hr>
-                            <section>
-                                <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="measurementDate" class="form-label">วันที่ตรว<!-- 
+<!-- 
   path: /ui/new-job.html
-  version: 2.1 (Fixed Multiple Analysts Selection)
+  version: 2.3 (Complete Fixed Version from Original Document)
   date: 2025-09-03
-  time: 17:05:00
+  time: 22:00:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -98,7 +52,7 @@
         <div id="sidebar-wrapper">
             <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
             <div class="list-group list-group-flush">
-                <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
                 <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
                 <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
             </div>
@@ -125,11 +79,12 @@
 
             <main class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="h3 mb-0">สร้างงานใหม่</h1>
-                     <a href="main.html" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>ยกเลิก</a>
+                    <h1 class="h3 mb-0" id="page-title">สร้างงานใหม่</h1>
+                    <a href="main.html" class="btn btn-outline-secondary" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
                 </div>
-                 <div id="alert-placeholder"></div>
+                <div id="alert-placeholder"></div>
                 <form id="newJobForm">
+                    <input type="hidden" id="edit-job-id" value="">
                     <div class="card">
                         <div class="card-body">
                             <section class="mb-4">
@@ -146,10 +101,10 @@
                                 </div>
                             </section>
                             <hr>
-                             <section class="mb-4">
+                            <section class="mb-4">
                                 <h5 class="mb-3"><i class="fas fa-users-cog me-2"></i>ผู้รับผิดชอบ</h5>
                                 <div class="row g-3">
-                                     <div class="col-md-4">
+                                    <div class="col-md-4">
                                         <label for="inspector-select" class="form-label">ผู้ตรวจวัด (เลือกได้หลายคน)</label>
                                         <select id="inspector-select" class="form-control" multiple required></select>
                                     </div>
@@ -167,11 +122,19 @@
                             <section>
                                 <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label for="measurementDate" class="form-label">วันที่ตรวจวัด</label>
                                         <input type="date" class="form-control" id="measurementDate" required>
                                     </div>
-                                     <div class="col-md-8">
+                                    <div class="col-md-3">
+                                        <label for="jobStatus" class="form-label">สถานะงาน</label>
+                                        <select class="form-select" id="jobStatus">
+                                            <option value="new">ใหม่</option>
+                                            <option value="in-progress">กำลังดำเนินการ</option>
+                                            <option value="completed">เสร็จสิ้น</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
                                         <label for="jobNotes" class="form-label">หมายเหตุเพิ่มเติม</label>
                                         <textarea class="form-control" id="jobNotes" rows="1"></textarea>
                                     </div>
@@ -179,7 +142,9 @@
                             </section>
                         </div>
                         <div class="card-footer text-end">
-                            <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fas fa-save me-2"></i>บันทึกและสร้างงาน</button>
+                            <button type="submit" id="submit-btn" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i><span id="submit-text">บันทึกและสร้างงาน</span>
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -193,7 +158,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
         let db, auth;
@@ -214,8 +179,15 @@
 
         async function main() {
             let finalFirebaseConfig;
-            try { if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; } catch(e) { console.error(e); }
-            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config'); return; }
+            try { 
+                if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); 
+                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; 
+            } catch(e) { console.error(e); }
+            
+            if (!finalFirebaseConfig) { 
+                showAlert('ไม่พบ Firebase Config'); 
+                return; 
+            }
 
             const app = initializeApp(finalFirebaseConfig);
             db = getFirestore(app);
@@ -225,11 +197,13 @@
                 if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
-            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); }
+            } catch (error) { 
+                showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); 
+            }
 
             // Check if this is edit mode
             const urlParams = new URLSearchParams(window.location.search);
-            const editJobId = urlParams.get('edit');
+            const editJobId = urlParams.get('id');
             const isEditMode = !!editJobId;
             
             if (isEditMode) {
@@ -241,11 +215,36 @@
             }
 
             // Initialize Choices.js dropdowns
-            const customerSelect = new Choices('#customer-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกลูกค้า...' });
-            const branchSelect = new Choices('#branch-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกสาขา...' });
-            const inspectorSelect = new Choices('#inspector-select', { searchEnabled: true, removeItemButton: true, itemSelectText: 'เลือก' });
-            const analystSelect = new Choices('#analyst-select', { searchEnabled: true, removeItemButton: true, itemSelectText: 'เลือก' });
-            const reportCreatorSelect = new Choices('#report-creator-select', { searchEnabled: true, itemSelectText: 'เลือก' });
+            const customerSelect = new Choices('#customer-select', { 
+                searchEnabled: true, 
+                itemSelectText: 'เลือก', 
+                placeholder: true, 
+                placeholderValue: 'เลือกลูกค้า...' 
+            });
+            
+            const branchSelect = new Choices('#branch-select', { 
+                searchEnabled: true, 
+                itemSelectText: 'เลือก', 
+                placeholder: true, 
+                placeholderValue: 'เลือกสาขา...' 
+            });
+            
+            const inspectorSelect = new Choices('#inspector-select', { 
+                searchEnabled: true, 
+                removeItemButton: true, 
+                itemSelectText: 'เลือก' 
+            });
+            
+            const analystSelect = new Choices('#analyst-select', { 
+                searchEnabled: true, 
+                removeItemButton: true, 
+                itemSelectText: 'เลือก' 
+            });
+            
+            const reportCreatorSelect = new Choices('#report-creator-select', { 
+                searchEnabled: true, 
+                itemSelectText: 'เลือก' 
+            });
 
             // Fetch and populate customers
             const customersRef = collection(db, `/artifacts/${appId}/public/data/customers`);
@@ -264,12 +263,16 @@
             const inspectorsRef = collection(db, `/artifacts/${appId}/public/data/inspectors`);
             onSnapshot(inspectorsRef, (snapshot) => {
                 inspectorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const inspectorChoices = inspectorsData.map(i => ({ value: i.inspectorName, label: `${i.inspectorName} (${i.inspectorTitle})` }));
+                const inspectorChoices = inspectorsData.map(i => ({ 
+                    value: i.inspectorName, 
+                    label: `${i.inspectorName} (${i.inspectorTitle})` 
+                }));
+                
                 inspectorSelect.setChoices(inspectorChoices, 'value', 'label', true);
                 analystSelect.setChoices(inspectorChoices, 'value', 'label', true);
                 reportCreatorSelect.setChoices(inspectorChoices, 'value', 'label', true);
 
-                // Set default report creator (example: 'นางสาวสุกานดา คำก๋อง')
+                // Set default report creator
                 if (!isEditMode) {
                     const defaultCreator = inspectorsData.find(i => i.inspectorTitle === 'ผู้จัดทำรายงาน');
                     if (defaultCreator) {
@@ -293,7 +296,10 @@
                             customerSelect.setChoiceByValue(jobData.customerId);
                             const customer = customersData.find(c => c.id === jobData.customerId);
                             if (customer && customer.branches) {
-                                const branchChoices = customer.branches.map(b => ({ value: b.location, label: `${b.location} - ${b.address || ''}` }));
+                                const branchChoices = customer.branches.map(b => ({ 
+                                    value: b.location, 
+                                    label: `${b.location} - ${b.address || ''}` 
+                                }));
                                 branchSelect.setChoices(branchChoices, 'value', 'label', true);
                                 branchSelect.setChoiceByValue(jobData.location);
                             }
@@ -337,7 +343,10 @@
                 const selectedCustomer = customersData.find(c => c.id === customerId);
                 branchSelect.clearStore();
                 if (selectedCustomer && selectedCustomer.branches) {
-                    const branchChoices = selectedCustomer.branches.map(b => ({ value: b.location, label: `${b.location} - ${b.address || ''}`}));
+                    const branchChoices = selectedCustomer.branches.map(b => ({ 
+                        value: b.location, 
+                        label: `${b.location} - ${b.address || ''}` 
+                    }));
                     branchSelect.setChoices(branchChoices, 'value', 'label', true);
                 }
             });
@@ -404,6 +413,7 @@
                 }
             });
         }
+        
         main();
     </script>
     <script>
