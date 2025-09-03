@@ -1,0 +1,302 @@
+<!-- 
+  path: /ui/report-finalizer.html
+  version: 3.3 (Restored Professional Features)
+  date: 2025-09-03
+  time: 10:18:00
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตัวสร้างรายงาน PDF - Light Measurement System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <script src="https://cdn.tiny.cloud/1/89apconez9ynna1jgwbnp15ywm4fk8ob84ndx3rcl5ih7q69/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <style>
+        body { font-family: 'Sarabun', sans-serif !important; background-color: #f8f9fa; }
+        .main-header { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 0.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .main-header h1 { color: #003366; font-weight: 700; margin: 0; }
+        .card { border: none; border-radius: 0.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .form-label { font-weight: 500; }
+        .tag { cursor: pointer; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 0.25rem; padding: 0.2rem 0.5rem; font-family: monospace; font-size: 0.9em; transition: background-color 0.2s; }
+        .tag:hover { background-color: #d1d5db; }
+        .tag-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .modal-xl { max-width: 90%; }
+        .preview-iframe { width: 100%; height: 75vh; border: 1px solid #dee2e6; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #003366;">
+        <div class="container-fluid"><a class="navbar-brand fw-bold" href="main.html"><i class="fas fa-lightbulb me-2"></i>Light Measurement System</a></div>
+    </nav>
+
+    <div class="container-fluid p-4">
+        <div class="main-header">
+             <nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="main.html">รายการงาน</a></li><li class="breadcrumb-item"><a id="breadcrumb-job-details" href="job-details.html">รายละเอียดงาน</a></li><li class="breadcrumb-item active">ตัวสร้างรายงาน PDF</li></ol></nav>
+            <h1 class="mt-2"><i class="fas fa-drafting-compass me-3"></i>ตัวสร้างรายงาน PDF</h1>
+        </div>
+        
+        <div id="alert-container"></div>
+
+        <div class="row g-4">
+            <!-- Settings & Tags Column -->
+            <div class="col-lg-4">
+                 <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-cogs me-2"></i>ตั้งค่าเอกสารและส่งออก</h5><hr>
+                        
+                        <div class="accordion" id="settingsAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">1. ตั้งค่าหน้ากระดาษ PDF</button></h2>
+                                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion"><div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-6 mb-2"><label for="pageSize" class="form-label">ขนาด</label><select id="pageSize" class="form-select form-select-sm"><option value="a4">A4</option><option value="letter">Letter</option></select></div>
+                                        <div class="col-6 mb-2"><label for="pageOrientation" class="form-label">การวางแนว</label><select id="pageOrientation" class="form-select form-select-sm"><option value="portrait">แนวตั้ง</option><option value="landscape">แนวนอน</option></select></div>
+                                        <div class="col-12"><label class="form-label">ระยะขอบ (มม.)</label></div>
+                                        <div class="col-3"><input type="number" class="form-control form-control-sm" id="marginTop" value="15" title="บน"></div>
+                                        <div class="col-3"><input type="number" class="form-control form-control-sm" id="marginRight" value="15" title="ขวา"></div>
+                                        <div class="col-3"><input type="number" class="form-control form-control-sm" id="marginBottom" value="15" title="ล่าง"></div>
+                                        <div class="col-3"><input type="number" class="form-control form-control-sm" id="marginLeft" value="15" title="ซ้าย"></div>
+                                </div></div></div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">2. ตั้งค่ารูปภาพประกอบ</button></h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion"><div class="accordion-body">
+                                    <div class="mb-2"><label for="headerImage" class="form-label">รูป Header (บนสุด)</label><input class="form-control form-control-sm" type="file" id="headerImage" accept="image/png, image/jpeg"></div>
+                                    <div class="mb-2"><label for="footerImage" class="form-label">รูป Footer (ล่างสุด)</label><input class="form-control form-control-sm" type="file" id="footerImage" accept="image/png, image/jpeg"></div>
+                                    <div class="mb-2"><label for="watermarkImage" class="form-label">รูป Watermark (พื้นหลัง)</label><input class="form-control form-control-sm" type="file" id="watermarkImage" accept="image/png, image/jpeg"></div>
+                                </div></div>
+                            </div>
+                             <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">3. เครื่องมือเสริม</button></h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion"><div class="accordion-body">
+                                    <label class="form-label">นำเข้าเนื้อหาตั้งต้น</label>
+                                    <div class="input-group">
+                                        <input class="form-control form-control-sm" type="file" id="importFile" accept=".docx,.txt">
+                                        <button class="btn btn-outline-primary btn-sm" type="button" id="importBtn"><i class="fas fa-file-import"></i></button>
+                                    </div>
+                                    <hr>
+                                    <h6 class="card-title"><i class="fas fa-tags me-2"></i>Tag ที่ใช้งานได้</h6>
+                                    <div style="max-height: 150px; overflow-y: auto; padding-right: 10px;">
+                                        <p class="small text-muted mb-1">คลิกเพื่อคัดลอก</p>
+                                        <h6>ข้อมูลงาน</h6><div class="tag-group" id="tags-job"></div>
+                                        <h6 class="mt-3">ข้อมูลสรุป</h6><div class="tag-group" id="tags-summary"></div>
+                                    </div>
+                                </div></div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                           <button id="previewPdfBtn" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#previewModal"><i class="fas fa-eye me-2"></i>ดูตัวอย่าง</button>
+                           <button id="generatePdfBtn" class="btn btn-success btn-lg"><i class="fas fa-file-pdf me-2"></i>สร้างและดาวน์โหลด PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Editor Column -->
+            <div class="col-lg-8">
+                <div class="card"><div class="card-body p-4">
+                    <div class="mb-3">
+                        <label for="templateSelector" class="form-label fw-bold">เลือก Template (จากฐานข้อมูล):</label>
+                        <div class="input-group">
+                            <select class="form-select" id="templateSelector"><option>กำลังโหลด...</option></select>
+                            <a href="template-manager.html" class="btn btn-outline-primary" title="ไปที่ศูนย์จัดการ Template"><i class="fas fa-edit"></i></a>
+                        </div>
+                    </div>
+                    <textarea id="report-editor"></textarea>
+                </div></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pdf-staging-area" style="position: absolute; left: -9999px; top: -9999px; width: 210mm; font-family: 'Sarabun', sans-serif;"></div>
+    <div class="modal fade" id="previewModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">ตัวอย่างเอกสาร</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"><iframe id="preview-iframe" class="preview-iframe"></iframe></div>
+    </div></div></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase -->
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let activeEditor;
+        let savedTemplates = [];
+
+        const templateSelector = document.getElementById('templateSelector');
+        const showAlert = (message, type = 'danger') => {
+             const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+        };
+
+        const allTags = {
+            job: ['{jobId}', '{customer}', '{location}', '{address}', '{contactPerson}', '{contactPhone}', '{date}', '{assignedPerson}', '{standard}', '{notes}'],
+            summary: ['{spot_pass_count}', '{spot_fail_count}', '{area_pass_count}', '{area_fail_count}']
+        };
+
+        const createTagButton = (tag) => {
+            const button = document.createElement('button');
+            button.className = 'tag btn btn-sm';
+            button.textContent = tag;
+            button.title = 'คลิกเพื่อคัดลอก';
+            button.addEventListener('click', () => navigator.clipboard.writeText(tag));
+            return button;
+        };
+
+        document.getElementById('tags-job').append(...allTags.job.map(createTagButton));
+        document.getElementById('tags-summary').append(...allTags.summary.map(createTagButton));
+
+        const loadTemplateContent = (templateKey) => {
+             const selectedTemplate = savedTemplates.find(t => t.id === templateKey);
+            if (activeEditor && selectedTemplate) {
+                activeEditor.setContent(selectedTemplate.content || '');
+            }
+        };
+        
+        tinymce.init({
+            selector: '#report-editor',
+            plugins: 'lists link table wordcount image code fullscreen preview pagebreak',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent | removeformat | pagebreak | code | fullscreen preview',
+            menubar: 'file edit view insert format tools table help',
+            height: '70vh',
+            onboarding: false,
+            setup: (editor) => { editor.on('init', () => activeEditor = editor); }
+        });
+
+        templateSelector.addEventListener('change', (e) => loadTemplateContent(e.target.value));
+        
+        document.getElementById('importBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('importFile');
+            if(!fileInput.files || fileInput.files.length === 0) { showAlert('กรุณาเลือกไฟล์ที่ต้องการนำเข้าก่อน'); return; }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            if (file.name.endsWith('.docx')) {
+                reader.onload = (e) => mammoth.convertToHtml({arrayBuffer: e.target.result}).then(r => tinymce.activeEditor.setContent(r.value)).catch(err => showAlert('ไม่สามารถแปลงไฟล์ Word ได้'));
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.onload = (e) => tinymce.activeEditor.setContent(`<p>${e.target.result.replace(/\n/g, '<br>')}</p>`);
+                reader.readAsText(file);
+            }
+        });
+
+        async function generatePdf(outputType = 'save') {
+            const jobDataStr = localStorage.getItem('currentJobData');
+            if (!jobDataStr) { showAlert('ไม่พบข้อมูลงาน'); return null; }
+            const jobData = JSON.parse(jobDataStr);
+
+            const stagingArea = document.getElementById('pdf-staging-area');
+            let finalHtml = `<div id="pdf-content" style="font-family: 'Sarabun', sans-serif;">`;
+            const headerFile = document.getElementById('headerImage').files[0];
+            const headerUrl = headerFile ? URL.createObjectURL(headerFile) : null;
+            if (headerUrl) finalHtml += `<img src="${headerUrl}" style="width: 100%; margin-bottom: 10mm;">`;
+
+            let content = tinymce.activeEditor.getContent({ format: 'html' });
+            const results = jobData.results || [];
+            const spot_results = results.filter(r => r.measurementType === 'spot');
+            const area_results = results.filter(r => r.measurementType === 'area');
+            const dataToReplace = { ...jobData, spot_pass_count: spot_results.filter(r => r.evaluation === 'ผ่าน').length, spot_fail_count: spot_results.filter(r => r.evaluation === 'ไม่ผ่าน').length, area_pass_count: area_results.filter(r => r.evaluation === 'ผ่าน').length, area_fail_count: area_results.filter(r => r.evaluation === 'ไม่ผ่าน').length };
+            for (const key in dataToReplace) {
+                if(typeof dataToReplace[key] === 'string' || typeof dataToReplace[key] === 'number') content = content.replace(new RegExp(`{${key}}`, 'g'), dataToReplace[key]);
+            }
+            finalHtml += content;
+
+            if (results.length > 0) {
+                finalHtml += '<h3>ตารางผลการตรวจวัด</h3><table style="width: 100%; border-collapse: collapse;"><thead style="background-color: #f2f2f2;"><tr><th style="border: 1px solid #ddd; padding: 8px;">ลำดับ</th><th style="border: 1px solid #ddd; padding: 8px;">พื้นที่</th><th style="border: 1px solid #ddd; padding: 8px;">ลักษณะงาน</th><th style="border: 1px solid #ddd; padding: 8px;">ผล (LUX)</th><th style="border: 1px solid #ddd; padding: 8px;">ผลประเมิน</th></tr></thead><tbody>';
+                results.forEach(r => {
+                    finalHtml += `<tr><td style="border: 1px solid #ddd; padding: 8px;">${r.seq}</td><td style="border: 1px solid #ddd; padding: 8px;">${r.layout}<br><small>${r.area}</small></td><td style="border: 1px solid #ddd; padding: 8px;">${r.workType}</td><td style="border: 1px solid #ddd; padding: 8px;">${r.spotValue || `${r.areaAvgValue}/${r.areaMinValue}`}</td><td style="border: 1px solid #ddd; padding: 8px;">${r.evaluation}</td></tr>`;
+                });
+                finalHtml += '</tbody></table>';
+            }
+            finalHtml += '</div>';
+            stagingArea.innerHTML = finalHtml;
+
+            const element = document.getElementById('pdf-content');
+            const footerFile = document.getElementById('footerImage').files[0];
+            const watermarkFile = document.getElementById('watermarkImage').files[0];
+
+            const worker = html2pdf();
+            const opt = {
+                margin: [parseFloat(document.getElementById('marginTop').value) || 15, parseFloat(document.getElementById('marginRight').value) || 15, parseFloat(document.getElementById('marginBottom').value) || 15, parseFloat(document.getElementById('marginLeft').value) || 15], 
+                filename: `report-${jobData.jobId}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: document.getElementById('pageSize').value, orientation: document.getElementById('pageOrientation').value }
+            };
+
+            const pdfPromise = worker.from(element).set(opt).toPdf().get('pdf').then(async (pdf) => {
+                const totalPages = pdf.internal.getNumberOfPages();
+                const footerUrl = footerFile ? URL.createObjectURL(footerFile) : null;
+                const watermarkUrl = watermarkFile ? URL.createObjectURL(watermarkFile) : null;
+                const getImageDimensions = (url) => new Promise(resolve => {
+                    const img = new Image();
+                    img.onload = () => resolve({width: img.width, height: img.height});
+                    img.src = url;
+                });
+                const footerProps = footerUrl ? await getImageDimensions(footerUrl) : null;
+                const watermarkProps = watermarkUrl ? await getImageDimensions(watermarkUrl) : null;
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    if (watermarkProps) {
+                        pdf.setGState(new pdf.GState({opacity: 0.1}));
+                        pdf.addImage(watermarkUrl, 'PNG', 40, 60, 130, (130 * watermarkProps.height) / watermarkProps.width);
+                        pdf.setGState(new pdf.GState({opacity: 1}));
+                    }
+                    if (footerProps) {
+                        const footerHeight = (180 * footerProps.height) / footerProps.width;
+                        pdf.addImage(footerUrl, 'PNG', 15, pdf.internal.pageSize.height - footerHeight - 10, 180, footerHeight);
+                    }
+                }
+                if(footerUrl) URL.revokeObjectURL(footerUrl);
+                if(watermarkUrl) URL.revokeObjectURL(watermarkUrl);
+            }).then(() => {
+                if(headerUrl) URL.revokeObjectURL(headerUrl);
+                return worker.output(outputType);
+            });
+            return pdfPromise;
+        }
+
+        document.getElementById('generatePdfBtn').addEventListener('click', async () => { /* ... same logic ... */ });
+        document.getElementById('previewPdfBtn').addEventListener('click', async () => { /* ... same logic ... */ });
+        
+        (async () => {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measurement-app';
+            let finalFirebaseConfig;
+            try {
+                if (typeof __firebase_config !== 'undefined' && JSON.parse(__firebase_config).projectId) finalFirebaseConfig = JSON.parse(__firebase_config);
+                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig;
+            } catch(e) { console.error(e); }
+            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config', 'danger'); return; }
+            const app = initializeApp(finalFirebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            try {
+                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+                const templatesCollectionPath = `/artifacts/${appId}/public/data/report_templates`;
+                onSnapshot(collection(db, templatesCollectionPath), (snapshot) => {
+                    templateSelector.innerHTML = '';
+                    savedTemplates = [];
+                    if(snapshot.empty) { templateSelector.innerHTML = '<option>ไม่พบ Template</option>'; return; }
+                    snapshot.forEach(doc => {
+                        savedTemplates.push({ id: doc.id, ...doc.data() });
+                        templateSelector.add(new Option(doc.data().name, doc.id));
+                    });
+                    templateSelector.dispatchEvent(new Event('change'));
+                });
+            } catch (error) { showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger'); }
+        })();
+    </script>
+</body>
+</html>
+
