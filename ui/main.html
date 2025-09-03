@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/main.html
-  version: 4.2 (Restored Full Functionality)
+  version: 4.3 (Fixed Customer Name Display)
   date: 2025-09-03
-  time: 11:31:00
+  time: 17:00:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -139,7 +139,7 @@
                 return `
                     <tr>
                         <td><span class="badge bg-dark">${job.id}</span></td>
-                        <td>${jobData.customer || ''}</td>
+                        <td>${jobData.customerName || ''}</td>
                         <td>${jobData.location || ''}</td>
                         <td>${jobData.date || ''}</td>
                         <td>${statusBadge}</td>
@@ -161,7 +161,7 @@
             const filtered = allJobs.filter(job => {
                 const data = job.data();
                 return job.id.toLowerCase().includes(searchTerm) ||
-                       (data.customer && data.customer.toLowerCase().includes(searchTerm)) ||
+                       (data.customerName && data.customerName.toLowerCase().includes(searchTerm)) ||
                        (data.location && data.location.toLowerCase().includes(searchTerm));
             });
             renderJobs(filtered);
@@ -224,4 +224,3 @@
     </script>
 </body>
 </html>
-

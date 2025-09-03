@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/job-details.html
-  version: 7.3 (Merged Original Logic with Modern UI & Bug Fixes)
+  version: 7.4 (Fixed Job Data Display & Edit)
   date: 2025-09-03
-  time: 16:30:00
+  time: 17:10:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -48,10 +48,14 @@
         .badge.bg-success, .result-pass { color: var(--success-color) !important; font-weight: bold; }
         .badge.bg-danger, .result-fail { color: var(--danger-color) !important; font-weight: bold; }
         .personnel-list { list-style: none; padding-left: 0; }
+        .personnel-list li { padding: 2px 0; }
         .result-input-group { display: flex; gap: 4px; }
         .choices__inner { font-size: .875rem; min-height: auto; padding: 0.25rem 0.5rem;}
         .choices__list--dropdown { font-size: .875rem; }
         .action-icon { cursor: pointer; color: var(--secondary-color); }
+        .editable-field { border: 1px dashed #ccc; padding: 5px; border-radius: 3px; cursor: pointer; }
+        .editable-field:hover { background-color: #f8f9fa; }
+        .edit-mode { background-color: #fff3cd; }
     </style>
 </head>
 <body>
@@ -92,11 +96,15 @@
                     <h1 class="h3 mb-0">รายละเอียดงาน: <span id="jobIdDisplay" class="text-primary">Loading...</span></h1>
                     <div>
                         <a href="main.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a>
-                        <button id="saveDataBtn" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกข้อมูล</button>
+                        <button id="saveJobInfoBtn" class="btn btn-warning"><i class="fas fa-save me-2"></i>บันทึกข้อมูลงาน</button>
+                        <button id="saveDataBtn" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด</button>
                     </div>
                 </div>
 
                 <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>ข้อมูลงาน <small class="text-muted">(คลิกที่ข้อมูลเพื่อแก้ไข)</small></h5>
+                    </div>
                     <div class="card-body" id="job-details-container"><p class="text-center text-muted">Loading job details...</p></div>
                 </div>
 
@@ -159,14 +167,65 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
         let db, auth, workTypes = [];
+        let currentJobData = {};
         const choicesInstances = new Map();
 
         const advancedAddModal = new bootstrap.Modal(document.getElementById('advancedAddModal'));
-        const showAlert = (message, type = 'success', duration=4000) => { const alertPlaceholder = document.getElementById('alert-placeholder'); const wrapper = document.createElement('div'); wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`; alertPlaceholder.innerHTML = ''; alertPlaceholder.append(wrapper); setTimeout(() => wrapper.remove(), duration); };
+        const showAlert = (message, type = 'success', duration=4000) => { 
+            const alertPlaceholder = document.getElementById('alert-placeholder'); 
+            const wrapper = document.createElement('div'); 
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`; 
+            alertPlaceholder.innerHTML = ''; 
+            alertPlaceholder.append(wrapper); 
+            setTimeout(() => wrapper.remove(), duration); 
+        };
         
         const renderJobDetails = (data) => {
+            console.log('🎨 renderJobDetails called with data:', data);
+            currentJobData = data;
             const container = document.getElementById('job-details-container');
-            container.innerHTML = `<div class="row g-3"><div class="col-md-4"><h6><i class="fas fa-building me-2"></i>ลูกค้า</h6><p class="form-control-plaintext">${data.customerName || ''}</p></div><div class="col-md-4"><h6><i class="fas fa-map-marker-alt me-2"></i>สถานที่</h6><p class="form-control-plaintext">${data.location || ''}</p></div><div class="col-md-4"><h6><i class="fas fa-calendar-alt me-2"></i>วันที่ตรวจวัด</h6><input type="date" class="form-control" id="measurementDate" value="${data.date || ''}"></div><hr class="my-3"><div class="col-md-4"><h6><i class="fas fa-user-friends me-2"></i>ผู้ตรวจวัด</h6><ul class="personnel-list">${(data.inspectors || []).map(name => `<li>${name}</li>`).join('') || '<li>N/A</li>'}</ul></div><div class="col-md-4"><h6><i class="fas fa-user-cog me-2"></i>ผู้วิเคราะห์</h6><ul class="personnel-list">${(data.analysts || []).map(name => `<li>${name}</li>`).join('') || '<li>N/A</li>'}</ul></div><div class="col-md-4"><h6><i class="fas fa-user-edit me-2"></i>ผู้จัดทำรายงาน</h6><p class="form-control-plaintext">${data.reportCreator || 'N/A'}</p></div></div>`;
+            
+            if (!container) {
+                console.error('❌ job-details-container not found!');
+                return;
+            }
+            console.log('✅ Container found, creating form...');
+            container.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-building me-2"></i>ลูกค้า</h6>
+                        <div class="editable-field" data-field="customerName">${data.customerName || 'N/A'}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-map-marker-alt me-2"></i>สถานที่</h6>
+                        <div class="editable-field" data-field="location">${data.location || 'N/A'}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-calendar-alt me-2"></i>วันที่ตรวจวัด</h6>
+                        <input type="date" class="form-control editable-input" data-field="date" value="${data.date || ''}">
+                    </div>
+                    <hr class="my-3">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-user-friends me-2"></i>ผู้ตรวจวัด</h6>
+                        <ul class="personnel-list">
+                            ${(data.inspectors || []).map(name => `<li>• ${name}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-user-cog me-2"></i>ผู้วิเคราะห์</h6>
+                        <ul class="personnel-list">
+                            ${(data.analysts || []).map(name => `<li>• ${name}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-user-edit me-2"></i>ผู้จัดทำรายงาน</h6>
+                        <div class="editable-field" data-field="reportCreator">${data.reportCreator || 'N/A'}</div>
+                    </div>
+                    <div class="col-12">
+                        <h6><i class="fas fa-sticky-note me-2"></i>หมายเหตุ</h6>
+                        <textarea class="form-control editable-input" data-field="notes" rows="2" placeholder="หมายเหตุเพิ่มเติม...">${data.notes || ''}</textarea>
+                    </div>
+                </div>`;
         };
         
         const createTableRow = (data = {}) => {
@@ -338,9 +397,72 @@
             tableBody.addEventListener('input', e => { if (e.target.closest('tr')) evaluateResult(e.target.closest('tr')); });
             tableBody.addEventListener('click', e => { if (e.target.closest('.delete-row-btn')) { const row = e.target.closest('tr'); choicesInstances.get(row)?.destroy(); choicesInstances.delete(row); row.remove(); renumberRows(); } });
 
+            // Save job info
+            document.getElementById('saveJobInfoBtn').addEventListener('click', async () => {
+                console.log('🔄 Save button clicked'); // Debug log
+                
+                const button = document.getElementById('saveJobInfoBtn');
+                button.disabled = true; 
+                button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...`;
+                
+                try {
+                    const jobId = document.getElementById('jobIdDisplay').textContent;
+                    const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
+                    
+                    // Get values using IDs (simpler approach)
+                    const customerName = document.getElementById('edit-customerName')?.value.trim() || '';
+                    const location = document.getElementById('edit-location')?.value.trim() || '';
+                    const address = document.getElementById('edit-address')?.value.trim() || '';
+                    const date = document.getElementById('edit-date')?.value || '';
+                    const status = document.getElementById('edit-status')?.value || 'new';
+                    const reportCreator = document.getElementById('edit-reportCreator')?.value.trim() || '';
+                    const notes = document.getElementById('edit-notes')?.value.trim() || '';
+                    
+                    // Process personnel lists
+                    const inspectorsText = document.getElementById('edit-inspectors')?.value.trim() || '';
+                    const analystsText = document.getElementById('edit-analysts')?.value.trim() || '';
+                    
+                    const inspectors = inspectorsText ? inspectorsText.split(',').map(name => name.trim()).filter(name => name.length > 0) : [];
+                    const analysts = analystsText ? analystsText.split(',').map(name => name.trim()).filter(name => name.length > 0) : [];
+                    
+                    const updatedJobInfo = {
+                        customerName,
+                        location,
+                        address,
+                        date,
+                        status,
+                        inspectors,
+                        analysts,  // Will save as new format
+                        analyst: analysts.length > 0 ? analysts[0] : '', // Keep backward compatibility
+                        reportCreator,
+                        notes
+                    };
+                    
+                    console.log('💾 Final data to save:', updatedJobInfo);
+                    
+                    await updateDoc(jobDocRef, updatedJobInfo);
+                    console.log('✅ Firebase update successful');
+                    
+                    // Update cache
+                    currentJobData = { ...currentJobData, ...updatedJobInfo };
+                    console.log('🔄 Cache updated');
+                    
+                    showAlert('✅ บันทึกข้อมูลงานสำเร็จแล้ว!', 'success');
+                    
+                } catch(err) { 
+                    console.error('❌ Save error:', err); // Debug log
+                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`, 'danger'); 
+                } finally { 
+                    button.disabled = false; 
+                    button.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกข้อมูลงาน`; 
+                }
+            });
+
+            // Save measurement results
             document.getElementById('saveDataBtn').addEventListener('click', async () => {
                 const button = document.getElementById('saveDataBtn');
-                button.disabled = true; button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...`;
+                button.disabled = true; 
+                button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...`;
                 const jobId = document.getElementById('jobIdDisplay').textContent;
                 const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
                 const results = [];
@@ -357,9 +479,15 @@
                         evaluation: tr.querySelector('[data-field="evaluation"]').textContent,
                     });
                 });
-                try { await updateDoc(jobDocRef, { date: document.getElementById('measurementDate').value, results: results }); showAlert('บันทึกข้อมูลสำเร็จแล้ว'); } 
-                catch(err) { showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`, 'danger'); } 
-                finally { button.disabled = false; button.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกข้อมูล`; }
+                try { 
+                    await updateDoc(jobDocRef, { results: results }); 
+                    showAlert('บันทึกผลการตรวจวัดสำเร็จแล้ว'); 
+                } catch(err) { 
+                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`, 'danger'); 
+                } finally { 
+                    button.disabled = false; 
+                    button.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด`; 
+                }
             });
         }
         main();
@@ -370,4 +498,3 @@
     </script>
 </body>
 </html>
-

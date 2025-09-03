@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/new-job.html
-  version: 2.0 (Integrated Master Data & Roles)
+  version: 2.1 (Fixed Multiple Analysts Selection)
   date: 2025-09-03
-  time: 14:10:00
+  time: 17:05:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -108,8 +108,8 @@
                                         <select id="inspector-select" class="form-control" multiple required></select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์</label>
-                                        <select id="analyst-select" class="form-control" required></select>
+                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์ (เลือกได้หลายคน)</label>
+                                        <select id="analyst-select" class="form-control" multiple required></select>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน</label>
@@ -185,7 +185,7 @@
             const customerSelect = new Choices('#customer-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกลูกค้า...' });
             const branchSelect = new Choices('#branch-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกสาขา...' });
             const inspectorSelect = new Choices('#inspector-select', { searchEnabled: true, removeItemButton: true, itemSelectText: 'เลือก' });
-            const analystSelect = new Choices('#analyst-select', { searchEnabled: true, itemSelectText: 'เลือก' });
+            const analystSelect = new Choices('#analyst-select', { searchEnabled: true, removeItemButton: true, itemSelectText: 'เลือก' });
             const reportCreatorSelect = new Choices('#report-creator-select', { searchEnabled: true, itemSelectText: 'เลือก' });
 
             // Fetch and populate customers
@@ -246,7 +246,7 @@
                         address: branch.address || '',
                         date: document.getElementById('measurementDate').value,
                         inspectors: inspectorSelect.getValue(true) || [],
-                        analyst: analystSelect.getValue(true) || '',
+                        analysts: analystSelect.getValue(true) || [],
                         reportCreator: reportCreatorSelect.getValue(true) || '',
                         notes: document.getElementById('jobNotes').value,
                         status: 'new', // new, in-progress, completed
@@ -276,4 +276,3 @@
     </script>
 </body>
 </html>
-
