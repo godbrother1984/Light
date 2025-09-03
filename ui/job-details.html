@@ -1,500 +1,319 @@
-<!-- 
+<!-- =====================================================================
+  FILE 1/2
   path: /ui/job-details.html
-  version: 7.4 (Fixed Job Data Display & Edit)
+  version: 7.8 (Read-only Job Info + Edit button links to new-job.html?id=...)
   date: 2025-09-03
-  time: 17:10:00
--->
+  time: 20:30:00
+============================================================================ -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายละเอียดงาน - Light Measurement System</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
-
-    <style>
-        :root {
-            --primary-color: #0d47a1;
-            --secondary-color: #1976d2;
-            --background-color: #f4f7f9;
-            --sidebar-width: 260px;
-            --sidebar-mini-width: 80px;
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            --transition-speed: 0.3s;
-            --success-color: #198754;
-            --danger-color: #dc3545;
-        }
-        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
-        #wrapper { display: flex; }
-        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
-        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
-        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
-        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
-        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
-        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
-        .list-group-item i { font-size: 1.25rem; }
-        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
-        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
-        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
-        #page-content-wrapper { flex-grow: 1; }
-        .navbar { box-shadow: var(--card-shadow); }
-        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
-        .form-control:focus, .form-select:focus, .choices__input:focus { box-shadow: 0 0 0 .25rem rgba(13, 71, 161, .25); border-color: var(--secondary-color); }
-        .table-responsive .form-control-sm, .table-responsive .form-select-sm { min-width: 120px; }
-        .badge.bg-success, .result-pass { color: var(--success-color) !important; font-weight: bold; }
-        .badge.bg-danger, .result-fail { color: var(--danger-color) !important; font-weight: bold; }
-        .personnel-list { list-style: none; padding-left: 0; }
-        .personnel-list li { padding: 2px 0; }
-        .result-input-group { display: flex; gap: 4px; }
-        .choices__inner { font-size: .875rem; min-height: auto; padding: 0.25rem 0.5rem;}
-        .choices__list--dropdown { font-size: .875rem; }
-        .action-icon { cursor: pointer; color: var(--secondary-color); }
-        .editable-field { border: 1px dashed #ccc; padding: 5px; border-radius: 3px; cursor: pointer; }
-        .editable-field:hover { background-color: #f8f9fa; }
-        .edit-mode { background-color: #fff3cd; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>รายละเอียดงาน - Light Measurement System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <style>
+    :root { --primary-color:#0d47a1; --secondary-color:#1976d2; --background-color:#f4f7f9; --sidebar-width:260px; --sidebar-mini-width:80px; --card-shadow:0 2px 10px rgba(0,0,0,.05); --transition-speed:.3s; --success:#198754; --danger:#dc3545; }
+    body{ font-family:'Sarabun',sans-serif !important; background-color:var(--background-color); overflow-x:hidden; }
+    #wrapper{ display:flex; }
+    #sidebar-wrapper{ width:var(--sidebar-width); min-height:100vh; background-color:var(--primary-color); transition:width var(--transition-speed) ease; }
+    #wrapper.sidebar-mini #sidebar-wrapper{ width:var(--sidebar-mini-width); }
+    .sidebar-heading{ padding:1rem 1.25rem; font-size:1.5rem; font-weight:700; color:#fff; white-space:nowrap; }
+    .sidebar-heading .logo-text{ display:inline; transition:opacity var(--transition-speed) ease; }
+    #wrapper.sidebar-mini .sidebar-heading .logo-text{ opacity:0; display:none; }
+    .list-group-item{ border:none; padding:1rem 1.5rem; color:rgba(255,255,255,0.85); background:transparent; display:flex; align-items:center; }
+    .list-group-item:hover,.list-group-item.active{ background-color:var(--secondary-color); color:#fff; }
+    .navbar{ box-shadow:var(--card-shadow); }
+    .card{ box-shadow:var(--card-shadow); border:none; border-radius:.5rem; }
+    .data-label{ color:#6c757d; font-size:.9rem; margin-bottom:.25rem; }
+    .data-value{ font-weight:600; }
+    .personnel-list{ list-style:none; padding-left:0; margin-bottom:0; }
+    .personnel-list li{ padding:2px 0; }
+    .result-pass{ color:var(--success); font-weight:bold; }
+    .result-fail{ color:var(--danger); font-weight:bold; }
+    .result-input-group{ display:flex; gap:4px; }
+  </style>
 </head>
 <body>
-    
-    <div class="d-flex" id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
-            <div class="list-group list-group-flush">
-                <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
-                <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
-                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
-            </div>
-        </div>
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
-                <div class="container-fluid">
-                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-                    <ul class="navbar-nav ms-auto d-flex flex-row">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle fa-2x text-muted"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><h6 class="dropdown-header">User Profile</h6></li>
-                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <main class="container-fluid p-4">
-                <div id="alert-placeholder"></div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="h3 mb-0">รายละเอียดงาน: <span id="jobIdDisplay" class="text-primary">Loading...</span></h1>
-                    <div>
-                        <a href="main.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a>
-                        <button id="saveJobInfoBtn" class="btn btn-warning"><i class="fas fa-save me-2"></i>บันทึกข้อมูลงาน</button>
-                        <button id="saveDataBtn" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด</button>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>ข้อมูลงาน <small class="text-muted">(คลิกที่ข้อมูลเพื่อแก้ไข)</small></h5>
-                    </div>
-                    <div class="card-body" id="job-details-container"><p class="text-center text-muted">Loading job details...</p></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>บันทึกผลการตรวจวัด</h5>
-                        <div>
-                            <button id="addRowSpotBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>เพิ่มแถว (จุด)</button>
-                            <button id="addRowAreaBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>เพิ่มแถว (พื้นที่)</button>
-                            <button id="advancedAddBtn" class="btn btn-info btn-sm"><i class="fas fa-magic me-2"></i>เครื่องมือช่วย</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                             <table class="table table-bordered table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr class="text-center">
-                                        <th style="width: 5%;">ลำดับ</th>
-                                        <th style="width: 15%;">Lay Out</th>
-                                        <th style="width: 20%;">พื้นที่ตรวจวัด</th>
-                                        <th style="width: 20%;">ลักษณะงาน</th>
-                                        <th style="width: 8%;">ประเภท</th>
-                                        <th style="width: 12%;">ค่ามาตรฐาน</th>
-                                        <th style="width: 15%;">ผลที่วัดได้ (LUX)</th>
-                                        <th style="width: 5%;">ผล</th>
-                                        <th style="width: 5%;">ลบ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="results-table-body"></tbody>
-                             </table>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+  <div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+      <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item active" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
+        <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
+        <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+      </div>
     </div>
-    
-    <!-- Modals -->
-    <div class="modal fade" id="advancedAddModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title">เครื่องมือช่วยสร้างแถว</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <form id="advancedAddForm">
-                <div class="mb-3"><label for="rowCount" class="form-label">จำนวนแถวที่ต้องการสร้าง</label><input type="number" id="rowCount" class="form-control" value="10" min="1"></div>
-                <div class="mb-3"><label for="layoutPattern" class="form-label">รูปแบบ Lay Out</label><input type="text" class="form-control" id="layoutPattern" value="Lay Out จุดที่ {x}"><div class="form-text">ใช้ <strong>{x}</strong> แทน Running Number</div></div>
-                <div class="mb-3"><label for="layoutStartIndex" class="form-label">เริ่มนับที่</label><input type="number" class="form-control" id="layoutStartIndex" value="1" min="1"></div>
-                <div class="mb-3"><label for="defaultArea" class="form-label">พื้นที่ตรวจวัด (เริ่มต้น)</label><input type="text" class="form-control" id="defaultArea"></div>
-                <div class="mb-3"><label for="defaultWorkType" class="form-label">ลักษณะงาน (เริ่มต้น)</label><select id="defaultWorkType" class="form-select"></select></div>
-            </form>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container-fluid">
+          <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+          <ul class="navbar-nav ms-auto d-flex flex-row">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle fa-2x text-muted"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">User Profile</h6></li>
+                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+              </ul>
+            </li>
+          </ul>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="button" id="executeAdvancedAdd" class="btn btn-primary">สร้างแถว</button></div>
-    </div></div>
+      </nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <script src="firebase-config.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      <main class="container-fluid p-4">
+        <div id="alert-placeholder"></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="h3 mb-0">รายละเอียดงาน: <span id="jobIdDisplay" class="text-primary">Loading...</span></h1>
+          <div class="d-flex gap-2">
+            <a href="main.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a>
+            <a href="#" id="editJobBtn" class="btn btn-warning"><i class="fas fa-edit me-2"></i>แก้ไขข้อมูลงาน</a>
+            <button id="saveDataBtn" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด</button>
+          </div>
+        </div>
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
-        let db, auth, workTypes = [];
-        let currentJobData = {};
-        const choicesInstances = new Map();
+        <!-- Read-only Job Info -->
+        <div class="card mb-4">
+          <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>ข้อมูลงาน (อ่านอย่างเดียว)</h5></div>
+          <div class="card-body" id="job-details-container">
+            <p class="text-center text-muted mb-0">Loading job details...</p>
+          </div>
+        </div>
 
-        const advancedAddModal = new bootstrap.Modal(document.getElementById('advancedAddModal'));
-        const showAlert = (message, type = 'success', duration=4000) => { 
-            const alertPlaceholder = document.getElementById('alert-placeholder'); 
-            const wrapper = document.createElement('div'); 
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`; 
-            alertPlaceholder.innerHTML = ''; 
-            alertPlaceholder.append(wrapper); 
-            setTimeout(() => wrapper.remove(), duration); 
-        };
-        
-        const renderJobDetails = (data) => {
-            console.log('🎨 renderJobDetails called with data:', data);
-            currentJobData = data;
-            const container = document.getElementById('job-details-container');
-            
-            if (!container) {
-                console.error('❌ job-details-container not found!');
-                return;
-            }
-            console.log('✅ Container found, creating form...');
-            container.innerHTML = `
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-building me-2"></i>ลูกค้า</h6>
-                        <div class="editable-field" data-field="customerName">${data.customerName || 'N/A'}</div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-map-marker-alt me-2"></i>สถานที่</h6>
-                        <div class="editable-field" data-field="location">${data.location || 'N/A'}</div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-calendar-alt me-2"></i>วันที่ตรวจวัด</h6>
-                        <input type="date" class="form-control editable-input" data-field="date" value="${data.date || ''}">
-                    </div>
-                    <hr class="my-3">
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-user-friends me-2"></i>ผู้ตรวจวัด</h6>
-                        <ul class="personnel-list">
-                            ${(data.inspectors || []).map(name => `<li>• ${name}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}
-                        </ul>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-user-cog me-2"></i>ผู้วิเคราะห์</h6>
-                        <ul class="personnel-list">
-                            ${(data.analysts || []).map(name => `<li>• ${name}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}
-                        </ul>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-user-edit me-2"></i>ผู้จัดทำรายงาน</h6>
-                        <div class="editable-field" data-field="reportCreator">${data.reportCreator || 'N/A'}</div>
-                    </div>
-                    <div class="col-12">
-                        <h6><i class="fas fa-sticky-note me-2"></i>หมายเหตุ</h6>
-                        <textarea class="form-control editable-input" data-field="notes" rows="2" placeholder="หมายเหตุเพิ่มเติม...">${data.notes || ''}</textarea>
-                    </div>
-                </div>`;
-        };
-        
-        const createTableRow = (data = {}) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="text-center"></td>
-                <td><input type="text" class="form-control form-control-sm" data-field="layout" value="${data.layout || ''}"></td>
-                <td><input type="text" class="form-control form-control-sm" data-field="area" value="${data.area || ''}"></td>
-                <td><select class="work-type-select" data-field="workType"></select></td>
-                <td><select class="form-select form-select-sm" data-field="measurementType"><option value="spot">จุด</option><option value="area">พื้นที่</option></select></td>
-                <td class="text-center standard-cell" data-field="standard">-</td>
-                <td class="result-input-cell"></td>
-                <td class="text-center evaluation-cell" data-field="evaluation"></td>
-                <td class="text-center"><i class="fas fa-trash-alt action-icon delete-row-btn"></i></td>
-            `;
+        <!-- Measurement Section -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>บันทึกผลการตรวจวัด</h5>
+            <div>
+              <button id="addRowSpotBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>เพิ่มแถว (จุด)</button>
+              <button id="addRowAreaBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>เพิ่มแถว (พื้นที่)</button>
+              <button id="advancedAddBtn" class="btn btn-info btn-sm"><i class="fas fa-magic me-2"></i>เครื่องมือช่วย</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr class="text-center">
+                    <th style="width:5%;">ลำดับ</th>
+                    <th style="width:15%;">Lay Out</th>
+                    <th style="width:20%;">พื้นที่ตรวจวัด</th>
+                    <th style="width:20%;">ลักษณะงาน</th>
+                    <th style="width:8%;">ประเภท</th>
+                    <th style="width:12%;">ค่ามาตรฐาน</th>
+                    <th style="width:15%;">ผลที่วัดได้ (LUX)</th>
+                    <th style="width:5%;">ผล</th>
+                    <th style="width:5%;">ลบ</th>
+                  </tr>
+                </thead>
+                <tbody id="results-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
 
-            const workTypeSelect = tr.querySelector('.work-type-select');
-            const choices = new Choices(workTypeSelect, { searchEnabled: true, itemSelectText: 'เลือก', allowHTML: false, shouldSort: false });
-            choices.setChoices([{value: '', label: 'เลือก...'}, ...workTypes.map(w => ({ value: w.name, label: w.name }))], 'value', 'label', false);
-            if (data.workType) choices.setChoiceByValue(data.workType);
-            choicesInstances.set(tr, choices);
+  <!-- Modals -->
+  <div class="modal fade" id="advancedAddModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">เครื่องมือช่วยสร้างแถว</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <form id="advancedAddForm">
+        <div class="mb-3"><label for="rowCount" class="form-label">จำนวนแถวที่ต้องการสร้าง</label><input type="number" id="rowCount" class="form-control" value="10" min="1"></div>
+        <div class="mb-3"><label for="layoutPattern" class="form-label">รูปแบบ Lay Out</label><input type="text" class="form-control" id="layoutPattern" value="Lay Out จุดที่ {x}"><div class="form-text">ใช้ <strong>{x}</strong> แทน Running Number</div></div>
+        <div class="mb-3"><label for="layoutStartIndex" class="form-label">เริ่มนับที่</label><input type="number" class="form-control" id="layoutStartIndex" value="1" min="1"></div>
+        <div class="mb-3"><label for="defaultArea" class="form-label">พื้นที่ตรวจวัด (เริ่มต้น)</label><input type="text" class="form-control" id="defaultArea"></div>
+        <div class="mb-3"><label for="defaultWorkType" class="form-label">ลักษณะงาน (เริ่มต้น)</label><select id="defaultWorkType" class="form-select"></select></div>
+      </form>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="button" id="executeAdvancedAdd" class="btn btn-primary">สร้างแถว</button></div>
+  </div></div></div>
 
-            const measurementTypeSelect = tr.querySelector('[data-field="measurementType"]');
-            if (data.measurementType) measurementTypeSelect.value = data.measurementType;
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            updateRowState(tr, data);
-            return tr;
-        };
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+    let db, auth, workTypes = [];
+    const choicesInstances = new Map();
 
-        const updateRowState = (tr, data = {}) => {
-            const workType = tr.querySelector('[data-field="workType"]').value;
-            const measurementType = tr.querySelector('[data-field="measurementType"]').value;
-            const typeData = workTypes.find(w => w.name === workType);
-            const standardCell = tr.querySelector('.standard-cell');
-            const resultCell = tr.querySelector('.result-input-cell');
-            let stdText = '-';
+    const showAlert = (message, type='success', duration=4000) => {
+      const holder = document.getElementById('alert-placeholder');
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+      holder.innerHTML = ''; holder.append(wrap); setTimeout(()=>wrap.remove(), duration);
+    };
 
-            if(typeData) {
-                if(measurementType === 'spot') {
-                    stdText = `${typeData.stdSpotMin || 'N/A'}-${typeData.stdSpotMax || 'N/A'}`;
-                    resultCell.innerHTML = `<input type="number" class="form-control form-control-sm text-center" data-field="spotValue" value="${data.spotValue || ''}" placeholder="LUX">`;
-                } else {
-                    stdText = `Avg≥${typeData.stdAreaAvg || 'N/A'}, Min≥${typeData.stdAreaMin || 'N/A'}`;
-                    resultCell.innerHTML = `<div class="result-input-group"><input type="number" class="form-control form-control-sm text-center" data-field="areaAvgValue" value="${data.areaAvgValue || ''}" placeholder="เฉลี่ย"><input type="number" class="form-control form-control-sm text-center" data-field="areaMinValue" value="${data.areaMinValue || ''}" placeholder="ต่ำสุด"></div>`;
-                }
-            } else {
-                resultCell.innerHTML = '';
-            }
-            standardCell.textContent = stdText;
-            evaluateResult(tr);
-        };
+    const renderJobDetailsReadOnly = (data) => {
+      const c = document.getElementById('job-details-container');
+      c.innerHTML = `
+        <div class="row g-3">
+          <div class="col-md-4"><div class="data-label">ลูกค้า</div><div class="data-value" id="ro-customerName">${data.customerName || '-'}</div></div>
+          <div class="col-md-4"><div class="data-label">สถานที่</div><div class="data-value" id="ro-location">${data.location || '-'}</div></div>
+          <div class="col-md-4"><div class="data-label">วันที่ตรวจวัด</div><div class="data-value" id="ro-date">${data.date || '-'}</div></div>
+          <hr class="my-2">
+          <div class="col-md-4"><div class="data-label">ผู้ตรวจวัด</div><ul class="personnel-list" id="ro-inspectors">${(data.inspectors||[]).map(n=>`<li>• ${n}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}</ul></div>
+          <div class="col-md-4"><div class="data-label">ผู้วิเคราะห์</div><ul class="personnel-list" id="ro-analysts">${(data.analysts||[]).map(n=>`<li>• ${n}</li>`).join('') || '<li class="text-muted">ไม่ได้กำหนด</li>'}</ul></div>
+          <div class="col-md-4"><div class="data-label">ผู้จัดทำรายงาน</div><div class="data-value" id="ro-reportCreator">${data.reportCreator || '-'}</div></div>
+          <div class="col-12"><div class="data-label">หมายเหตุ</div><div class="data-value" id="ro-notes">${(data.notes||'').replace(/\n/g,'<br>') || '-'}</div></div>
+        </div>`;
+    };
 
-        const evaluateResult = (tr) => {
-            const workType = tr.querySelector('[data-field="workType"]').value;
-            const measurementType = tr.querySelector('[data-field="measurementType"]').value;
-            const typeData = workTypes.find(w => w.name === workType);
-            const evaluationCell = tr.querySelector('.evaluation-cell');
-            evaluationCell.innerHTML = '';
-            if(!typeData) return;
+    const createTableRow = (data={}) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-center"></td>
+        <td><input type="text" class="form-control form-control-sm" data-field="layout" value="${data.layout||''}"></td>
+        <td><input type="text" class="form-control form-control-sm" data-field="area" value="${data.area||''}"></td>
+        <td><select class="work-type-select" data-field="workType"></select></td>
+        <td><select class="form-select form-select-sm" data-field="measurementType"><option value="spot">จุด</option><option value="area">พื้นที่</option></select></td>
+        <td class="text-center standard-cell" data-field="standard">-</td>
+        <td class="result-input-cell"></td>
+        <td class="text-center evaluation-cell" data-field="evaluation"></td>
+        <td class="text-center"><i class="fas fa-trash-alt action-icon delete-row-btn"></i></td>`;
 
-            let pass = false;
-            let hasValue = false;
-            if(measurementType === 'spot') {
-                const spotInput = tr.querySelector('[data-field="spotValue"]');
-                if (spotInput && spotInput.value) {
-                    const val = parseFloat(spotInput.value);
-                    hasValue = true;
-                    pass = val >= (typeData.stdSpotMin || -Infinity) && val <= (typeData.stdSpotMax || Infinity);
-                }
-            } else {
-                const avgInput = tr.querySelector('[data-field="areaAvgValue"]');
-                const minInput = tr.querySelector('[data-field="areaMinValue"]');
-                if(avgInput && avgInput.value && minInput && minInput.value) {
-                    const avgVal = parseFloat(avgInput.value);
-                    const minVal = parseFloat(minInput.value);
-                    hasValue = true;
-                    pass = avgVal >= (typeData.stdAreaAvg || -Infinity) && minVal >= (typeData.stdAreaMin || -Infinity);
-                }
-            }
-            if(hasValue) evaluationCell.innerHTML = pass ? '<span class="result-pass">ผ่าน</span>' : '<span class="result-fail">ไม่ผ่าน</span>';
-        };
+      const workTypeSelect = tr.querySelector('.work-type-select');
+      const choices = new Choices(workTypeSelect, { searchEnabled:true, itemSelectText:'เลือก', allowHTML:false, shouldSort:false });
+      choices.setChoices([{value:'',label:'เลือก...'}, ...workTypes.map(w=>({value:w.name,label:w.name}))], 'value','label', false);
+      if (data.workType) choices.setChoiceByValue(data.workType);
+      choicesInstances.set(tr, choices);
 
-        const renumberRows = () => {
-            const dataRows = document.querySelectorAll('#results-table-body tr:not(.no-data-row)');
-            dataRows.forEach((row, index) => {
-                row.cells[0].textContent = index + 1;
-            });
-        };
+      const measurementTypeSelect = tr.querySelector('[data-field="measurementType"]');
+      if (data.measurementType) measurementTypeSelect.value = data.measurementType;
 
-        async function main() {
-            let finalFirebaseConfig;
-            try { if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; } catch(e) { console.error(e); }
-            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config', 'danger'); return; }
+      updateRowState(tr, data); return tr;
+    };
 
-            const app = initializeApp(finalFirebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            try {
-                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
-                
-                const workTypesCollection = collection(db, `/artifacts/${appId}/public/data/work_types`);
-                onSnapshot(workTypesCollection, (snapshot) => { 
-                    workTypes = snapshot.docs.map(doc => ({id: doc.id, ...doc.data(), name: doc.data().workTypeName}));
-                    document.getElementById('defaultWorkType').innerHTML = '<option value="">-- ไม่กำหนด --</option>' + workTypes.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
-                });
-                
-                const jobId = new URLSearchParams(window.location.search).get('id');
-                if (!jobId) { document.getElementById('jobIdDisplay').textContent = "ไม่ได้เลือกงาน"; showAlert('ไม่พบ ID ของงาน', 'danger'); return; }
-                document.getElementById('jobIdDisplay').textContent = jobId;
-                
-                const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
-                const docSnap = await getDoc(jobDocRef);
-                if (docSnap.exists()) { 
-                    const jobData = docSnap.data();
-                    renderJobDetails(jobData);
-                    const tableBody = document.getElementById('results-table-body');
-                    tableBody.innerHTML = '';
-                    if (jobData.results && jobData.results.length > 0) {
-                        jobData.results.forEach(res => tableBody.appendChild(createTableRow(res)));
-                    } else {
-                        tableBody.innerHTML = `<tr class="no-data-row"><td colspan="9" class="text-center p-4">ยังไม่มีข้อมูลการตรวจวัด</td></tr>`;
-                    }
-                    renumberRows();
-                } else { showAlert('ไม่พบข้อมูลสำหรับงานนี้', 'danger'); }
-
-            } catch (error) { showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger'); }
-
-            const tableBody = document.getElementById('results-table-body');
-            const clearPlaceholder = () => {
-                const placeholder = tableBody.querySelector('.no-data-row');
-                if(placeholder) placeholder.remove();
-            }
-            
-            document.getElementById('addRowSpotBtn').addEventListener('click', () => { clearPlaceholder(); tableBody.appendChild(createTableRow({ measurementType: 'spot' })); renumberRows(); });
-            document.getElementById('addRowAreaBtn').addEventListener('click', () => { clearPlaceholder(); tableBody.appendChild(createTableRow({ measurementType: 'area' })); renumberRows(); });
-            
-            document.getElementById('advancedAddBtn').addEventListener('click', () => { 
-                const currentCount = tableBody.querySelectorAll('tr:not(.no-data-row)').length;
-                document.getElementById('layoutStartIndex').value = currentCount + 1; 
-                advancedAddModal.show(); 
-            });
-
-            document.getElementById('executeAdvancedAdd').addEventListener('click', () => {
-                clearPlaceholder();
-                const count = parseInt(document.getElementById('rowCount').value, 10);
-                const pattern = document.getElementById('layoutPattern').value;
-                const startIndex = parseInt(document.getElementById('layoutStartIndex').value, 10);
-                const area = document.getElementById('defaultArea').value;
-                const workType = document.getElementById('defaultWorkType').value;
-                
-                for(let i=0; i < count; i++) {
-                    tableBody.appendChild(createTableRow({ layout: pattern.replace('{x}', startIndex + i), area: area, workType: workType, measurementType: 'spot' }));
-                }
-                renumberRows();
-                advancedAddModal.hide();
-            });
-
-            tableBody.addEventListener('change', e => {
-                const tr = e.target.closest('tr');
-                if(!tr) return;
-                if (e.target.matches('[data-field="workType"], [data-field="measurementType"]')) {
-                    updateRowState(tr);
-                }
-                evaluateResult(tr);
-            });
-            tableBody.addEventListener('input', e => { if (e.target.closest('tr')) evaluateResult(e.target.closest('tr')); });
-            tableBody.addEventListener('click', e => { if (e.target.closest('.delete-row-btn')) { const row = e.target.closest('tr'); choicesInstances.get(row)?.destroy(); choicesInstances.delete(row); row.remove(); renumberRows(); } });
-
-            // Save job info
-            document.getElementById('saveJobInfoBtn').addEventListener('click', async () => {
-                console.log('🔄 Save button clicked'); // Debug log
-                
-                const button = document.getElementById('saveJobInfoBtn');
-                button.disabled = true; 
-                button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...`;
-                
-                try {
-                    const jobId = document.getElementById('jobIdDisplay').textContent;
-                    const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
-                    
-                    // Get values using IDs (simpler approach)
-                    const customerName = document.getElementById('edit-customerName')?.value.trim() || '';
-                    const location = document.getElementById('edit-location')?.value.trim() || '';
-                    const address = document.getElementById('edit-address')?.value.trim() || '';
-                    const date = document.getElementById('edit-date')?.value || '';
-                    const status = document.getElementById('edit-status')?.value || 'new';
-                    const reportCreator = document.getElementById('edit-reportCreator')?.value.trim() || '';
-                    const notes = document.getElementById('edit-notes')?.value.trim() || '';
-                    
-                    // Process personnel lists
-                    const inspectorsText = document.getElementById('edit-inspectors')?.value.trim() || '';
-                    const analystsText = document.getElementById('edit-analysts')?.value.trim() || '';
-                    
-                    const inspectors = inspectorsText ? inspectorsText.split(',').map(name => name.trim()).filter(name => name.length > 0) : [];
-                    const analysts = analystsText ? analystsText.split(',').map(name => name.trim()).filter(name => name.length > 0) : [];
-                    
-                    const updatedJobInfo = {
-                        customerName,
-                        location,
-                        address,
-                        date,
-                        status,
-                        inspectors,
-                        analysts,  // Will save as new format
-                        analyst: analysts.length > 0 ? analysts[0] : '', // Keep backward compatibility
-                        reportCreator,
-                        notes
-                    };
-                    
-                    console.log('💾 Final data to save:', updatedJobInfo);
-                    
-                    await updateDoc(jobDocRef, updatedJobInfo);
-                    console.log('✅ Firebase update successful');
-                    
-                    // Update cache
-                    currentJobData = { ...currentJobData, ...updatedJobInfo };
-                    console.log('🔄 Cache updated');
-                    
-                    showAlert('✅ บันทึกข้อมูลงานสำเร็จแล้ว!', 'success');
-                    
-                } catch(err) { 
-                    console.error('❌ Save error:', err); // Debug log
-                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`, 'danger'); 
-                } finally { 
-                    button.disabled = false; 
-                    button.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกข้อมูลงาน`; 
-                }
-            });
-
-            // Save measurement results
-            document.getElementById('saveDataBtn').addEventListener('click', async () => {
-                const button = document.getElementById('saveDataBtn');
-                button.disabled = true; 
-                button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังบันทึก...`;
-                const jobId = document.getElementById('jobIdDisplay').textContent;
-                const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
-                const results = [];
-                document.querySelectorAll('#results-table-body tr:not(.no-data-row)').forEach(tr => {
-                    results.push({
-                        layout: tr.querySelector('[data-field="layout"]').value,
-                        area: tr.querySelector('[data-field="area"]').value,
-                        workType: tr.querySelector('[data-field="workType"]').value,
-                        measurementType: tr.querySelector('[data-field="measurementType"]').value,
-                        standard: tr.querySelector('[data-field="standard"]').textContent,
-                        spotValue: tr.querySelector('[data-field="spotValue"]')?.value || null,
-                        areaAvgValue: tr.querySelector('[data-field="areaAvgValue"]')?.value || null,
-                        areaMinValue: tr.querySelector('[data-field="areaMinValue"]')?.value || null,
-                        evaluation: tr.querySelector('[data-field="evaluation"]').textContent,
-                    });
-                });
-                try { 
-                    await updateDoc(jobDocRef, { results: results }); 
-                    showAlert('บันทึกผลการตรวจวัดสำเร็จแล้ว'); 
-                } catch(err) { 
-                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`, 'danger'); 
-                } finally { 
-                    button.disabled = false; 
-                    button.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด`; 
-                }
-            });
+    const updateRowState = (tr, data={}) => {
+      const workType = tr.querySelector('[data-field="workType"]').value;
+      const measurementType = tr.querySelector('[data-field="measurementType"]').value;
+      const typeData = workTypes.find(w=>w.name===workType);
+      const standardCell = tr.querySelector('.standard-cell');
+      const resultCell = tr.querySelector('.result-input-cell');
+      let stdText = '-';
+      if (typeData){
+        if (measurementType==='spot'){
+          stdText = `${typeData.stdSpotMin||'N/A'}-${typeData.stdSpotMax||'N/A'}`;
+          resultCell.innerHTML = `<input type="number" class="form-control form-control-sm text-center" data-field="spotValue" value="${data.spotValue||''}" placeholder="LUX">`;
+        } else {
+          stdText = `Avg≥${typeData.stdAreaAvg||'N/A'}, Min≥${typeData.stdAreaMin||'N/A'}`;
+          resultCell.innerHTML = `<div class="result-input-group"><input type="number" class="form-control form-control-sm text-center" data-field="areaAvgValue" value="${data.areaAvgValue||''}" placeholder="เฉลี่ย"><input type="number" class="form-control form-control-sm text-center" data-field="areaMinValue" value="${data.areaMinValue||''}" placeholder="ต่ำสุด"></div>`;
         }
-        main();
-        
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+      } else { resultCell.innerHTML=''; }
+      standardCell.textContent = stdText; evaluateResult(tr);
+    };
+
+    const evaluateResult = (tr) => {
+      const workType = tr.querySelector('[data-field="workType"]').value;
+      const measurementType = tr.querySelector('[data-field="measurementType"]').value;
+      const typeData = workTypes.find(w=>w.name===workType);
+      const evaluationCell = tr.querySelector('.evaluation-cell');
+      evaluationCell.innerHTML = '';
+      if (!typeData) return;
+      let pass=false, hasValue=false;
+      if (measurementType==='spot'){
+        const spotInput = tr.querySelector('[data-field="spotValue"]');
+        if (spotInput && spotInput.value){ const val=parseFloat(spotInput.value); hasValue=true; pass = val>=(typeData.stdSpotMin||-Infinity) && val<=(typeData.stdSpotMax||Infinity); }
+      } else {
+        const avgInput = tr.querySelector('[data-field="areaAvgValue"]');
+        const minInput = tr.querySelector('[data-field="areaMinValue"]');
+        if (avgInput && avgInput.value && minInput && minInput.value){ const avgVal=parseFloat(avgInput.value); const minVal=parseFloat(minInput.value); hasValue=true; pass = avgVal>=(typeData.stdAreaAvg||-Infinity) && minVal>=(typeData.stdAreaMin||-Infinity); }
+      }
+      if (hasValue) evaluationCell.innerHTML = pass ? '<span class="result-pass">ผ่าน</span>' : '<span class="result-fail">ไม่ผ่าน</span>';
+    };
+
+    const renumberRows = () => { document.querySelectorAll('#results-table-body tr:not(.no-data-row)').forEach((row,i)=>{ row.cells[0].textContent=i+1; }); };
+
+    async function main(){
+      let finalFirebaseConfig; try{ if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; }catch(e){ console.error(e); }
+      if (!finalFirebaseConfig){ showAlert('ไม่พบ Firebase Config','danger'); return; }
+
+      const app = initializeApp(finalFirebaseConfig); db = getFirestore(app); auth = getAuth(app);
+      try{
+        if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token); else await signInAnonymously(auth);
+        document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0,8)}...`;
+
+        // Work types
+        onSnapshot(collection(db, `/artifacts/${appId}/public/data/work_types`), snap=>{
+          workTypes = snap.docs.map(d=>({id:d.id, ...d.data(), name:d.data().workTypeName}));
+          document.getElementById('defaultWorkType').innerHTML = '<option value="">-- ไม่กำหนด --</option>' + workTypes.map(w=>`<option value="${w.name}">${w.name}</option>`).join('');
         });
-    </script>
+
+        // Read jobId
+        const params = new URLSearchParams(window.location.search); const jobId = params.get('id');
+        document.getElementById('jobIdDisplay').textContent = jobId || 'ไม่พบ';
+        const editBtn = document.getElementById('editJobBtn');
+        if (jobId) editBtn.href = `new-job.html?id=${jobId}`; else editBtn.classList.add('disabled');
+
+        if (!jobId){ showAlert('ไม่พบ ID ของงาน','danger'); return; }
+
+        // Load job
+        const jobRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
+        const snap = await getDoc(jobRef);
+        if (!snap.exists()){ showAlert('ไม่พบข้อมูลสำหรับงานนี้','danger'); return; }
+        const jobData = snap.data();
+        renderJobDetailsReadOnly(jobData);
+
+        // Load results
+        const tbody = document.getElementById('results-table-body');
+        tbody.innerHTML = '';
+        if (Array.isArray(jobData.results) && jobData.results.length){ jobData.results.forEach(r=>tbody.appendChild(createTableRow(r))); }
+        else { tbody.innerHTML = `<tr class="no-data-row"><td colspan="9" class="text-center p-4">ยังไม่มีข้อมูลการตรวจวัด</td></tr>`; }
+        renumberRows();
+
+      }catch(err){ showAlert(`เกิดข้อผิดพลาด: ${err.message}`,'danger'); }
+
+      // Table interactions
+      const tbody = document.getElementById('results-table-body');
+      const clearPH = ()=>{ const ph=tbody.querySelector('.no-data-row'); if (ph) ph.remove(); };
+      document.getElementById('addRowSpotBtn').addEventListener('click', ()=>{ clearPH(); tbody.appendChild(createTableRow({measurementType:'spot'})); renumberRows(); });
+      document.getElementById('addRowAreaBtn').addEventListener('click', ()=>{ clearPH(); tbody.appendChild(createTableRow({measurementType:'area'})); renumberRows(); });
+      document.getElementById('advancedAddBtn').addEventListener('click', ()=>{ const cnt=tbody.querySelectorAll('tr:not(.no-data-row)').length; document.getElementById('layoutStartIndex').value = cnt+1; new bootstrap.Modal(document.getElementById('advancedAddModal')).show(); });
+      document.getElementById('executeAdvancedAdd').addEventListener('click', ()=>{ clearPH(); const count=parseInt(document.getElementById('rowCount').value,10); const pattern=document.getElementById('layoutPattern').value; const start=parseInt(document.getElementById('layoutStartIndex').value,10); const area=document.getElementById('defaultArea').value; const workType=document.getElementById('defaultWorkType').value; for(let i=0;i<count;i++){ tbody.appendChild(createTableRow({ layout: pattern.replace('{x}', start+i), area, workType, measurementType:'spot' })); } renumberRows(); bootstrap.Modal.getInstance(document.getElementById('advancedAddModal')).hide(); });
+      tbody.addEventListener('change', e=>{ const tr=e.target.closest('tr'); if(!tr) return; if (e.target.matches('[data-field="workType"],[data-field="measurementType"]')) updateRowState(tr); evaluateResult(tr); });
+      tbody.addEventListener('input', e=>{ const tr=e.target.closest('tr'); if(tr) evaluateResult(tr); });
+      tbody.addEventListener('click', e=>{ if (e.target.closest('.delete-row-btn')){ const row=e.target.closest('tr'); choicesInstances.get(row)?.destroy(); choicesInstances.delete(row); row.remove(); renumberRows(); } });
+
+      // Save measurement results
+      document.getElementById('saveDataBtn').addEventListener('click', async ()=>{
+        const params = new URLSearchParams(window.location.search); const jobId = params.get('id'); if (!jobId) return;
+        const jobRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
+        const results = [];
+        document.querySelectorAll('#results-table-body tr:not(.no-data-row)').forEach(tr=>{
+          results.push({
+            layout: tr.querySelector('[data-field="layout"]').value,
+            area: tr.querySelector('[data-field="area"]').value,
+            workType: tr.querySelector('[data-field="workType"]').value,
+            measurementType: tr.querySelector('[data-field="measurementType"]').value,
+            standard: tr.querySelector('[data-field="standard"]').textContent,
+            spotValue: tr.querySelector('[data-field="spotValue"]')?.value || null,
+            areaAvgValue: tr.querySelector('[data-field="areaAvgValue"]')?.value || null,
+            areaMinValue: tr.querySelector('[data-field="areaMinValue"]')?.value || null,
+            evaluation: tr.querySelector('[data-field="evaluation"]').textContent,
+          });
+        });
+        try{ await updateDoc(jobRef, { results }); showAlert('บันทึกผลการตรวจวัดสำเร็จแล้ว'); }
+        catch(err){ showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`,'danger'); }
+      });
+    }
+    main();
+
+    document.getElementById('sidebarToggle').addEventListener('click', ()=>{ document.getElementById('wrapper').classList.toggle('sidebar-mini'); });
+  </script>
 </body>
 </html>
+
+
+

@@ -1,4 +1,50 @@
-<!-- 
+<main class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="h3 mb-0" id="page-title">สร้างงานใหม่</h1>
+                     <a href="main.html" class="btn btn-outline-secondary" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
+                </div>
+                 <div id="alert-placeholder"></div>
+                <form id="newJobForm">
+                    <input type="hidden" id="edit-job-id" value="">
+                    <div class="card">
+                        <div class="card-body">
+                            <section class="mb-4">
+                                <h5 class="mb-3"><i class="fas fa-building me-2"></i>ข้อมูลลูกค้า</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="customer-select" class="form-label">ชื่อลูกค้า</label>
+                                        <select id="customer-select" class="form-control" required></select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="branch-select" class="form-label">สาขา / สถานที่</label>
+                                        <select id="branch-select" class="form-control" required></select>
+                                    </div>
+                                </div>
+                            </section>
+                            <hr>
+                             <section class="mb-4">
+                                <h5 class="mb-3"><i class="fas fa-users-cog me-2"></i>ผู้รับผิดชอบ</h5>
+                                <div class="row g-3">
+                                     <div class="col-md-4">
+                                        <label for="inspector-select" class="form-label">ผู้ตรวจวัด (เลือกได้หลายคน)</label>
+                                        <select id="inspector-select" class="form-control" multiple required></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์ (เลือกได้หลายคน)</label>
+                                        <select id="analyst-select" class="form-control" multiple required></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน</label>
+                                        <select id="report-creator-select" class="form-control" required></select>
+                                    </div>
+                                </div>
+                            </section>
+                            <hr>
+                            <section>
+                                <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="measurementDate" class="form-label">วันที่ตรว<!-- 
   path: /ui/new-job.html
   version: 2.1 (Fixed Multiple Analysts Selection)
   date: 2025-09-03
@@ -181,6 +227,19 @@
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
             } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); }
 
+            // Check if this is edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const editJobId = urlParams.get('edit');
+            const isEditMode = !!editJobId;
+            
+            if (isEditMode) {
+                document.getElementById('page-title').textContent = 'แก้ไขข้อมูลงาน';
+                document.getElementById('submit-text').textContent = 'บันทึกการแก้ไข';
+                document.getElementById('cancel-btn').innerHTML = '<i class="fas fa-arrow-left me-2"></i>กลับไปรายละเอียดงาน';
+                document.getElementById('cancel-btn').href = `job-details.html?id=${editJobId}`;
+                document.getElementById('edit-job-id').value = editJobId;
+            }
+
             // Initialize Choices.js dropdowns
             const customerSelect = new Choices('#customer-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกลูกค้า...' });
             const branchSelect = new Choices('#branch-select', { searchEnabled: true, itemSelectText: 'เลือก', placeholder: true, placeholderValue: 'เลือกสาขา...' });
@@ -194,6 +253,11 @@
                 customersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 const customerChoices = customersData.map(c => ({ value: c.id, label: c.name }));
                 customerSelect.setChoices(customerChoices, 'value', 'label', true);
+                
+                // If edit mode, load job data after customers are loaded
+                if (isEditMode && customersData.length > 0) {
+                    loadJobDataForEdit(editJobId);
+                }
             });
 
             // Fetch and populate inspectors
@@ -206,11 +270,66 @@
                 reportCreatorSelect.setChoices(inspectorChoices, 'value', 'label', true);
 
                 // Set default report creator (example: 'นางสาวสุกานดา คำก๋อง')
-                const defaultCreator = inspectorsData.find(i => i.inspectorTitle === 'ผู้จัดทำรายงาน');
-                if (defaultCreator) {
-                    reportCreatorSelect.setValue([defaultCreator.inspectorName]);
+                if (!isEditMode) {
+                    const defaultCreator = inspectorsData.find(i => i.inspectorTitle === 'ผู้จัดทำรายงาน');
+                    if (defaultCreator) {
+                        reportCreatorSelect.setValue([defaultCreator.inspectorName]);
+                    }
                 }
             });
+
+            // Load job data for editing
+            async function loadJobDataForEdit(jobId) {
+                try {
+                    const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
+                    const jobSnap = await getDoc(jobDocRef);
+                    
+                    if (jobSnap.exists()) {
+                        const jobData = jobSnap.data();
+                        console.log('Loading job data for edit:', jobData);
+                        
+                        // Set customer and find branch
+                        if (jobData.customerId) {
+                            customerSelect.setChoiceByValue(jobData.customerId);
+                            const customer = customersData.find(c => c.id === jobData.customerId);
+                            if (customer && customer.branches) {
+                                const branchChoices = customer.branches.map(b => ({ value: b.location, label: `${b.location} - ${b.address || ''}` }));
+                                branchSelect.setChoices(branchChoices, 'value', 'label', true);
+                                branchSelect.setChoiceByValue(jobData.location);
+                            }
+                        } else if (jobData.customerName) {
+                            // Fallback: try to find by name
+                            const customer = customersData.find(c => c.name === jobData.customerName);
+                            if (customer) {
+                                customerSelect.setChoiceByValue(customer.id);
+                            }
+                        }
+                        
+                        // Set personnel
+                        if (jobData.inspectors) {
+                            inspectorSelect.setValue(jobData.inspectors);
+                        }
+                        if (jobData.analysts && Array.isArray(jobData.analysts)) {
+                            analystSelect.setValue(jobData.analysts);
+                        } else if (jobData.analyst) {
+                            analystSelect.setValue([jobData.analyst]);
+                        }
+                        if (jobData.reportCreator) {
+                            reportCreatorSelect.setValue([jobData.reportCreator]);
+                        }
+                        
+                        // Set other fields
+                        document.getElementById('measurementDate').value = jobData.date || '';
+                        document.getElementById('jobStatus').value = jobData.status || 'new';
+                        document.getElementById('jobNotes').value = jobData.notes || '';
+                        
+                    } else {
+                        showAlert('ไม่พบข้อมูลงานที่ต้องการแก้ไข', 'danger');
+                    }
+                } catch (error) {
+                    showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`, 'danger');
+                }
+            }
 
             // Handle customer selection change
             document.getElementById('customer-select').addEventListener('change', (event) => {
@@ -228,42 +347,60 @@
                 e.preventDefault();
                 const submitButton = document.getElementById('submit-btn');
                 submitButton.disabled = true;
-                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง...`;
+                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${isEditMode ? 'กำลังบันทึก...' : 'กำลังสร้าง...'}`;
                 
                 try {
-                    const year = new Date().getFullYear() + 543;
-                    const jobId = `JOB-${year}-${String(Date.now()).slice(-4)}`;
-                    
                     const customerId = customerSelect.getValue(true);
                     const customer = customersData.find(c => c.id === customerId);
                     const branchLocation = branchSelect.getValue(true);
                     const branch = customer.branches.find(b => b.location === branchLocation);
 
-                    const newJobData = {
+                    const jobData = {
                         customerId: customerId,
                         customerName: customer.name,
                         location: branch.location,
                         address: branch.address || '',
                         date: document.getElementById('measurementDate').value,
+                        status: document.getElementById('jobStatus').value,
                         inspectors: inspectorSelect.getValue(true) || [],
                         analysts: analystSelect.getValue(true) || [],
+                        analyst: (analystSelect.getValue(true) || [])[0] || '', // Keep backward compatibility
                         reportCreator: reportCreatorSelect.getValue(true) || '',
-                        notes: document.getElementById('jobNotes').value,
-                        status: 'new', // new, in-progress, completed
-                        createdBy: auth.currentUser.uid,
-                        createdAt: new Date().toISOString(),
-                        results: [] // Initialize empty results
+                        notes: document.getElementById('jobNotes').value
                     };
                     
-                    const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
-                    await setDoc(doc(db, jobsCollectionPath, jobId), newJobData);
+                    if (isEditMode) {
+                        // Update existing job
+                        const jobId = document.getElementById('edit-job-id').value;
+                        const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
+                        await updateDoc(doc(db, jobsCollectionPath, jobId), jobData);
+                        
+                        showAlert('แก้ไขข้อมูลงานสำเร็จแล้ว', 'success');
+                        setTimeout(() => {
+                            window.location.href = `job-details.html?id=${jobId}`;
+                        }, 1500);
+                    } else {
+                        // Create new job
+                        const year = new Date().getFullYear() + 543;
+                        const jobId = `JOB-${year}-${String(Date.now()).slice(-4)}`;
+                        
+                        const newJobData = {
+                            ...jobData,
+                            createdBy: auth.currentUser.uid,
+                            createdAt: new Date().toISOString(),
+                            results: [] // Initialize empty results
+                        };
+                        
+                        const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
+                        await setDoc(doc(db, jobsCollectionPath, jobId), newJobData);
 
-                    window.location.href = `job-details.html?id=${jobId}`;
+                        window.location.href = `job-details.html?id=${jobId}`;
+                    }
 
                 } catch (error) {
-                    showAlert(`เกิดข้อผิดพลาดในการสร้างงาน: ${error.message}`);
+                    showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
                     submitButton.disabled = false;
-                    submitButton.innerHTML = `<i class="fas fa-save me-2"></i>บันทึกและสร้างงาน`;
+                    submitButton.innerHTML = `<i class="fas fa-save me-2"></i><span id="submit-text">${isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกและสร้างงาน'}</span>`;
                 }
             });
         }
