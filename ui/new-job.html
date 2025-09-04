@@ -1,64 +1,65 @@
-<!-- 
-  path: /ui/new-job.html
-  version: 2.3 (Complete Fixed Version from Original Document)
-  date: 2025-09-03
-  time: 22:00:00
--->
 <!DOCTYPE html>
+<!--
+  path: /ui/new-job.html
+  version: 2.7 (Keep Original Working Code + Modular CSS/JS Only)
+  date: 2025-09-05
+  time: 01:00:00
+  description: ใช้โค้ดเดิมที่ทำงานได้ดี แค่แยก CSS/JS เป็น modules และปรับ menu เท่านั้น
+-->
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สร้างงานใหม่ - Light Measurement System</title>
     
+    <!-- External CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
 
-    <style>
-        :root {
-            --primary-color: #0d47a1;
-            --secondary-color: #1976d2;
-            --background-color: #f4f7f9;
-            --sidebar-width: 260px;
-            --sidebar-mini-width: 80px;
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            --transition-speed: 0.3s;
-        }
-        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
-        #wrapper { display: flex; }
-        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
-        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
-        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
-        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
-        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
-        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
-        .list-group-item i { font-size: 1.25rem; }
-        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
-        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
-        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
-        #page-content-wrapper { flex-grow: 1; }
-        .navbar { box-shadow: var(--card-shadow); }
-        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
-        .choices__input { background-color: var(--bs-body-bg) !important; }
-    </style>
+    <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="assets/css/main-styles.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/components.css">
 </head>
 <body>
     
     <div class="d-flex" id="wrapper">
 
-        <!-- Sidebar -->
+        <!-- Sidebar - Updated to match main.html structure -->
         <div id="sidebar-wrapper">
-            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
             <div class="list-group list-group-flush">
-                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
-                <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
-                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
             </div>
         </div>
 
-        <!-- Page Content -->
+        <!-- Page Content - Keep original structure -->
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
                 <div class="container-fluid">
@@ -99,6 +100,23 @@
                                         <select id="branch-select" class="form-control" required></select>
                                     </div>
                                 </div>
+                                <!-- เพิ่ม fields ใหม่ -->
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-12">
+                                        <label for="job-address" class="form-label">ที่อยู่</label>
+                                        <textarea id="job-address" class="form-control" rows="2" placeholder="ที่อยู่สำหรับการตรวจวัด..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6">
+                                        <label for="contact-person" class="form-label">ผู้ติดต่อ</label>
+                                        <input type="text" id="contact-person" class="form-control" placeholder="ชื่อผู้ติดต่อ">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="contact-phone" class="form-label">เบอร์โทรศัพท์</label>
+                                        <input type="tel" id="contact-phone" class="form-control" placeholder="หมายเลขโทรศัพท์">
+                                    </div>
+                                </div>
                             </section>
                             <hr>
                             <section class="mb-4">
@@ -127,6 +145,10 @@
                                         <input type="date" class="form-control" id="measurementDate" required>
                                     </div>
                                     <div class="col-md-3">
+                                        <label for="measurementTime" class="form-label">เวลาตรวจวัด</label>
+                                        <input type="time" class="form-control" id="measurementTime">
+                                    </div>
+                                    <div class="col-md-3">
                                         <label for="jobStatus" class="form-label">สถานะงาน</label>
                                         <select class="form-select" id="jobStatus">
                                             <option value="new">ใหม่</option>
@@ -134,7 +156,20 @@
                                             <option value="completed">เสร็จสิ้น</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
+                                        <label for="instrument-select" class="form-label">เครื่องมือตรวจวัด</label>
+                                        <select id="instrument-select" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <!-- เพิ่ม fields ใหม่ -->
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-12">
+                                        <label for="work-description" class="form-label">รายละเอียดงาน</label>
+                                        <textarea class="form-control" id="work-description" rows="2" placeholder="ระบุรายละเอียดงานการตรวจวัด..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-12">
                                         <label for="jobNotes" class="form-label">หมายเหตุเพิ่มเติม</label>
                                         <textarea class="form-control" id="jobNotes" rows="1"></textarea>
                                     </div>
@@ -152,10 +187,17 @@
         </div>
     </div>
     
+    <!-- External JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="firebase-config.js"></script>
+    
+    <!-- Keep original working JavaScript with UI helper import only -->
     <script type="module">
+        // Import only UI helpers, keep rest of code as-is
+        import { showAlert } from './assets/js/ui-helpers.js';
+        
+        // Keep all original working code
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -164,18 +206,10 @@
         let db, auth;
         let customersData = [];
         let inspectorsData = [];
+        let instrumentsData = [];
 
-        const showAlert = (message, type = 'danger', duration = 5000) => {
-            const alertPlaceholder = document.getElementById('alert-placeholder');
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-            alertPlaceholder.innerHTML = '';
-            alertPlaceholder.append(wrapper);
-            setTimeout(() => {
-                const alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
-                if(alert) alert.close();
-            }, duration);
-        };
+        // Override global showAlert to use UI helper
+        window.showAlert = showAlert;
 
         async function main() {
             let finalFirebaseConfig;
@@ -198,7 +232,7 @@
                 else await signInAnonymously(auth);
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
             } catch (error) { 
-                showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); 
+                showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'danger'); 
             }
 
             // Check if this is edit mode
@@ -246,6 +280,14 @@
                 itemSelectText: 'เลือก' 
             });
 
+            // เพิ่ม instrument select
+            const instrumentSelect = new Choices('#instrument-select', { 
+                searchEnabled: true, 
+                itemSelectText: 'เลือก',
+                placeholder: true,
+                placeholderValue: 'เลือกเครื่องมือ...' 
+            });
+
             // Fetch and populate customers
             const customersRef = collection(db, `/artifacts/${appId}/public/data/customers`);
             onSnapshot(customersRef, (snapshot) => {
@@ -279,6 +321,18 @@
                         reportCreatorSelect.setValue([defaultCreator.inspectorName]);
                     }
                 }
+            });
+
+            // Fetch and populate instruments
+            const instrumentsRef = collection(db, `/artifacts/${appId}/public/data/instruments`);
+            onSnapshot(instrumentsRef, (snapshot) => {
+                instrumentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const instrumentChoices = instrumentsData.map(i => ({ 
+                    value: JSON.stringify(i), 
+                    label: `${i.name} (${i.serialNumber})` 
+                }));
+                
+                instrumentSelect.setChoices(instrumentChoices, 'value', 'label', true);
             });
 
             // Load job data for editing
@@ -324,10 +378,25 @@
                             reportCreatorSelect.setValue([jobData.reportCreator]);
                         }
                         
-                        // Set other fields
+                        // Set other fields including new ones
                         document.getElementById('measurementDate').value = jobData.date || '';
+                        document.getElementById('measurementTime').value = jobData.time || '';
                         document.getElementById('jobStatus').value = jobData.status || 'new';
                         document.getElementById('jobNotes').value = jobData.notes || '';
+                        document.getElementById('job-address').value = jobData.address || '';
+                        document.getElementById('contact-person').value = jobData.contactPerson || '';
+                        document.getElementById('contact-phone').value = jobData.contactPhone || '';
+                        document.getElementById('work-description').value = jobData.workDescription || '';
+                        
+                        // Set instrument if exists
+                        if (jobData.instrument) {
+                            try {
+                                const instrumentValue = JSON.stringify(jobData.instrument);
+                                instrumentSelect.setChoiceByValue(instrumentValue);
+                            } catch (e) {
+                                console.warn('Could not set instrument value:', e);
+                            }
+                        }
                         
                     } else {
                         showAlert('ไม่พบข้อมูลงานที่ต้องการแก้ไข', 'danger');
@@ -351,6 +420,20 @@
                 }
             });
 
+            // Handle branch selection change - เพิ่ม auto-fill address
+            document.getElementById('branch-select').addEventListener('change', (event) => {
+                const customerId = customerSelect.getValue(true);
+                const selectedCustomer = customersData.find(c => c.id === customerId);
+                const branchLocation = event.detail.value;
+                
+                if (selectedCustomer && selectedCustomer.branches) {
+                    const selectedBranch = selectedCustomer.branches.find(b => b.location === branchLocation);
+                    if (selectedBranch && selectedBranch.address) {
+                        document.getElementById('job-address').value = selectedBranch.address;
+                    }
+                }
+            });
+
             // Form submission
             document.getElementById('newJobForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -368,15 +451,34 @@
                         customerId: customerId,
                         customerName: customer.name,
                         location: branch.location,
-                        address: branch.address || '',
+                        address: document.getElementById('job-address').value || branch.address || '',
                         date: document.getElementById('measurementDate').value,
+                        time: document.getElementById('measurementTime').value, // เพิ่ม field ใหม่
                         status: document.getElementById('jobStatus').value,
                         inspectors: inspectorSelect.getValue(true) || [],
                         analysts: analystSelect.getValue(true) || [],
                         analyst: (analystSelect.getValue(true) || [])[0] || '', // Keep backward compatibility
                         reportCreator: reportCreatorSelect.getValue(true) || '',
-                        notes: document.getElementById('jobNotes').value
+                        notes: document.getElementById('jobNotes').value,
+                        contactPerson: document.getElementById('contact-person').value, // เพิ่ม field ใหม่
+                        contactPhone: document.getElementById('contact-phone').value, // เพิ่ม field ใหม่
+                        workDescription: document.getElementById('work-description').value // เพิ่ม field ใหม่
                     };
+
+                    // Handle instrument selection
+                    const instrumentIndex = instrumentSelect.getValue(true);
+                    console.log('Selected instrument index:', instrumentIndex);
+                    
+                    if (instrumentIndex !== null && instrumentIndex !== '' && instrumentsData) {
+                        const selectedInstrument = instrumentsData[parseInt(instrumentIndex)];
+                        console.log('Found instrument:', selectedInstrument);
+                        
+                        if (selectedInstrument) {
+                            jobData.instrument = selectedInstrument;
+                        } else {
+                            console.warn('Instrument not found for index:', instrumentIndex);
+                        }
+                    }
                     
                     if (isEditMode) {
                         // Update existing job
@@ -416,7 +518,9 @@
         
         main();
     </script>
+    
     <script>
+        // Sidebar toggle - same as original
         document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.getElementById('wrapper').classList.toggle('sidebar-mini');
         });
