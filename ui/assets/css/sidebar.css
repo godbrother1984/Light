@@ -1,0 +1,317 @@
+/*
+  path: /ui/assets/css/sidebar.css
+  version: 1.0 (CSS Module Extraction - Sidebar & Navigation)
+  date: 2025-09-04
+  time: 15:35:00
+  description: Sidebar navigation styles with collapse functionality and hover effects
+*/
+
+/* ===== SIDEBAR WRAPPER ===== */
+#sidebar-wrapper {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background-color: var(--primary-color);
+    transition: width var(--transition-speed) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#wrapper.sidebar-mini #sidebar-wrapper {
+    width: var(--sidebar-mini-width);
+}
+
+/* ===== SIDEBAR HEADING ===== */
+.sidebar-heading {
+    padding: 1rem 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.sidebar-heading .logo-text {
+    display: inline;
+    transition: opacity var(--transition-speed) ease;
+    margin-left: 0.5rem;
+}
+
+#wrapper.sidebar-mini .sidebar-heading .logo-text {
+    opacity: 0;
+    display: none;
+}
+
+.sidebar-heading i {
+    font-size: 1.5rem;
+    color: #fff;
+    min-width: 24px;
+}
+
+/* ===== SIDEBAR MENU LIST ===== */
+.list-group-flush .list-group-item {
+    border: none;
+    padding: 1rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    background-color: transparent;
+    transition: all var(--transition-speed) ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.list-group-flush .list-group-item i {
+    font-size: 1.25rem;
+    min-width: 24px;
+    margin-right: 1rem;
+    text-align: center;
+}
+
+.list-group-flush .list-group-item .menu-text {
+    transition: opacity var(--transition-speed) ease;
+    flex: 1;
+}
+
+#wrapper.sidebar-mini .list-group-flush .list-group-item .menu-text {
+    opacity: 0;
+    display: none;
+}
+
+/* ===== SIDEBAR HOVER EFFECTS ===== */
+.list-group-flush .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateX(5px);
+}
+
+.list-group-flush .list-group-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-left: 4px solid #fff;
+    font-weight: 600;
+}
+
+.list-group-flush .list-group-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+}
+
+/* ===== SIDEBAR MINI MODE HOVER ===== */
+#wrapper.sidebar-mini #sidebar-wrapper:hover {
+    width: var(--sidebar-width);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#wrapper.sidebar-mini #sidebar-wrapper:hover .sidebar-heading .logo-text,
+#wrapper.sidebar-mini #sidebar-wrapper:hover .list-group-flush .list-group-item .menu-text {
+    opacity: 1;
+    display: inline;
+}
+
+/* ===== SIDEBAR TOGGLE BUTTON ===== */
+#sidebarToggle {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+#sidebarToggle:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* ===== SIDEBAR RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 1050;
+        transition: left var(--transition-speed) ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    #wrapper.sidebar-toggled #sidebar-wrapper {
+        left: 0;
+    }
+    
+    #wrapper.sidebar-mini #sidebar-wrapper {
+        width: var(--sidebar-width);
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+    
+    #wrapper.sidebar-toggled .sidebar-overlay {
+        display: block;
+    }
+}
+
+/* ===== SIDEBAR ANIMATIONS ===== */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.sidebar-enter {
+    animation: slideInLeft var(--transition-speed) ease;
+}
+
+.sidebar-exit {
+    animation: slideOutLeft var(--transition-speed) ease;
+}
+
+/* ===== SIDEBAR SCROLLBAR STYLING ===== */
+#sidebar-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sidebar-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ===== SIDEBAR TOOLTIP FOR MINI MODE ===== */
+.sidebar-tooltip {
+    position: absolute;
+    left: calc(var(--sidebar-mini-width) + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #333;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-speed) ease;
+    z-index: 1060;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: #333;
+}
+
+#wrapper.sidebar-mini .list-group-flush .list-group-item:hover .sidebar-tooltip {
+    opacity: 1;
+}
+
+/* ===== SIDEBAR BRAND LOGO ===== */
+.sidebar-brand-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+    flex: 1;
+    font-size: 1.2rem;
+    line-height: 1.2;
+}
+
+/* ===== SIDEBAR FOOTER ===== */
+.sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-footer .small {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+}
+
+/* ===== SIDEBAR COLLAPSIBLE SECTIONS ===== */
+.sidebar-section {
+    margin: 0.5rem 0;
+}
+
+.sidebar-section-title {
+    padding: 0.5rem 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 0.5rem;
+}
+
+#wrapper.sidebar-mini .sidebar-section-title {
+    display: none;
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+    .sidebar-tooltip {
+        background-color: #555;
+    }
+    
+    .sidebar-tooltip::before {
+        border-right-color: #555;
+    }
+}

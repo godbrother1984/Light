@@ -1,0 +1,569 @@
+<!-- 
+  path: /ui/main.html
+  version: 5.1 (Fixed Firebase Timestamp Issues)
+  date: 2025-09-04
+  time: 17:45:00
+  description: Main page optimized with external CSS/JS modules - Fixed all Firebase timestamp errors
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกผลการตรวจวัดแสง - Light Measurement System</title>
+    
+    <!-- External CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="assets/css/main-styles.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush">
+                <a href="main.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1 text-gradient">ระบบบันทึกผลการตรวจวัดแสง</h1>
+                        <p class="text-muted mb-0">Light Measurement Recording System</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="location.href='new-job.html'">
+                            <i class="fas fa-plus me-2"></i>สร้างงานใหม่
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="refreshJobList()">
+                            <i class="fas fa-sync-alt me-2"></i>รีเฟรช
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Placeholder -->
+                <div id="alert-placeholder"></div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="info-card">
+                            <div class="info-card-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="info-card-title">งานทั้งหมด</div>
+                            <div class="info-card-text" id="total-jobs">0 งาน</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-card">
+                            <div class="info-card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="info-card-title">งานที่รอดำเนินการ</div>
+                            <div class="info-card-text" id="pending-jobs">0 งาน</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-card">
+                            <div class="info-card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="info-card-title">งานที่เสร็จแล้ว</div>
+                            <div class="info-card-text" id="completed-jobs">0 งาน</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="info-card">
+                            <div class="info-card-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="info-card-title">งานวันนี้</div>
+                            <div class="info-card-text" id="today-jobs">0 งาน</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job List -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>รายการงานทั้งหมด
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm" id="search-input" placeholder="ค้นหางาน..." style="width: 200px;">
+                            <select class="form-select form-select-sm" id="filter-status" style="width: 150px;">
+                                <option value="">ทุกสถานะ</option>
+                                <option value="draft">ร่าง</option>
+                                <option value="in-progress">กำลังดำเนินการ</option>
+                                <option value="completed">เสร็จสิ้น</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="data-grid">
+                            <div class="data-grid-body" id="jobs-container">
+                                <!-- Job items will be loaded here -->
+                                <div class="empty-state" id="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <div class="empty-state-title">ยังไม่มีงาน</div>
+                                    <div class="empty-state-text">เริ่มต้นโดยการสร้างงานใหม่</div>
+                                    <button class="btn btn-primary" onclick="location.href='new-job.html'">
+                                        <i class="fas fa-plus me-2"></i>สร้างงานแรก
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- External JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase Config (Load First) -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Custom JS Modules -->
+    <script type="module">
+        import { firebaseManager } from './assets/js/firebase-init.js';
+        import { showAlert, formatDate, debounce } from './assets/js/ui-helpers.js';
+
+        // Global variables
+        let allJobs = [];
+        let filteredJobs = [];
+
+        // Helper function to safely convert Firebase timestamp to Date
+        function safeTimestampToDate(timestamp) {
+            try {
+                if (!timestamp) return null;
+                
+                if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                    return timestamp.toDate();
+                } else if (timestamp.seconds) {
+                    return new Date(timestamp.seconds * 1000);
+                } else if (timestamp instanceof Date) {
+                    return timestamp;
+                } else if (typeof timestamp === 'string') {
+                    return new Date(timestamp);
+                } else if (typeof timestamp === 'number') {
+                    return new Date(timestamp);
+                }
+                
+                return null;
+            } catch (error) {
+                console.warn('Error converting timestamp:', error);
+                return null;
+            }
+        }
+
+        // Initialize application
+        async function initializeApp() {
+            try {
+                console.log('🚀 Starting application initialization...');
+                
+                // Initialize Firebase
+                const success = await firebaseManager.initialize();
+                if (!success) {
+                    showAlert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'danger');
+                    return;
+                }
+
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Load jobs
+                await loadJobs();
+                
+                showAlert('ระบบพร้อมใช้งาน', 'success', 3000);
+            } catch (error) {
+                console.error('App initialization error:', error);
+                showAlert('เกิดข้อผิดพลาดในการเริ่มต้นระบบ', 'danger');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            
+            // Filter functionality
+            const filterStatus = document.getElementById('filter-status');
+            filterStatus.addEventListener('change', handleFilter);
+            
+            // Refresh button
+            window.refreshJobList = loadJobs;
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        }
+
+        // Load jobs from Firebase
+        async function loadJobs() {
+            try {
+                console.log('📊 Loading jobs from Firebase...');
+                showLoading('#jobs-container', 'กำลังโหลดข้อมูล...');
+
+                // Listen to jobs collection
+                const unsubscribe = firebaseManager.listenToCollection(
+                    'jobs',
+                    (snapshot) => {
+                        console.log(`📦 Received ${snapshot.size} jobs from Firebase`);
+                        
+                        allJobs = [];
+                        snapshot.forEach((doc) => {
+                            const jobData = doc.data();
+                            allJobs.push({
+                                id: doc.id,
+                                ...jobData
+                            });
+                        });
+                        
+                        // Sort by creation date (newest first) - FIXED VERSION
+                        allJobs.sort((a, b) => {
+                            const dateA = safeTimestampToDate(a.createdAt) || new Date(0);
+                            const dateB = safeTimestampToDate(b.createdAt) || new Date(0);
+                            return dateB.getTime() - dateA.getTime();
+                        });
+                        
+                        console.log(`✅ Successfully processed ${allJobs.length} jobs`);
+                        
+                        filteredJobs = [...allJobs];
+                        renderJobs();
+                        updateStats();
+                    },
+                    {
+                        orderBy: {
+                            field: 'createdAt',
+                            direction: 'desc'
+                        }
+                    }
+                );
+
+                // Store unsubscribe function for cleanup
+                window.jobsUnsubscribe = unsubscribe;
+                
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                showAlert('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+                hideLoading('#jobs-container');
+            }
+        }
+
+        // Render jobs list
+        function renderJobs() {
+            const container = document.getElementById('jobs-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (filteredJobs.length === 0) {
+                emptyState.style.display = 'block';
+                container.innerHTML = '';
+                container.appendChild(emptyState);
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            const jobsHtml = filteredJobs.map(job => createJobCard(job)).join('');
+            container.innerHTML = jobsHtml;
+        }
+
+        // Create job card HTML
+        function createJobCard(job) {
+            const statusBadge = getStatusBadge(job.status);
+            
+            // Handle different Firebase timestamp formats - FIXED VERSION
+            let createdDate = 'ไม่ทราบ';
+            const jobDate = safeTimestampToDate(job.createdAt);
+            if (jobDate) {
+                createdDate = formatDate(jobDate);
+            }
+            
+            const customerName = job.customerName || 'ไม่ระบุลูกค้า';
+            const location = job.location || 'ไม่ระบุสถานที่';
+            
+            return `
+                <div class="data-grid-row" onclick="location.href='job-details.html?id=${job.id}'">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="fw-bold text-primary">${job.id}</div>
+                            <small class="text-muted">${createdDate}</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="fw-semibold">${customerName}</div>
+                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${location}</small>
+                        </div>
+                        <div class="col-md-2">
+                            ${statusBadge}
+                        </div>
+                        <div class="col-md-2">
+                            <div class="small text-muted">
+                                ผลการตรวจ: ${job.results?.length || 0} รายการ
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation(); editJob('${job.id}')" title="แก้ไข">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="event.stopPropagation(); generateReport('${job.id}')" title="สร้างรายงาน">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="event.stopPropagation(); deleteJob('${job.id}')" title="ลบ">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Get status badge
+        function getStatusBadge(status) {
+            const badges = {
+                'draft': '<span class="badge bg-secondary">ร่าง</span>',
+                'in-progress': '<span class="badge bg-warning">กำลังดำเนินการ</span>',
+                'completed': '<span class="badge bg-success">เสร็จสิ้น</span>'
+            };
+            return badges[status] || '<span class="badge bg-light text-dark">ไม่ทราบสถานะ</span>';
+        }
+
+        // Update statistics - FIXED VERSION
+        function updateStats() {
+            document.getElementById('total-jobs').textContent = `${allJobs.length} งาน`;
+            
+            const pendingJobs = allJobs.filter(job => job.status === 'draft' || job.status === 'in-progress');
+            document.getElementById('pending-jobs').textContent = `${pendingJobs.length} งาน`;
+            
+            const completedJobs = allJobs.filter(job => job.status === 'completed');
+            document.getElementById('completed-jobs').textContent = `${completedJobs.length} งาน`;
+            
+            // Today's jobs - handle different timestamp formats
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const todayJobs = allJobs.filter(job => {
+                const jobDate = safeTimestampToDate(job.createdAt);
+                if (!jobDate) return false;
+                
+                const jobDateOnly = new Date(jobDate);
+                jobDateOnly.setHours(0, 0, 0, 0);
+                return jobDateOnly.getTime() === today.getTime();
+            });
+            
+            document.getElementById('today-jobs').textContent = `${todayJobs.length} งาน`;
+        }
+
+        // Handle search
+        function handleSearch() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            
+            filteredJobs = allJobs.filter(job => {
+                const matchesSearch = !searchTerm || 
+                    job.id.toLowerCase().includes(searchTerm) ||
+                    (job.customerName || '').toLowerCase().includes(searchTerm) ||
+                    (job.location || '').toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = !statusFilter || job.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderJobs();
+        }
+
+        // Handle filter
+        function handleFilter() {
+            handleSearch(); // Use the same logic
+        }
+
+        // Global functions for job actions
+        window.editJob = (jobId) => {
+            location.href = `new-job.html?id=${jobId}`;
+        };
+
+        window.generateReport = (jobId) => {
+            location.href = `report-finalizer.html?id=${jobId}`;
+        };
+
+        window.deleteJob = async (jobId) => {
+            if (!confirm('ต้องการลบงานนี้หรือไม่?')) return;
+            
+            try {
+                await firebaseManager.deleteDocument('jobs', jobId);
+                showAlert('ลบงานเรียบร้อยแล้ว', 'success');
+            } catch (error) {
+                console.error('Delete job error:', error);
+                showAlert('เกิดข้อผิดพลาดในการลบงาน', 'danger');
+            }
+        };
+
+        // Helper functions - SIMPLIFIED VERSION
+        function showLoading(selector, text = 'กำลังโหลด...') {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-center p-5">
+                        <div class="spinner-border text-primary me-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span>${text}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function hideLoading(selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.innerHTML = '<!-- Loading finished -->';
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.jobsUnsubscribe) {
+                window.jobsUnsubscribe();
+            }
+        });
+    </script>
+
+    <!-- Responsive behavior for mobile -->
+    <script>
+        // Handle mobile sidebar behavior
+        function handleMobileResize() {
+            const wrapper = document.getElementById('wrapper');
+            const sidebar = document.getElementById('sidebar-wrapper');
+            
+            if (window.innerWidth <= 768) {
+                wrapper.classList.add('sidebar-mini');
+                
+                // Create overlay for mobile
+                if (!document.querySelector('.sidebar-overlay')) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    overlay.addEventListener('click', () => {
+                        wrapper.classList.add('sidebar-mini');
+                    });
+                    document.body.appendChild(overlay);
+                }
+            } else {
+                wrapper.classList.remove('sidebar-toggled');
+            }
+        }
+
+        // Handle resize events
+        window.addEventListener('resize', handleMobileResize);
+        document.addEventListener('DOMContentLoaded', handleMobileResize);
+
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            sidebarToggle.addEventListener('click', () => {
+                const wrapper = document.getElementById('wrapper');
+                if (window.innerWidth <= 768) {
+                    wrapper.classList.toggle('sidebar-toggled');
+                } else {
+                    wrapper.classList.toggle('sidebar-mini');
+                }
+            });
+        });
+    </script>
+
+    <!-- Service Worker for Caching (Optional) -->
+    <script>
+        // Register service worker for better caching (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // ตรวจสอบว่ามี service worker file ก่อน
+                fetch('/sw.js', { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            return navigator.serviceWorker.register('/sw.js');
+                        } else {
+                            console.log('Service Worker file not found, skipping registration');
+                            return null;
+                        }
+                    })
+                    .then((registration) => {
+                        if (registration) {
+                            console.log('SW registered: ', registration);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('SW registration skipped or failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
