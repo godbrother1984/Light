@@ -455,8 +455,7 @@
             
             let processedContent = content;
             Object.entries(tags).forEach(([tag, value]) => {
-                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\            let processedContent = content;
-            Object.entries(tags).forEach'), 'g'), value);
+                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g'), value);
             });
             
             return processedContent;
