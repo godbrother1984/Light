@@ -1,8 +1,9 @@
 <!-- 
   path: /ui/report-finalizer.html
-  version: 5.1 (Fixed All Errors - Complete Working Version)
-  date: 2025-09-03
-  time: 22:45:00
+  version: 6.0 (Enhanced Tags System with TagProcessor Module)
+  date: 2025-09-04
+  time: 10:00:00
+  description: Added new advanced tags and separated tag processing into external module
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -20,6 +21,8 @@
     <!-- PDF Generation Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Tag Processor Module -->
+    <script src="tag-processor.js"></script>
 
     <style>
         :root {
@@ -183,7 +186,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="tag-category">
                                             <h6 class="fw-bold">ข้อมูลงาน</h6>
                                             <button class="tag-button" data-tag="{{JOB_ID}}">รหัสงาน</button>
@@ -195,27 +198,61 @@
                                         </div>
                                         
                                         <div class="tag-category">
-                                            <h6 class="fw-bold">บุคลากร</h6>
+                                            <h6 class="fw-bold">บุคลากร (พื้นฐาน)</h6>
                                             <button class="tag-button" data-tag="{{INSPECTORS}}">ผู้ตรวจวัด</button>
                                             <button class="tag-button" data-tag="{{ANALYSTS}}">ผู้วิเคราะห์</button>
                                             <button class="tag-button" data-tag="{{REPORT_CREATOR}}">ผู้จัดทำรายงาน</button>
                                         </div>
+                                        
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">🆕 บุคลากร (รายละเอียด)</h6>
+                                            <button class="tag-button" data-tag="{{STAFF_CONTROLLERS}}">ผู้ควบคุมห้องปฏิบัติการ</button>
+                                            <button class="tag-button" data-tag="{{STAFF_INSPECTORS}}">ผู้ตรวจวัด + ตำแหน่ง</button>
+                                            <button class="tag-button" data-tag="{{STAFF_REPORTERS}}">ผู้จัดทำรายงาน + ตำแหน่ง</button>
+                                            <button class="tag-button" data-tag="{{ALL_STAFF}}">บุคลากรทั้งหมด</button>
+                                        </div>
                                     </div>
                                     
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <div class="tag-category">
+                                            <h6 class="fw-bold">🆕 ข้อมูลบริษัท</h6>
+                                            <button class="tag-button" data-tag="{{COMPANY_LICENSES}}">ใบอนุญาตทั้งหมด</button>
+                                            <button class="tag-button" data-tag="{{LICENSE_FACTORY}}">เลขทะเบียน ว-๓๒๙</button>
+                                            <button class="tag-button" data-tag="{{LICENSE_LIGHT}}">ใบอนุญาตแสงสว่าง</button>
+                                        </div>
+                                        
                                         <div class="tag-category">
                                             <h6 class="fw-bold">ผลการตรวจวัด</h6>
-                                            <button class="tag-button" data-tag="{{RESULTS_TABLE}}">ตารางผลการตรวจวัด</button>
+                                            <button class="tag-button" data-tag="{{RESULTS_TABLE}}">ตารางผลการตรวจวัด 📄</button>
                                             <button class="tag-button" data-tag="{{RESULTS_COUNT}}">จำนวนจุดตรวจวัด</button>
                                             <button class="tag-button" data-tag="{{PASS_COUNT}}">จำนวนจุดที่ผ่าน</button>
                                             <button class="tag-button" data-tag="{{FAIL_COUNT}}">จำนวนจุดที่ไม่ผ่าน</button>
                                         </div>
                                         
                                         <div class="tag-category">
+                                            <h6 class="fw-bold">🆕 รายละเอียดการตรวจวัด</h6>
+                                            <button class="tag-button" data-tag="{{MEASUREMENT_DETAILS_TABLE}}">ตารางรายละเอียดเต็ม</button>
+                                            <button class="tag-button" data-tag="{{SPOT_COUNT}}">จำนวนจุดแบบจุด</button>
+                                            <button class="tag-button" data-tag="{{AREA_COUNT}}">จำนวนจุดแบบพื้นที่</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="tag-category">
                                             <h6 class="fw-bold">วันที่และเวลา</h6>
                                             <button class="tag-button" data-tag="{{CURRENT_DATE}}">วันที่ปัจจุบัน</button>
                                             <button class="tag-button" data-tag="{{CURRENT_TIME}}">เวลาปัจจุบัน</button>
                                             <button class="tag-button" data-tag="{{THAI_DATE}}">วันที่ไทย</button>
+                                        </div>
+                                        
+                                        <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 15px; border-radius: 8px; border-left: 4px solid #1976d2;">
+                                            <h6 class="fw-bold text-primary">💡 วิธีใช้งาน Tags</h6>
+                                            <ul class="small mb-0" style="padding-left: 1rem;">
+                                                <li><strong>คลิก</strong> tag เพื่อแทรกลงในรายงาน</li>
+                                                <li><strong>ตาราง</strong> จะแสดงเฉพาะที่มีข้อมูล</li>
+                                                <li><strong>บุคลากร</strong> ดึงจาก Master Data</li>
+                                                <li><strong>📄</strong> = แบ่งหน้าอัตโนมัติ (20 รายการ/หน้า)</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -358,13 +395,14 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const { jsPDF } = window.jspdf;
         let activeEditor = null;
         let savedTemplates = [];
         let currentJobData = null;
         let currentJobId = null;
+        let tagProcessor = null;
         
         const alertPlaceholder = document.getElementById('alert-placeholder');
         const jobIdDisplay = document.getElementById('job-id-display');
@@ -384,81 +422,13 @@
             reader.onerror = error => reject(error);
         });
 
-        // Process tags in content - FIXED VERSION
+        // Process tags in content - UPDATED TO USE TagProcessor
         const processTags = (content, jobData, jobId) => {
-            if (!jobData || !jobId) return content;
-            
-            const tags = {
-                '{{JOB_ID}}': jobId,
-                '{{CUSTOMER_NAME}}': jobData.customerName || '',
-                '{{LOCATION}}': jobData.location || '',
-                '{{ADDRESS}}': jobData.address || '',
-                '{{DATE}}': jobData.date || '',
-                '{{STATUS}}': jobData.status || '',
-                '{{INSPECTORS}}': Array.isArray(jobData.inspectors) ? jobData.inspectors.join(', ') : (jobData.inspectors || ''),
-                '{{ANALYSTS}}': Array.isArray(jobData.analysts) ? jobData.analysts.join(', ') : (jobData.analysts || ''),
-                '{{REPORT_CREATOR}}': jobData.reportCreator || '',
-                '{{RESULTS_COUNT}}': jobData.results ? jobData.results.length.toString() : '0',
-                '{{PASS_COUNT}}': jobData.results ? jobData.results.filter(r => r.evaluation === 'ผ่าน').length.toString() : '0',
-                '{{FAIL_COUNT}}': jobData.results ? jobData.results.filter(r => r.evaluation === 'ไม่ผ่าน').length.toString() : '0',
-                '{{CURRENT_DATE}}': new Date().toLocaleDateString('th-TH'),
-                '{{CURRENT_TIME}}': new Date().toLocaleTimeString('th-TH'),
-                '{{THAI_DATE}}': new Date().toLocaleDateString('th-TH', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    era: 'short'
-                })
-            };
-            
-            // Process results table
-            if (content.includes('{{RESULTS_TABLE}}') && jobData.results) {
-                let tableHtml = `
-                    <table border="1" style="width: 100%; border-collapse: collapse; margin: 1em 0;">
-                        <thead>
-                            <tr style="background-color: #f8f9fa;">
-                                <th style="padding: 8px; text-align: center;">ลำดับ</th>
-                                <th style="padding: 8px;">Lay Out</th>
-                                <th style="padding: 8px;">พื้นที่ตรวจวัด</th>
-                                <th style="padding: 8px;">ลักษณะงาน</th>
-                                <th style="padding: 8px; text-align: center;">ค่ามาตรฐาน</th>
-                                <th style="padding: 8px; text-align: center;">ผลที่วัดได้</th>
-                                <th style="padding: 8px; text-align: center;">ผลการประเมิน</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-                
-                jobData.results.forEach((result, index) => {
-                    const resultValue = result.measurementType === 'spot' 
-                        ? result.spotValue || '-'
-                        : `${result.areaAvgValue || '-'} / ${result.areaMinValue || '-'}`;
-                    
-                    const evaluationColor = result.evaluation === 'ผ่าน' ? '#28a745' : '#dc3545';
-                    
-                    tableHtml += `
-                        <tr>
-                            <td style="padding: 8px; text-align: center;">${index + 1}</td>
-                            <td style="padding: 8px;">${result.layout || ''}</td>
-                            <td style="padding: 8px;">${result.area || ''}</td>
-                            <td style="padding: 8px;">${result.workType || ''}</td>
-                            <td style="padding: 8px; text-align: center;">${result.standard || ''}</td>
-                            <td style="padding: 8px; text-align: center;">${resultValue}</td>
-                            <td style="padding: 8px; text-align: center; color: ${evaluationColor}; font-weight: bold;">${result.evaluation || ''}</td>
-                        </tr>
-                    `;
-                });
-                
-                tableHtml += '</tbody></table>';
-                tags['{{RESULTS_TABLE}}'] = tableHtml;
+            if (!tagProcessor) {
+                console.warn('TagProcessor not initialized, using fallback');
+                return content; // Fallback if TagProcessor not loaded
             }
-            
-            let processedContent = content;
-            Object.entries(tags).forEach(([tag, value]) => {
-                processedContent = processedContent.replace(new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g'), value);
-            });
-            
-            return processedContent;
+            return tagProcessor.processTags(content, jobData, jobId);
         };
 
         // Generate PDF with settings
@@ -640,6 +610,9 @@
         (async () => {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
             
+            // Initialize TagProcessor
+            tagProcessor = new window.TagProcessor();
+            
             // Initialize TinyMCE with fixed plugins
             tinymce.init({
                 selector: '#report-editor',
@@ -684,6 +657,9 @@
                 
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
                 
+                // Load master data for advanced tags
+                await loadMasterData(db, appId);
+                
                 // Load job data
                 const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, currentJobId);
                 const jobSnap = await getDoc(jobDocRef);
@@ -719,6 +695,29 @@
                     // Load job content or default template
                     loadJobContent();
                 });
+
+                // Load master data function
+                async function loadMasterData(db, appId) {
+                    try {
+                        // Load inspectors
+                        const inspectorsRef = collection(db, `/artifacts/${appId}/public/data/inspectors`);
+                        const inspectorsSnap = await getDocs(inspectorsRef);
+                        const inspectors = inspectorsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        
+                        // Load company info
+                        const companyRef = doc(db, `/artifacts/${appId}/public/data/company_info`, 'main');
+                        const companySnap = await getDoc(companyRef);
+                        const companyInfo = companySnap.exists() ? companySnap.data() : null;
+                        
+                        // Set master data in TagProcessor
+                        tagProcessor.setMasterData(inspectors, companyInfo);
+                        
+                        console.log('Master data loaded:', { inspectors: inspectors.length, companyInfo: !!companyInfo });
+                    } catch (error) {
+                        console.error('Error loading master data:', error);
+                        showAlert('ไม่สามารถโหลด Master Data ได้ - Tags บางส่วนอาจไม่ทำงาน', 'warning');
+                    }
+                }
 
                 async function loadJobContent() {
                     if (currentJobData && currentJobData.reportContent) {
