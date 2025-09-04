@@ -1,0 +1,201 @@
+/*
+  path: /ui/assets/css/toast-notifications.css
+  version: 1.0 (Modern Toast Notification System)
+  date: 2025-09-04
+  time: 22:30:00
+  description: Modern toast notifications for bottom-right corner like modern apps
+*/
+
+/* Toast Container - Bottom Right Corner */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+/* Toast Notification Base */
+.toast-notification {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    margin-bottom: 12px;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    overflow: hidden;
+    min-width: 320px;
+    border-left: 4px solid #3b82f6;
+}
+
+/* Toast Types - Color Coding */
+.toast-notification.toast-success {
+    border-left-color: #10b981;
+}
+
+.toast-notification.toast-danger {
+    border-left-color: #ef4444;
+}
+
+.toast-notification.toast-warning {
+    border-left-color: #f59e0b;
+}
+
+.toast-notification.toast-info {
+    border-left-color: #3b82f6;
+}
+
+/* Toast Animation States */
+.toast-notification.toast-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-notification.toast-hide {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* Toast Content Layout */
+.toast-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+}
+
+.toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+/* Toast Close Button */
+.toast-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.toast-close:hover {
+    background: #f3f4f6;
+    color: #6b7280;
+    transform: scale(1.1);
+}
+
+/* Toast Progress Bar */
+.toast-progress {
+    height: 3px;
+    background: #f3f4f6;
+    position: relative;
+}
+
+.toast-progress-bar {
+    height: 100%;
+    width: 100%;
+    transform-origin: left;
+    animation-fill-mode: forwards;
+}
+
+/* Progress Bar Animation */
+@keyframes toast-progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        bottom: 10px;
+        max-width: none;
+    }
+
+    .toast-notification {
+        min-width: auto;
+        margin-bottom: 8px;
+    }
+
+    .toast-content {
+        padding: 14px 16px;
+    }
+
+    .toast-message {
+        font-size: 13px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .toast-notification {
+        background: #1f2937;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast-message {
+        color: #f9fafb;
+    }
+
+    .toast-close {
+        color: #9ca3af;
+    }
+
+    .toast-close:hover {
+        background: #374151;
+        color: #d1d5db;
+    }
+
+    .toast-progress {
+        background: #374151;
+    }
+}
+
+/* Enhanced Hover Effects */
+.toast-notification:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+.toast-notification.toast-show:hover {
+    transform: translateX(-5px);
+}
+
+/* Stacking Effect for Multiple Toasts */
+.toast-notification:nth-child(2) {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0.8;
+}
+
+.toast-notification:nth-child(3) {
+    transform: translateX(100%) scale(0.9);
+    opacity: 0.6;
+}
+
+.toast-notification.toast-show:nth-child(2) {
+    transform: translateX(0) scale(0.95);
+}
+
+.toast-notification.toast-show:nth-child(3) {
+    transform: translateX(0) scale(0.9);
+}
