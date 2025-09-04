@@ -186,6 +186,14 @@
         let allJobs = [];
         let filteredJobs = [];
 
+        // Update debug info
+        function updateDebugInfo(message) {
+            const debugElement = document.getElementById('debug-info');
+            if (debugElement) {
+                debugElement.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            }
+        }
+
         // Helper function to safely convert Firebase timestamp to Date
         function safeTimestampToDate(timestamp) {
             try {
