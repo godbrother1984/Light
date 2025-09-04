@@ -1,5 +1,5 @@
 <!-- 
-  path: /ui/main-v2.html
+  path: /ui/main.html
   version: 5.2 (Fresh Version - No Cache Issues)
   date: 2025-09-04
   time: 18:00:00
@@ -32,12 +32,12 @@
                 </div>
                 <div class="sidebar-brand-text logo-text">
                     <div>Light Meter</div>
-                    <small style="font-size: 0.7rem; opacity: 0.8;">System v2</small>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
                 </div>
             </div>
             
             <div class="list-group list-group-flush">
-                <a href="main-v2.html" class="list-group-item list-group-item-action active">
+                <a href="main.html" class="list-group-item list-group-item-action active">
                     <i class="fas fa-home fa-fw me-3"></i>
                     <span class="menu-text">หน้าแรก</span>
                 </a>
@@ -82,7 +82,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h1 class="h3 mb-1 text-gradient">ระบบบันทึกผลการตรวจวัดแสง</h1>
-                        <p class="text-muted mb-0">Light Measurement Recording System v2 🚀</p>
+                        <p class="text-muted mb-0">Light Measurement Recording System 🚀</p>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-primary" onclick="location.href='new-job.html'">
@@ -96,13 +96,6 @@
 
                 <!-- Alert Placeholder -->
                 <div id="alert-placeholder"></div>
-
-                <!-- Debug Info -->
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Debug Info:</strong> 
-                    <span id="debug-info">กำลังโหลด...</span>
-                </div>
 
                 <!-- Stats Cards -->
                 <div class="row mb-4">
@@ -192,14 +185,6 @@
         // Global variables
         let allJobs = [];
         let filteredJobs = [];
-
-        // Update debug info
-        function updateDebugInfo(message) {
-            const debugElement = document.getElementById('debug-info');
-            if (debugElement) {
-                debugElement.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
-            }
-        }
 
         // Helper function to safely convert Firebase timestamp to Date
         function safeTimestampToDate(timestamp) {
