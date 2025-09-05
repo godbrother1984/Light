@@ -32,8 +32,8 @@ The project uses a **module-based architecture** for performance and maintainabi
 
 ### Migration Status
 - **✅ Fully Migrated**: All files moved to root directory
-- **✅ Module System**: `main.html` (v6.0), `new-job.html` (v3.2.0), `master-data-manager.html` (v6.1)
-- **🔄 Needs Module Migration**: `job-details.html`, `report-finalizer.html`, `template-manager.html`
+- **✅ Module System**: `main.html` (v6.0), `new-job.html` (v3.2.0), `master-data-manager.html` (v6.1), `job-details.html` (v10.0)
+- **🔄 Needs Module Migration**: `report-finalizer.html`, `template-manager.html`
 
 ### Firebase Data Structure
 ```
@@ -76,8 +76,9 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 - **Authentication**: Anonymous auth with custom token support
 - **Real-time Data**: Uses `onSnapshot` for live updates
 - **Collection Naming**: Uses `/artifacts/{app-id}/public/data/` pattern
+- **User Management**: `getCurrentUserId()` and `getCurrentUser()` methods
 
-### 2. Running Number System (NEW)
+### 2. Running Number System
 - **Format**: `PREFIX-YYYY-MM-XXX` (e.g., `JOB-2568-09-001`)  
 - **Thai Buddhist Year**: Auto-converts to Buddhist calendar
 - **Auto-reset**: Counter resets monthly
@@ -89,8 +90,16 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 - **Form Validation**: Enhanced validation with visual feedback
 - **Responsive Design**: Mobile-optimized with Bootstrap 5.3.3
 - **Thai Language**: Full Thai language support with Sarabun font
+- **Auto-save**: Real-time data persistence with 3-second debounce timer
 
-### 4. PDF Report Generation
+### 4. Advanced Table Features (NEW in job-details v10.0)
+- **Auto-save**: Automatic data persistence with debounce timer
+- **Bulk Edit**: Multi-row selection and batch operations
+- **LUX Validation**: Real-time format validation with visual feedback
+- **Search/Filter**: Text search and dropdown filtering capabilities
+- **Remark Column**: Additional notes field for each measurement
+
+### 5. PDF Report Generation
 - **TagProcessor**: Processes template tags like `{{JOB_ID}}`, `{{CUSTOMER_NAME}}`
 - **Dynamic Content**: Auto-generates measurement tables
 - **Company Data**: Integrates licenses and signatory information
@@ -103,6 +112,57 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 // Standard module imports used throughout
 import { firebaseManager } from './assets/js/firebase-init.js';
 import { showAlert, formatDate, showLoading, hideLoading } from './assets/js/ui-helpers.js';
+import { onSnapshot } from './assets/js/firebase-init.js'; // For real-time updates
+```
+
+### Auto-save Implementation (job-details v10.0)
+```javascript
+// Debounced auto-save with 3-second delay
+let autoSaveTimer = null;
+let isDataChanged = false;
+
+const triggerAutoSave = () => {
+    isDataChanged = true;
+    if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSaveData, 3000);
+};
+
+const autoSaveData = async () => {
+    if (!isDataChanged || !jobId) return;
+    // Auto-save logic with Firebase updates
+};
+```
+
+### Bulk Edit System
+```javascript
+// Multi-row selection with checkbox toggles
+const toggleBulkSelection = (checkbox, rowIndex) => {
+    const row = checkbox.closest('tr');
+    if (checkbox.checked) {
+        selectedRows.add(rowIndex);
+        row.classList.add('table-warning');
+    } else {
+        selectedRows.delete(rowIndex);
+        row.classList.remove('table-warning');
+    }
+};
+```
+
+### LUX Validation System
+```javascript
+// Real-time LUX value validation with visual feedback
+const validateLuxValue = (input) => {
+    const value = input.value.trim();
+    const luxPattern = /^\d+(\.\d{1,2})?$/; // Decimal with up to 2 places
+    
+    if (value && !luxPattern.test(value)) {
+        input.classList.add('is-invalid');
+        return false;
+    } else {
+        input.classList.remove('is-invalid');
+        return true;
+    }
+};
 ```
 
 ### Toast Notifications (v1.1)
@@ -140,11 +200,13 @@ All HTML/CSS/JS files include version headers:
 - **main.html**: v6.0 (Module system + Enhanced navigation)
 - **new-job.html**: v3.2.0 (Modern toast notifications + Running numbers)  
 - **master-data-manager.html**: v6.1 (Running numbers management)
+- **job-details.html**: v10.0 (Auto-save + Bulk edit + LUX validation + Search/Filter)
 - **ui-helpers.js**: v1.1 (Modern toast notifications)
+- **firebase-init.js**: v1.1 (Added getCurrentUserId and getCurrentUser methods)
 
 ## Firebase Configuration
 
-Firebase config is in `ui/firebase-config.js`:
+Firebase config is in `firebase-config.js`:
 ```javascript
 window.firebaseConfig = {
   projectId: "light-report-8bb0e",
@@ -194,7 +256,24 @@ When migrating legacy HTML files to module system:
 4. **Update Firebase calls** to use FirebaseManager
 5. **Replace alert system** with modern toast notifications
 6. **Add form validation** with visual feedback
-7. **Test thoroughly** with existing data
+7. **Implement modern UX features** (auto-save, bulk operations, validation)
+8. **Test thoroughly** with existing data
+
+## Recent Major Updates (September 2025)
+
+### job-details.html v10.0 - Complete UX Overhaul
+- **Auto-save System**: 3-second debounced auto-save with visual indicators
+- **Bulk Edit Modal**: Multi-row selection with batch operations (work type, standard, tolerance)
+- **LUX Validation**: Real-time format validation with visual feedback
+- **Search/Filter System**: Text search + dropdown filters for area/work type
+- **Remark Column**: Additional notes field for each measurement
+- **Performance**: Optimized data handling and Firebase operations
+- **Module Migration**: Converted from inline CSS/JS to modular architecture
+
+### firebase-init.js v1.1 Enhancements
+- **User Management**: Added `getCurrentUserId()` and `getCurrentUser()` methods
+- **Improved Error Handling**: Better error messages and debugging
+- **Data Access Patterns**: Fixed Firebase document access patterns
 
 ## Performance Notes
 
@@ -202,6 +281,9 @@ When migrating legacy HTML files to module system:
 - **71% faster loading** on return visits due to module caching  
 - **Toast notifications** are more efficient than DOM-based alerts
 - **Running numbers** use Firebase atomic operations for concurrency safety
+- **Auto-save optimization**: Debounced saves prevent excessive Firebase writes
+- **Bulk operations**: Batch updates reduce database calls
+- **Search/Filter**: Client-side filtering for instant results
 
 ## Thai Language Support
 

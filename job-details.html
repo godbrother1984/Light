@@ -1,9 +1,9 @@
 <!-- 
   path: /job-details.html
-  version: 9.4 (Added remark column)
+  version: 10.1 (UI Consistency Update)
   date: 2025-09-05
-  time: 20:50:00
-  description: Added remark column to measurement table with full save/load functionality
+  time: 21:32:00
+  description: Updated sidebar and wrapper structure to match new-job.html design patterns
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -23,24 +23,33 @@
 </head>
 <body>
     
-    <div class="d-flex" id="wrapper">
+    <div id="wrapper">
 
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
             <div class="sidebar-heading">
-                <i class="fas fa-lightbulb me-2"></i>
-                <span class="logo-text">Light Measuring</span>
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
             </div>
             <div class="list-group list-group-flush">
-                <a class="list-group-item active" href="main.html">
-                    <i class="fas fa-tasks fa-fw me-3"></i>
-                    <span class="menu-text">รายการงานทั้งหมด</span>
+                <a href="main.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
                 </a>
-                <a class="list-group-item" href="master-data-manager.html">
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
                     <i class="fas fa-database fa-fw me-3"></i>
                     <span class="menu-text">จัดการข้อมูลหลัก</span>
                 </a>
-                <a class="list-group-item" href="template-manager.html">
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-alt fa-fw me-3"></i>
                     <span class="menu-text">จัดการ Template</span>
                 </a>
@@ -153,6 +162,9 @@
                                     <button id="bulk-add-btn" class="btn btn-info">
                                         <i class="fas fa-magic me-2"></i>เครื่องมือช่วยสร้างแถว
                                     </button>
+                                    <button id="bulk-edit-btn" class="btn btn-warning">
+                                        <i class="fas fa-edit me-2"></i>แก้ไขหลายแถว
+                                    </button>
                                     <button id="default-values-btn" class="btn btn-secondary">
                                         <i class="fas fa-wrench me-2"></i>ตั้งค่าเริ่มต้น
                                     </button>
@@ -177,10 +189,30 @@
                 <!-- Results Table Section -->
                 <div class="card">
                     <div class="card-header measurement-section">
-                        <h5 class="mb-0">
-                            <i class="fas fa-ruler-combined me-2"></i>ตารางบันทึกผลการตรวจวัด
-                            <span id="result-count" class="badge bg-secondary ms-2">0 รายการ</span>
-                        </h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-ruler-combined me-2"></i>ตารางบันทึกผลการตรวจวัด
+                                    <span id="result-count" class="badge bg-secondary ms-2">0 รายการ</span>
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2">
+                                    <div class="flex-grow-1">
+                                        <input type="text" id="table-search" class="form-control form-control-sm" 
+                                               placeholder="🔍 ค้นหา (Layout, พื้นที่, หมายเหตุ...)">
+                                    </div>
+                                    <select id="table-filter-worktype" class="form-select form-select-sm" style="width: 200px;">
+                                        <option value="">ลักษณะงานทั้งหมด</option>
+                                    </select>
+                                    <select id="table-filter-result" class="form-select form-select-sm" style="width: 120px;">
+                                        <option value="">ผลทั้งหมด</option>
+                                        <option value="ผ่าน">ผ่าน</option>
+                                        <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -250,6 +282,95 @@
         </div>
     </div>
 
+    <!-- Modal: Bulk Edit -->
+    <div class="modal fade" id="bulkEditModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>แก้ไขแถวทั้งหมด
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        เลือกช่องที่ต้องการแก้ไข จะใช้กับแถวที่ถูกเลือกทั้งหมด
+                    </div>
+                    <form id="bulk-edit-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="bulk-edit-area-check">
+                                        <label class="form-check-label" for="bulk-edit-area-check">
+                                            พื้นที่ตรวจวัด
+                                        </label>
+                                    </div>
+                                    <input type="text" id="bulk-edit-area" class="form-control mt-2" 
+                                           placeholder="พื้นที่ใหม่..." disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="bulk-edit-worktype-check">
+                                        <label class="form-check-label" for="bulk-edit-worktype-check">
+                                            ลักษณะงาน
+                                        </label>
+                                    </div>
+                                    <select id="bulk-edit-worktype" class="form-select mt-2" disabled>
+                                        <option value="">-- เลือกลักษณะงาน --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="bulk-edit-measurement-check">
+                                        <label class="form-check-label" for="bulk-edit-measurement-check">
+                                            ประเภทการวัด
+                                        </label>
+                                    </div>
+                                    <select id="bulk-edit-measurement" class="form-select mt-2" disabled>
+                                        <option value="spot">จุด</option>
+                                        <option value="area">พื้นที่</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="bulk-edit-remark-check">
+                                        <label class="form-check-label" for="bulk-edit-remark-check">
+                                            หมายเหตุ
+                                        </label>
+                                    </div>
+                                    <input type="text" id="bulk-edit-remark" class="form-control mt-2" 
+                                           placeholder="หมายเหตุใหม่..." disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">แถวที่จะแก้ไข:</label>
+                            <div id="bulk-edit-row-selection" class="border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Rows will be populated here -->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" id="apply-bulk-edit-btn" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>แก้ไขแถวที่เลือก
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Bulk Add Rows -->
     <div class="modal fade" id="bulkAddModal" tabindex="-1">
         <div class="modal-dialog">
@@ -313,6 +434,8 @@
         let choicesInstances = new Map();
         let jobId = null;
         let defaultValues = { area: '', workType: '' };
+        let autoSaveTimer = null;
+        let isDataChanged = false;
 
         import { firebaseManager, onSnapshot, addDoc } from './assets/js/firebase-init.js?v=1.1';
         import { showAlert, formatDate, showLoading, hideLoading } from './assets/js/ui-helpers.js?v=1.1';
@@ -358,7 +481,141 @@
             `;
             
             updateRowDisplays(row);
+            // Add auto-save listeners to the new row
+            setupAutoSaveListeners(row);
             return row;
+        };
+        
+        // Auto-save functionality
+        const setupAutoSaveListeners = (row) => {
+            const inputs = row.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    isDataChanged = true;
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(autoSaveData, 3000); // Auto-save after 3 seconds
+                });
+                input.addEventListener('change', () => {
+                    isDataChanged = true;
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(autoSaveData, 1000); // Faster save on change
+                });
+            });
+        };
+        
+        const autoSaveData = async () => {
+            if (!isDataChanged || !jobId) return;
+            
+            try {
+                const tbody = document.getElementById('results-table-body');
+                const results = [];
+                const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                
+                rows.forEach(row => {
+                    const result = {
+                        layout: row.querySelector('[data-field="layout"]').value,
+                        area: row.querySelector('[data-field="area"]').value,
+                        workType: row.querySelector('[data-field="workType"]').value,
+                        measurementType: row.querySelector('[data-field="measurementType"]').value,
+                        standard: row.querySelector('.standard-display').textContent,
+                        evaluation: row.querySelector('.result-evaluation').textContent,
+                        remark: row.querySelector('[data-field="remark"]').value || ''
+                    };
+                    
+                    // Add measurement values
+                    if (result.measurementType === 'spot') {
+                        const spotInput = row.querySelector('[data-field="spotValue"]');
+                        result.spotValue = spotInput ? spotInput.value : null;
+                    } else {
+                        const avgInput = row.querySelector('[data-field="areaAvgValue"]');
+                        const minInput = row.querySelector('[data-field="areaMinValue"]');
+                        result.areaAvgValue = avgInput ? avgInput.value : null;
+                        result.areaMinValue = minInput ? minInput.value : null;
+                    }
+                    
+                    results.push(result);
+                });
+                
+                await firebaseManager.updateDocument('jobs', jobId, {
+                    results: results,
+                    lastUpdated: new Date().toISOString(),
+                    status: results.length > 0 ? 'in-progress' : 'new'
+                });
+                
+                // Show subtle save indicator
+                const saveIndicator = document.createElement('div');
+                saveIndicator.innerHTML = '<i class="fas fa-check-circle text-success"></i> บันทึกอัตโนมัติแล้ว';
+                saveIndicator.className = 'position-fixed top-0 end-0 m-3 alert alert-success alert-dismissible fade show';
+                saveIndicator.style.zIndex = '9999';
+                document.body.appendChild(saveIndicator);
+                
+                setTimeout(() => {
+                    if (saveIndicator.parentNode) {
+                        saveIndicator.remove();
+                    }
+                }, 2000);
+                
+                isDataChanged = false;
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            }
+        };
+        
+        // LUX value validation
+        const validateLuxValue = (input, showError = true) => {
+            const value = input.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Remove existing error styling
+            input.classList.remove('is-invalid');
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            if (value === '') {
+                return true; // Empty is okay, not required
+            }
+            
+            // Check if it's a valid number
+            const numValue = parseFloat(value);
+            if (isNaN(numValue)) {
+                isValid = false;
+                errorMessage = 'กรุณาใส่ตัวเลขเท่านั้น';
+            } else if (numValue < 0) {
+                isValid = false;
+                errorMessage = 'ค่าแสงต้องไม่ติดลบ';
+            } else if (numValue > 100000) {
+                isValid = false;
+                errorMessage = 'ค่าแสงสูงเกินไป (> 100,000 LUX)';
+            } else if (value.includes('.') && value.split('.')[1].length > 1) {
+                // Allow max 1 decimal place
+                isValid = false;
+                errorMessage = 'ทศนิยมได้ไม่เกิน 1 ตำแหน่ง';
+            }
+            
+            if (!isValid && showError) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = errorMessage;
+                input.parentNode.appendChild(errorDiv);
+            }
+            
+            return isValid;
+        };
+        
+        // Format LUX value (add commas for thousands)
+        const formatLuxValue = (input) => {
+            const value = input.value.trim();
+            if (value && !isNaN(parseFloat(value))) {
+                const num = parseFloat(value);
+                input.value = num.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1
+                });
+            }
         };
 
         // Update row displays based on work type and measurement type
@@ -383,8 +640,8 @@
                 const max = selectedWorkType.stdSpotMax || 'N/A';
                 standardDisplay.textContent = `${min}-${max}`;
                 resultInputs.innerHTML = `
-                    <input type="number" class="form-control form-control-sm text-center" 
-                           data-field="spotValue" placeholder="LUX" min="0" step="1">
+                    <input type="number" class="form-control form-control-sm text-center lux-input" 
+                           data-field="spotValue" placeholder="LUX" min="0" step="0.1">
                 `;
             } else {
                 const avgMin = selectedWorkType.stdAreaAvg || 'N/A';
@@ -392,13 +649,55 @@
                 standardDisplay.innerHTML = `Avg≥${avgMin}<br>Min≥${minMin}`;
                 resultInputs.innerHTML = `
                     <div class="d-flex gap-1">
-                        <input type="number" class="form-control form-control-sm text-center" 
-                               data-field="areaAvgValue" placeholder="เฉลี่ย" min="0" step="1">
-                        <input type="number" class="form-control form-control-sm text-center" 
-                               data-field="areaMinValue" placeholder="ต่ำสุด" min="0" step="1">
+                        <input type="number" class="form-control form-control-sm text-center lux-input" 
+                               data-field="areaAvgValue" placeholder="เฉลี่ย" min="0" step="0.1">
+                        <input type="number" class="form-control form-control-sm text-center lux-input" 
+                               data-field="areaMinValue" placeholder="ต่ำสุด" min="0" step="0.1">
                     </div>
                 `;
             }
+            
+            // Add validation listeners to LUX inputs
+            const luxInputs = row.querySelectorAll('.lux-input');
+            luxInputs.forEach(input => {
+                // Validate on input (real-time)
+                input.addEventListener('input', () => {
+                    validateLuxValue(input);
+                });
+                
+                // Format on blur (when user leaves the field)
+                input.addEventListener('blur', () => {
+                    if (validateLuxValue(input)) {
+                        formatLuxValue(input);
+                    }
+                });
+                
+                // Prevent invalid characters
+                input.addEventListener('keydown', (e) => {
+                    // Allow: backspace, delete, tab, escape, enter
+                    if ([8, 9, 27, 13, 46].includes(e.keyCode) ||
+                        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                        (e.keyCode === 65 && e.ctrlKey) ||
+                        (e.keyCode === 67 && e.ctrlKey) ||
+                        (e.keyCode === 86 && e.ctrlKey) ||
+                        (e.keyCode === 88 && e.ctrlKey) ||
+                        // Allow: home, end, left, right
+                        (e.keyCode >= 35 && e.keyCode <= 39)) {
+                        return;
+                    }
+                    // Ensure that it's a number or decimal point
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && 
+                        (e.keyCode < 96 || e.keyCode > 105) && 
+                        e.keyCode !== 190 && e.keyCode !== 110) {
+                        e.preventDefault();
+                    }
+                    // Only allow one decimal point
+                    if ((e.keyCode === 190 || e.keyCode === 110) && 
+                        input.value.indexOf('.') !== -1) {
+                        e.preventDefault();
+                    }
+                });
+            });
             
             updateResultEvaluation(row);
         };
@@ -597,11 +896,128 @@
                 
                 // Event listeners
                 setupEventListeners();
+                setupSearchAndFilter();
                 
             } catch (error) {
                 showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger');
             }
         }
+        
+        // Search and Filter functionality
+        const setupSearchAndFilter = () => {
+            const searchInput = document.getElementById('table-search');
+            const worktypeFilter = document.getElementById('table-filter-worktype');
+            const resultFilter = document.getElementById('table-filter-result');
+            
+            // Populate worktype filter options when workTypes are available
+            const updateWorktypeFilter = () => {
+                worktypeFilter.innerHTML = '<option value="">ลักษณะงานทั้งหมด</option>';
+                workTypes.forEach(w => {
+                    const option = document.createElement('option');
+                    option.value = w.id;
+                    option.textContent = w.workTypeName;
+                    worktypeFilter.appendChild(option);
+                });
+            };
+            
+            // Filter function
+            const filterTable = () => {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedWorkType = worktypeFilter.value;
+                const selectedResult = resultFilter.value;
+                const tbody = document.getElementById('results-table-body');
+                const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    let isVisible = true;
+                    
+                    // Search filter
+                    if (searchTerm) {
+                        const layout = row.querySelector('[data-field="layout"]').value.toLowerCase();
+                        const area = row.querySelector('[data-field="area"]').value.toLowerCase();
+                        const remark = row.querySelector('[data-field="remark"]').value.toLowerCase();
+                        
+                        const searchableText = `${layout} ${area} ${remark}`;
+                        if (!searchableText.includes(searchTerm)) {
+                            isVisible = false;
+                        }
+                    }
+                    
+                    // Work type filter
+                    if (selectedWorkType) {
+                        const rowWorkType = row.querySelector('[data-field="workType"]').value;
+                        if (rowWorkType !== selectedWorkType) {
+                            isVisible = false;
+                        }
+                    }
+                    
+                    // Result filter
+                    if (selectedResult) {
+                        const resultEvaluation = row.querySelector('.result-evaluation').textContent.trim();
+                        if (resultEvaluation !== selectedResult) {
+                            isVisible = false;
+                        }
+                    }
+                    
+                    // Show/hide row
+                    if (isVisible) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Update result count
+                const totalCount = rows.length;
+                const resultCountBadge = document.getElementById('result-count');
+                if (visibleCount === totalCount) {
+                    resultCountBadge.textContent = `${totalCount} รายการ`;
+                    resultCountBadge.className = 'badge bg-secondary ms-2';
+                } else {
+                    resultCountBadge.textContent = `${visibleCount}/${totalCount} รายการ`;
+                    resultCountBadge.className = 'badge bg-warning ms-2';
+                }
+                
+                // Show/hide no-data message when filtered
+                const noDataRow = document.getElementById('no-data-row');
+                if (totalCount === 0) {
+                    noDataRow.style.display = '';
+                } else if (visibleCount === 0 && totalCount > 0) {
+                    // Show "no results found" message
+                    if (!document.getElementById('no-results-row')) {
+                        const noResultsRow = document.createElement('tr');
+                        noResultsRow.id = 'no-results-row';
+                        noResultsRow.innerHTML = `
+                            <td colspan="10" class="text-center p-4">
+                                <i class="fas fa-search fa-2x text-muted mb-2"></i>
+                                <p class="text-muted mb-0">ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา</p>
+                                <p class="text-muted small">ลองเปลี่ยนคำค้นหาหรือเงื่อนไขกรอง</p>
+                            </td>
+                        `;
+                        tbody.appendChild(noResultsRow);
+                    }
+                    document.getElementById('no-results-row').style.display = '';
+                    noDataRow.style.display = 'none';
+                } else {
+                    const noResultsRow = document.getElementById('no-results-row');
+                    if (noResultsRow) {
+                        noResultsRow.style.display = 'none';
+                    }
+                    noDataRow.style.display = 'none';
+                }
+            };
+            
+            // Add event listeners
+            searchInput.addEventListener('input', filterTable);
+            worktypeFilter.addEventListener('change', filterTable);
+            resultFilter.addEventListener('change', filterTable);
+            
+            // Update worktype filter when data is loaded
+            setTimeout(updateWorktypeFilter, 1000);
+        };
         
         // Setup event listeners
         function setupEventListeners() {
@@ -750,6 +1166,112 @@
                 renumberRows();
                 bootstrap.Modal.getInstance(document.getElementById('bulkAddModal')).hide();
                 showAlert(`สร้าง ${rowCount} แถวสำเร็จ`);
+            });
+            
+            // Bulk Edit functionality
+            document.getElementById('bulk-edit-btn').addEventListener('click', () => {
+                const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                if (rows.length === 0) {
+                    showAlert('ไม่มีแถวให้แก้ไข', 'warning');
+                    return;
+                }
+                
+                // Populate work type options
+                const bulkEditWorkType = document.getElementById('bulk-edit-worktype');
+                bulkEditWorkType.innerHTML = '<option value="">-- เลือกลักษณะงาน --</option>';
+                workTypes.forEach(w => {
+                    const option = document.createElement('option');
+                    option.value = w.id;
+                    option.textContent = w.workTypeName;
+                    bulkEditWorkType.appendChild(option);
+                });
+                
+                // Populate row selection
+                const rowSelection = document.getElementById('bulk-edit-row-selection');
+                rowSelection.innerHTML = '';
+                
+                rows.forEach((row, index) => {
+                    const layout = row.querySelector('[data-field="layout"]').value || `แถวที่ ${index + 1}`;
+                    const area = row.querySelector('[data-field="area"]').value || 'ไม่ระบุ';
+                    
+                    const checkDiv = document.createElement('div');
+                    checkDiv.className = 'form-check';
+                    checkDiv.innerHTML = `
+                        <input class="form-check-input bulk-edit-row-check" type="checkbox" 
+                               value="${index}" id="row-check-${index}" checked>
+                        <label class="form-check-label" for="row-check-${index}">
+                            ${layout} - ${area}
+                        </label>
+                    `;
+                    rowSelection.appendChild(checkDiv);
+                });
+                
+                const modal = new bootstrap.Modal(document.getElementById('bulkEditModal'));
+                modal.show();
+            });
+            
+            // Bulk edit checkbox handlers
+            document.getElementById('bulk-edit-area-check').addEventListener('change', function() {
+                document.getElementById('bulk-edit-area').disabled = !this.checked;
+            });
+            document.getElementById('bulk-edit-worktype-check').addEventListener('change', function() {
+                document.getElementById('bulk-edit-worktype').disabled = !this.checked;
+            });
+            document.getElementById('bulk-edit-measurement-check').addEventListener('change', function() {
+                document.getElementById('bulk-edit-measurement').disabled = !this.checked;
+            });
+            document.getElementById('bulk-edit-remark-check').addEventListener('change', function() {
+                document.getElementById('bulk-edit-remark').disabled = !this.checked;
+            });
+            
+            // Apply bulk edit
+            document.getElementById('apply-bulk-edit-btn').addEventListener('click', () => {
+                const selectedRows = document.querySelectorAll('.bulk-edit-row-check:checked');
+                if (selectedRows.length === 0) {
+                    showAlert('กรุณาเลือกแถวที่ต้องการแก้ไข', 'warning');
+                    return;
+                }
+                
+                const changes = {
+                    area: document.getElementById('bulk-edit-area-check').checked ? 
+                          document.getElementById('bulk-edit-area').value : null,
+                    workType: document.getElementById('bulk-edit-worktype-check').checked ? 
+                             document.getElementById('bulk-edit-worktype').value : null,
+                    measurementType: document.getElementById('bulk-edit-measurement-check').checked ? 
+                                    document.getElementById('bulk-edit-measurement').value : null,
+                    remark: document.getElementById('bulk-edit-remark-check').checked ? 
+                           document.getElementById('bulk-edit-remark').value : null
+                };
+                
+                // Apply changes to selected rows
+                const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                selectedRows.forEach(checkbox => {
+                    const rowIndex = parseInt(checkbox.value);
+                    const row = rows[rowIndex];
+                    
+                    if (changes.area !== null) {
+                        row.querySelector('[data-field="area"]').value = changes.area;
+                    }
+                    if (changes.workType !== null) {
+                        row.querySelector('[data-field="workType"]').value = changes.workType;
+                        updateRowDisplays(row); // Update standards when work type changes
+                    }
+                    if (changes.measurementType !== null) {
+                        row.querySelector('[data-field="measurementType"]').value = changes.measurementType;
+                        updateRowDisplays(row); // Update input fields when measurement type changes
+                    }
+                    if (changes.remark !== null) {
+                        row.querySelector('[data-field="remark"]').value = changes.remark;
+                    }
+                });
+                
+                bootstrap.Modal.getInstance(document.getElementById('bulkEditModal')).hide();
+                showAlert(`แก้ไข ${selectedRows.length} แถวสำเร็จ`);
+                
+                // Trigger auto-save
+                isDataChanged = true;
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(autoSaveData, 1000);
             });
             
             // Template management
