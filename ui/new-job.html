@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
   path: /ui/new-job.html
-  version: 2.7 (Keep Original Working Code + Modular CSS/JS Only)
+  version: 3.2.0 (Modern toast notifications)
   date: 2025-09-05
-  time: 01:00:00
-  description: ใช้โค้ดเดิมที่ทำงานได้ดี แค่แยก CSS/JS เป็น modules และปรับ menu เท่านั้น
+  time: 11:15:00
+  description: Replaced alert system with modern toast notifications, removed startup message
 -->
 <html lang="th">
 <head>
@@ -25,9 +25,8 @@
 </head>
 <body>
     
-    <div class="d-flex" id="wrapper">
-
-        <!-- Sidebar - Updated to match main.html structure -->
+    <div id="wrapper">
+        <!-- Sidebar -->
         <div id="sidebar-wrapper">
             <div class="sidebar-heading">
                 <div class="sidebar-brand-icon">
@@ -59,7 +58,7 @@
             </div>
         </div>
 
-        <!-- Page Content - Keep original structure -->
+        <!-- Page Content -->
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
                 <div class="container-fluid">
@@ -83,8 +82,11 @@
                     <h1 class="h3 mb-0" id="page-title">สร้างงานใหม่</h1>
                     <a href="main.html" class="btn btn-outline-secondary" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
                 </div>
+                
+                <!-- Alert Placeholder -->
                 <div id="alert-placeholder"></div>
-                <form id="newJobForm">
+                
+                <form id="newJobForm" novalidate>
                     <input type="hidden" id="edit-job-id" value="">
                     <div class="card">
                         <div class="card-body">
@@ -92,15 +94,14 @@
                                 <h5 class="mb-3"><i class="fas fa-building me-2"></i>ข้อมูลลูกค้า</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="customer-select" class="form-label">ชื่อลูกค้า</label>
+                                        <label for="customer-select" class="form-label">ชื่อลูกค้า <span class="text-danger">*</span></label>
                                         <select id="customer-select" class="form-control" required></select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="branch-select" class="form-label">สาขา / สถานที่</label>
+                                        <label for="branch-select" class="form-label">สาขา / สถานที่ <span class="text-danger">*</span></label>
                                         <select id="branch-select" class="form-control" required></select>
                                     </div>
                                 </div>
-                                <!-- เพิ่ม fields ใหม่ -->
                                 <div class="row g-3 mt-2">
                                     <div class="col-md-12">
                                         <label for="job-address" class="form-label">ที่อยู่</label>
@@ -118,30 +119,34 @@
                                     </div>
                                 </div>
                             </section>
+                            
                             <hr>
+                            
                             <section class="mb-4">
                                 <h5 class="mb-3"><i class="fas fa-users-cog me-2"></i>ผู้รับผิดชอบ</h5>
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <label for="inspector-select" class="form-label">ผู้ตรวจวัด (เลือกได้หลายคน)</label>
+                                        <label for="inspector-select" class="form-label">ผู้ตรวจวัด <span class="text-danger">*</span> <small class="text-muted">(เลือกได้หลายคน)</small></label>
                                         <select id="inspector-select" class="form-control" multiple required></select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์ (เลือกได้หลายคน)</label>
+                                        <label for="analyst-select" class="form-label">ผู้วิเคราะห์ <span class="text-danger">*</span> <small class="text-muted">(เลือกได้หลายคน)</small></label>
                                         <select id="analyst-select" class="form-control" multiple required></select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน</label>
+                                        <label for="report-creator-select" class="form-label">ผู้จัดทำรายงาน <span class="text-danger">*</span></label>
                                         <select id="report-creator-select" class="form-control" required></select>
                                     </div>
                                 </div>
                             </section>
+                            
                             <hr>
+                            
                             <section>
                                 <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>รายละเอียดงาน</h5>
                                 <div class="row g-3">
                                     <div class="col-md-3">
-                                        <label for="measurementDate" class="form-label">วันที่ตรวจวัด</label>
+                                        <label for="measurementDate" class="form-label">วันที่ตรวจวัด <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="measurementDate" required>
                                     </div>
                                     <div class="col-md-3">
@@ -151,17 +156,16 @@
                                     <div class="col-md-3">
                                         <label for="jobStatus" class="form-label">สถานะงาน</label>
                                         <select class="form-select" id="jobStatus">
-                                            <option value="new">ใหม่</option>
+                                            <option value="draft">ร่าง</option>
                                             <option value="in-progress">กำลังดำเนินการ</option>
                                             <option value="completed">เสร็จสิ้น</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="instrument-select" class="form-label">เครื่องมือตรวจวัด</label>
-                                        <select id="instrument-select" class="form-control"></select>
+                                        <label for="instrument-select" class="form-label">เครื่องมือตรวจวัด <span class="text-danger">*</span></label>
+                                        <select id="instrument-select" class="form-control" required></select>
                                     </div>
                                 </div>
-                                <!-- เพิ่ม fields ใหม่ -->
                                 <div class="row g-3 mt-2">
                                     <div class="col-md-12">
                                         <label for="work-description" class="form-label">รายละเอียดงาน</label>
@@ -176,10 +180,16 @@
                                 </div>
                             </section>
                         </div>
-                        <div class="card-footer text-end">
-                            <button type="submit" id="submit-btn" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i><span id="submit-text">บันทึกและสร้างงาน</span>
-                            </button>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    ฟิลด์ที่มี <span class="text-danger">*</span> จำเป็นต้องกรอก
+                                </small>
+                                <button type="submit" id="submit-btn" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i><span id="submit-text">บันทึกและสร้างงาน</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -192,237 +202,201 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="firebase-config.js"></script>
     
-    <!-- Keep original working JavaScript with UI helper import only -->
+    <!-- Module System JavaScript -->
     <script type="module">
-        // Import only UI helpers, keep rest of code as-is
-        import { showAlert } from './assets/js/ui-helpers.js';
+        // Import Firebase Manager and UI Helpers
+        import { firebaseManager } from './assets/js/firebase-init.js';
+        import { showAlert, formatDate, showLoading, hideLoading } from './assets/js/ui-helpers.js';
+        import { doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
         
-        // Keep all original working code
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
-        let db, auth;
+        // Global variables
         let customersData = [];
         let inspectorsData = [];
         let instrumentsData = [];
+        let choicesInstances = {};
 
-        // Override global showAlert to use UI helper
-        window.showAlert = showAlert;
-
-        async function main() {
-            let finalFirebaseConfig;
-            try { 
-                if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); 
-                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; 
-            } catch(e) { console.error(e); }
-            
-            if (!finalFirebaseConfig) { 
-                showAlert('ไม่พบ Firebase Config'); 
-                return; 
-            }
-
-            const app = initializeApp(finalFirebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
+        // Initialize application
+        async function initializeApp() {
             try {
-                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
-            } catch (error) { 
-                showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'danger'); 
-            }
+                console.log('🚀 Starting new-job.html initialization...');
+                
+                const success = await firebaseManager.initialize();
+                if (!success) {
+                    showAlert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'danger');
+                    return;
+                }
 
-            // Check if this is edit mode
+                setupEventListeners();
+                await loadMasterData();
+                initializeDropdowns();
+                setDefaultValues();
+                await handleEditMode();
+                
+                console.log('✅ New job page initialized successfully');
+                
+            } catch (error) {
+                console.error('App initialization error:', error);
+                showAlert(`เกิดข้อผิดพลาดในการเริ่มต้นระบบ: ${error.message}`, 'danger');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                document.getElementById('wrapper').classList.toggle('sidebar-mini');
+            });
+
+            // Form submission
+            document.getElementById('newJobForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        // Set default values for new job
+        function setDefaultValues() {
             const urlParams = new URLSearchParams(window.location.search);
-            const editJobId = urlParams.get('id');
-            const isEditMode = !!editJobId;
+            const isEditMode = urlParams.get('id');
             
-            if (isEditMode) {
-                document.getElementById('page-title').textContent = 'แก้ไขข้อมูลงาน';
-                document.getElementById('submit-text').textContent = 'บันทึกการแก้ไข';
-                document.getElementById('cancel-btn').innerHTML = '<i class="fas fa-arrow-left me-2"></i>กลับไปรายละเอียดงาน';
-                document.getElementById('cancel-btn').href = `job-details.html?id=${editJobId}`;
-                document.getElementById('edit-job-id').value = editJobId;
+            // Only set defaults if not in edit mode
+            if (!isEditMode) {
+                // Set today's date as default
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('measurementDate').value = today;
+                
+                // Set current time as default
+                const now = new Date();
+                const timeString = now.toTimeString().split(' ')[0].substring(0, 5);
+                document.getElementById('measurementTime').value = timeString;
             }
+        }
 
-            // Initialize Choices.js dropdowns
-            const customerSelect = new Choices('#customer-select', { 
+        // Load master data from Firebase
+        async function loadMasterData() {
+            try {
+                console.log('📊 Loading master data...');
+                
+                const [customersSnapshot, inspectorsSnapshot, instrumentsSnapshot] = await Promise.all([
+                    firebaseManager.getDocuments('customers'),
+                    firebaseManager.getDocuments('inspectors'),
+                    firebaseManager.getDocuments('instruments')
+                ]);
+                
+                customersData = customersSnapshot.map(doc => ({ id: doc.id, ...doc.data }));
+                inspectorsData = inspectorsSnapshot.map(doc => ({ id: doc.id, ...doc.data }));
+                instrumentsData = instrumentsSnapshot.map(doc => ({ id: doc.id, ...doc.data }));
+                
+                console.log(`✅ Loaded: ${customersData.length} customers, ${inspectorsData.length} inspectors, ${instrumentsData.length} instruments`);
+                
+            } catch (error) {
+                console.error('Error loading master data:', error);
+                showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`, 'danger');
+            }
+        }
+
+        // Initialize Choices.js dropdowns
+        function initializeDropdowns() {
+            // Initialize all dropdowns
+            choicesInstances.customer = new Choices('#customer-select', { 
                 searchEnabled: true, 
                 itemSelectText: 'เลือก', 
                 placeholder: true, 
                 placeholderValue: 'เลือกลูกค้า...' 
             });
             
-            const branchSelect = new Choices('#branch-select', { 
+            choicesInstances.branch = new Choices('#branch-select', { 
                 searchEnabled: true, 
                 itemSelectText: 'เลือก', 
                 placeholder: true, 
                 placeholderValue: 'เลือกสาขา...' 
             });
             
-            const inspectorSelect = new Choices('#inspector-select', { 
+            choicesInstances.inspector = new Choices('#inspector-select', { 
                 searchEnabled: true, 
                 removeItemButton: true, 
                 itemSelectText: 'เลือก' 
             });
             
-            const analystSelect = new Choices('#analyst-select', { 
+            choicesInstances.analyst = new Choices('#analyst-select', { 
                 searchEnabled: true, 
                 removeItemButton: true, 
                 itemSelectText: 'เลือก' 
             });
             
-            const reportCreatorSelect = new Choices('#report-creator-select', { 
+            choicesInstances.reportCreator = new Choices('#report-creator-select', { 
                 searchEnabled: true, 
                 itemSelectText: 'เลือก' 
             });
 
-            // เพิ่ม instrument select
-            const instrumentSelect = new Choices('#instrument-select', { 
+            choicesInstances.instrument = new Choices('#instrument-select', { 
                 searchEnabled: true, 
                 itemSelectText: 'เลือก',
                 placeholder: true,
                 placeholderValue: 'เลือกเครื่องมือ...' 
             });
 
-            // Fetch and populate customers
-            const customersRef = collection(db, `/artifacts/${appId}/public/data/customers`);
-            onSnapshot(customersRef, (snapshot) => {
-                customersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Populate dropdowns with data
+            populateDropdowns();
+            setupDropdownEvents();
+        }
+
+        // Populate dropdowns with data
+        function populateDropdowns() {
+            // Populate customers
+            if (customersData.length > 0) {
                 const customerChoices = customersData.map(c => ({ value: c.id, label: c.name }));
-                customerSelect.setChoices(customerChoices, 'value', 'label', true);
-                
-                // If edit mode, load job data after customers are loaded
-                if (isEditMode && customersData.length > 0) {
-                    loadJobDataForEdit(editJobId);
-                }
-            });
-
-            // Fetch and populate inspectors
-            const inspectorsRef = collection(db, `/artifacts/${appId}/public/data/inspectors`);
-            onSnapshot(inspectorsRef, (snapshot) => {
-                inspectorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const inspectorChoices = inspectorsData.map(i => ({ 
-                    value: i.inspectorName, 
-                    label: `${i.inspectorName} (${i.inspectorTitle})` 
-                }));
-                
-                inspectorSelect.setChoices(inspectorChoices, 'value', 'label', true);
-                analystSelect.setChoices(inspectorChoices, 'value', 'label', true);
-                reportCreatorSelect.setChoices(inspectorChoices, 'value', 'label', true);
-
-                // Set default report creator
-                if (!isEditMode) {
-                    const defaultCreator = inspectorsData.find(i => i.inspectorTitle === 'ผู้จัดทำรายงาน');
-                    if (defaultCreator) {
-                        reportCreatorSelect.setValue([defaultCreator.inspectorName]);
-                    }
-                }
-            });
-
-            // Fetch and populate instruments
-            const instrumentsRef = collection(db, `/artifacts/${appId}/public/data/instruments`);
-            onSnapshot(instrumentsRef, (snapshot) => {
-                instrumentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const instrumentChoices = instrumentsData.map(i => ({ 
-                    value: JSON.stringify(i), 
-                    label: `${i.name} (${i.serialNumber})` 
-                }));
-                
-                instrumentSelect.setChoices(instrumentChoices, 'value', 'label', true);
-            });
-
-            // Load job data for editing
-            async function loadJobDataForEdit(jobId) {
-                try {
-                    const jobDocRef = doc(db, `/artifacts/${appId}/public/data/jobs`, jobId);
-                    const jobSnap = await getDoc(jobDocRef);
-                    
-                    if (jobSnap.exists()) {
-                        const jobData = jobSnap.data();
-                        console.log('Loading job data for edit:', jobData);
-                        
-                        // Set customer and find branch
-                        if (jobData.customerId) {
-                            customerSelect.setChoiceByValue(jobData.customerId);
-                            const customer = customersData.find(c => c.id === jobData.customerId);
-                            if (customer && customer.branches) {
-                                const branchChoices = customer.branches.map(b => ({ 
-                                    value: b.location, 
-                                    label: `${b.location} - ${b.address || ''}` 
-                                }));
-                                branchSelect.setChoices(branchChoices, 'value', 'label', true);
-                                branchSelect.setChoiceByValue(jobData.location);
-                            }
-                        } else if (jobData.customerName) {
-                            // Fallback: try to find by name
-                            const customer = customersData.find(c => c.name === jobData.customerName);
-                            if (customer) {
-                                customerSelect.setChoiceByValue(customer.id);
-                            }
-                        }
-                        
-                        // Set personnel
-                        if (jobData.inspectors) {
-                            inspectorSelect.setValue(jobData.inspectors);
-                        }
-                        if (jobData.analysts && Array.isArray(jobData.analysts)) {
-                            analystSelect.setValue(jobData.analysts);
-                        } else if (jobData.analyst) {
-                            analystSelect.setValue([jobData.analyst]);
-                        }
-                        if (jobData.reportCreator) {
-                            reportCreatorSelect.setValue([jobData.reportCreator]);
-                        }
-                        
-                        // Set other fields including new ones
-                        document.getElementById('measurementDate').value = jobData.date || '';
-                        document.getElementById('measurementTime').value = jobData.time || '';
-                        document.getElementById('jobStatus').value = jobData.status || 'new';
-                        document.getElementById('jobNotes').value = jobData.notes || '';
-                        document.getElementById('job-address').value = jobData.address || '';
-                        document.getElementById('contact-person').value = jobData.contactPerson || '';
-                        document.getElementById('contact-phone').value = jobData.contactPhone || '';
-                        document.getElementById('work-description').value = jobData.workDescription || '';
-                        
-                        // Set instrument if exists
-                        if (jobData.instrument) {
-                            try {
-                                const instrumentValue = JSON.stringify(jobData.instrument);
-                                instrumentSelect.setChoiceByValue(instrumentValue);
-                            } catch (e) {
-                                console.warn('Could not set instrument value:', e);
-                            }
-                        }
-                        
-                    } else {
-                        showAlert('ไม่พบข้อมูลงานที่ต้องการแก้ไข', 'danger');
-                    }
-                } catch (error) {
-                    showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`, 'danger');
-                }
+                choicesInstances.customer.setChoices(customerChoices, 'value', 'label', true);
             }
 
-            // Handle customer selection change
+            // Populate inspectors (for all inspector-related dropdowns)
+            if (inspectorsData.length > 0) {
+                const inspectorChoices = inspectorsData.map(i => ({ 
+                    value: i.inspectorName || i.name, 
+                    label: `${i.inspectorName || i.name} (${i.inspectorTitle || i.title || ''})` 
+                }));
+                
+                choicesInstances.inspector.setChoices(inspectorChoices, 'value', 'label', true);
+                choicesInstances.analyst.setChoices(inspectorChoices, 'value', 'label', true);
+                choicesInstances.reportCreator.setChoices(inspectorChoices, 'value', 'label', true);
+            }
+
+            // Populate instruments
+            if (instrumentsData.length > 0) {
+                const instrumentChoices = instrumentsData.map((instrument, index) => {
+                    // Use correct field names from master-data-manager.html
+                    const name = instrument.instrumentName || 'ไม่ระบุชื่อ';
+                    const serial = instrument.instrumentSerial || 'ไม่ระบุ S/N';
+                    const calDate = instrument.instrumentCalDate || 'ไม่ระบุวันที่';
+                    
+                    return {
+                        value: index.toString(),
+                        label: `${name} (${serial}) - Cal: ${calDate}`
+                    };
+                });
+                
+                choicesInstances.instrument.setChoices(instrumentChoices, 'value', 'label', true);
+            }
+        }
+
+        // Setup dropdown events
+        function setupDropdownEvents() {
+            // Customer selection change
             document.getElementById('customer-select').addEventListener('change', (event) => {
                 const customerId = event.detail.value;
                 const selectedCustomer = customersData.find(c => c.id === customerId);
-                branchSelect.clearStore();
+                
+                choicesInstances.branch.clearStore();
+                
                 if (selectedCustomer && selectedCustomer.branches) {
                     const branchChoices = selectedCustomer.branches.map(b => ({ 
                         value: b.location, 
-                        label: `${b.location} - ${b.address || ''}` 
+                        label: `${b.location}${b.address ? ' - ' + b.address : ''}` 
                     }));
-                    branchSelect.setChoices(branchChoices, 'value', 'label', true);
+                    choicesInstances.branch.setChoices(branchChoices, 'value', 'label', true);
                 }
             });
 
-            // Handle branch selection change - เพิ่ม auto-fill address
+            // Branch selection change - auto-fill address
             document.getElementById('branch-select').addEventListener('change', (event) => {
-                const customerId = customerSelect.getValue(true);
+                const customerId = choicesInstances.customer.getValue(true);
                 const selectedCustomer = customersData.find(c => c.id === customerId);
                 const branchLocation = event.detail.value;
                 
@@ -433,97 +407,409 @@
                     }
                 }
             });
-
-            // Form submission
-            document.getElementById('newJobForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitButton = document.getElementById('submit-btn');
-                submitButton.disabled = true;
-                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${isEditMode ? 'กำลังบันทึก...' : 'กำลังสร้าง...'}`;
-                
-                try {
-                    const customerId = customerSelect.getValue(true);
-                    const customer = customersData.find(c => c.id === customerId);
-                    const branchLocation = branchSelect.getValue(true);
-                    const branch = customer.branches.find(b => b.location === branchLocation);
-
-                    const jobData = {
-                        customerId: customerId,
-                        customerName: customer.name,
-                        location: branch.location,
-                        address: document.getElementById('job-address').value || branch.address || '',
-                        date: document.getElementById('measurementDate').value,
-                        time: document.getElementById('measurementTime').value, // เพิ่ม field ใหม่
-                        status: document.getElementById('jobStatus').value,
-                        inspectors: inspectorSelect.getValue(true) || [],
-                        analysts: analystSelect.getValue(true) || [],
-                        analyst: (analystSelect.getValue(true) || [])[0] || '', // Keep backward compatibility
-                        reportCreator: reportCreatorSelect.getValue(true) || '',
-                        notes: document.getElementById('jobNotes').value,
-                        contactPerson: document.getElementById('contact-person').value, // เพิ่ม field ใหม่
-                        contactPhone: document.getElementById('contact-phone').value, // เพิ่ม field ใหม่
-                        workDescription: document.getElementById('work-description').value // เพิ่ม field ใหม่
-                    };
-
-                    // Handle instrument selection
-                    const instrumentIndex = instrumentSelect.getValue(true);
-                    console.log('Selected instrument index:', instrumentIndex);
-                    
-                    if (instrumentIndex !== null && instrumentIndex !== '' && instrumentsData) {
-                        const selectedInstrument = instrumentsData[parseInt(instrumentIndex)];
-                        console.log('Found instrument:', selectedInstrument);
-                        
-                        if (selectedInstrument) {
-                            jobData.instrument = selectedInstrument;
-                        } else {
-                            console.warn('Instrument not found for index:', instrumentIndex);
-                        }
-                    }
-                    
-                    if (isEditMode) {
-                        // Update existing job
-                        const jobId = document.getElementById('edit-job-id').value;
-                        const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
-                        await updateDoc(doc(db, jobsCollectionPath, jobId), jobData);
-                        
-                        showAlert('แก้ไขข้อมูลงานสำเร็จแล้ว', 'success');
-                        setTimeout(() => {
-                            window.location.href = `job-details.html?id=${jobId}`;
-                        }, 1500);
-                    } else {
-                        // Create new job
-                        const year = new Date().getFullYear() + 543;
-                        const jobId = `JOB-${year}-${String(Date.now()).slice(-4)}`;
-                        
-                        const newJobData = {
-                            ...jobData,
-                            createdBy: auth.currentUser.uid,
-                            createdAt: new Date().toISOString(),
-                            results: [] // Initialize empty results
-                        };
-                        
-                        const jobsCollectionPath = `/artifacts/${appId}/public/data/jobs`;
-                        await setDoc(doc(db, jobsCollectionPath, jobId), newJobData);
-
-                        window.location.href = `job-details.html?id=${jobId}`;
-                    }
-
-                } catch (error) {
-                    showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = `<i class="fas fa-save me-2"></i><span id="submit-text">${isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกและสร้างงาน'}</span>`;
-                }
-            });
         }
-        
-        main();
-    </script>
-    
-    <script>
-        // Sidebar toggle - same as original
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.getElementById('wrapper').classList.toggle('sidebar-mini');
-        });
+
+        // Handle edit mode
+        async function handleEditMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const editJobId = urlParams.get('id');
+            const referrer = urlParams.get('from'); // Get referrer page
+            
+            if (editJobId) {
+                document.getElementById('page-title').textContent = 'แก้ไขข้อมูลงาน';
+                document.getElementById('submit-text').textContent = 'บันทึกการแก้ไข';
+                document.getElementById('cancel-btn').innerHTML = '<i class="fas fa-arrow-left me-2"></i>ย้อนกลับ';
+                
+                // Set cancel button destination based on referrer
+                const cancelBtn = document.getElementById('cancel-btn');
+                if (referrer === 'main') {
+                    cancelBtn.href = 'main.html';
+                    cancelBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>กลับไปรายการงาน';
+                } else if (referrer === 'job-details') {
+                    cancelBtn.href = `job-details.html?id=${editJobId}`;
+                    cancelBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>กลับไปรายละเอียดงาน';
+                } else {
+                    // Default behavior - try to use browser history or fallback to main
+                    cancelBtn.href = 'javascript:history.back()';
+                    cancelBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>ย้อนกลับ';
+                }
+                
+                document.getElementById('edit-job-id').value = editJobId;
+                await loadJobDataForEdit(editJobId);
+            }
+        }
+
+        // Load job data for editing
+        async function loadJobDataForEdit(jobId) {
+            try {
+                console.log('🔍 Loading job data for edit:', jobId);
+                const job = await firebaseManager.getDocument('jobs', jobId);
+                
+                if (job && job.data) {
+                    const jobData = job.data;
+                    console.log('✅ Found job data:', jobData);
+                    
+                    // Wait a bit to ensure choices instances are ready
+                    setTimeout(() => {
+                        populateEditData(jobData);
+                    }, 100);
+                    
+                } else {
+                    console.error('❌ Job not found:', jobId);
+                    showAlert('ไม่พบข้อมูลงานที่ต้องการแก้ไข', 'danger');
+                }
+            } catch (error) {
+                console.error('Error loading job data:', error);
+                showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูลงาน: ${error.message}`, 'danger');
+            }
+        }
+
+        // Populate form with job data for editing
+        function populateEditData(jobData) {
+            try {
+                console.log('📝 Populating form with job data:', jobData);
+                    
+                // Set customer and branch
+                if (jobData.customerId) {
+                    console.log('Setting customer:', jobData.customerId);
+                    choicesInstances.customer.setChoiceByValue(jobData.customerId);
+                    
+                    // Trigger customer change to populate branches
+                    const customer = customersData.find(c => c.id === jobData.customerId);
+                    if (customer && customer.branches) {
+                        console.log('Setting branch choices for customer:', customer.name);
+                        const branchChoices = customer.branches.map(b => ({ 
+                            value: b.location, 
+                            label: `${b.location}${b.address ? ' - ' + b.address : ''}` 
+                        }));
+                        choicesInstances.branch.setChoices(branchChoices, 'value', 'label', true);
+                        
+                        if (jobData.location) {
+                            console.log('Setting branch:', jobData.location);
+                            choicesInstances.branch.setChoiceByValue(jobData.location);
+                        }
+                    } else {
+                        console.warn('Customer not found or no branches:', jobData.customerId);
+                    }
+                }
+                
+                // Set other fields
+                if (jobData.address) document.getElementById('job-address').value = jobData.address;
+                if (jobData.contactPerson) document.getElementById('contact-person').value = jobData.contactPerson;
+                if (jobData.contactPhone) document.getElementById('contact-phone').value = jobData.contactPhone;
+                if (jobData.workDescription) document.getElementById('work-description').value = jobData.workDescription;
+                if (jobData.notes) document.getElementById('jobNotes').value = jobData.notes;
+                if (jobData.date) document.getElementById('measurementDate').value = jobData.date;
+                if (jobData.time) document.getElementById('measurementTime').value = jobData.time;
+                if (jobData.status) document.getElementById('jobStatus').value = jobData.status;
+                
+                // Set personnel
+                if (jobData.inspectors && Array.isArray(jobData.inspectors)) {
+                    console.log('Setting inspectors:', jobData.inspectors);
+                    choicesInstances.inspector.setValue(jobData.inspectors.map(name => ({ value: name, label: name })));
+                }
+                if (jobData.analysts && Array.isArray(jobData.analysts)) {
+                    console.log('Setting analysts:', jobData.analysts);
+                    choicesInstances.analyst.setValue(jobData.analysts.map(name => ({ value: name, label: name })));
+                } else if (jobData.analyst) {
+                    console.log('Setting single analyst:', jobData.analyst);
+                    choicesInstances.analyst.setValue([{ value: jobData.analyst, label: jobData.analyst }]);
+                }
+                if (jobData.reportCreator) {
+                    console.log('Setting report creator:', jobData.reportCreator);
+                    choicesInstances.reportCreator.setChoiceByValue(jobData.reportCreator);
+                }
+                
+                // Set instrument
+                if (jobData.instrument && instrumentsData.length > 0) {
+                    console.log('Setting instrument:', jobData.instrument);
+                    const instrumentIndex = instrumentsData.findIndex(i => 
+                        i.instrumentName === jobData.instrument.instrumentName &&
+                        i.instrumentSerial === jobData.instrument.instrumentSerial
+                    );
+                    if (instrumentIndex >= 0) {
+                        choicesInstances.instrument.setChoiceByValue(instrumentIndex.toString());
+                    } else {
+                        console.warn('Instrument not found in data:', jobData.instrument);
+                    }
+                }
+                
+                console.log('✅ Edit data populated successfully');
+                
+            } catch (error) {
+                console.error('Error populating edit data:', error);
+                showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`, 'danger');
+            }
+        }
+
+        // Field validation helper functions
+        function showFieldError(fieldId, message) {
+            console.log('showFieldError called:', fieldId, message);
+            const field = document.getElementById(fieldId);
+            if (field) {
+                const label = document.querySelector(`label[for="${fieldId}"]`);
+                const container = field.closest('.col-md-3, .col-md-4, .col-md-6, .col-md-12');
+                
+                console.log('Field container found:', container);
+                
+                // Add error styling to field
+                field.classList.add('is-invalid');
+                if (container) {
+                    container.classList.add('has-error');
+                }
+                
+                // For Choices.js dropdowns, also style the choices container
+                const choicesContainer = container ? container.querySelector('.choices') : null;
+                if (choicesContainer) {
+                    choicesContainer.classList.add('choices-error');
+                    choicesContainer.style.borderColor = '#dc3545';
+                    console.log('Choices container styled');
+                }
+                
+                // Add error message
+                let errorElement = container ? container.querySelector('.invalid-feedback') : null;
+                if (!errorElement && container) {
+                    errorElement = document.createElement('div');
+                    errorElement.className = 'invalid-feedback d-block';
+                    errorElement.style.display = 'block';
+                    container.appendChild(errorElement);
+                }
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    console.log('Error message added:', message);
+                }
+                
+                // Add red border to label (but preserve the * asterisk styling)
+                if (label) {
+                    label.classList.add('label-error');
+                    label.style.color = '#dc3545';
+                }
+            } else {
+                console.error('Field not found:', fieldId);
+            }
+        }
+
+        function clearValidationStyles() {
+            console.log('Clearing validation styles');
+            // Remove all error styling
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+            document.querySelectorAll('.label-error').forEach(el => {
+                el.classList.remove('label-error');
+                el.style.color = '';
+            });
+            document.querySelectorAll('.choices-error').forEach(el => {
+                el.classList.remove('choices-error');
+                el.style.borderColor = '';
+            });
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        }
+
+        // Generate Job ID using running number system
+        async function generateRunningJobId() {
+            try {
+                const { db } = firebaseManager.getInstances();
+                const runningNumberRef = firebaseManager.getDocumentReference('running_numbers', 'JOB');
+                const runningDoc = await getDoc(runningNumberRef);
+                
+                if (!runningDoc.exists()) {
+                    throw new Error('ไม่พบการตั้งค่ารหัสอ้างอิงสำหรับงาน (JOB)');
+                }
+                
+                const runningData = runningDoc.data();
+                const now = new Date();
+                const year = now.getFullYear() + 543; // Thai Buddhist year
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const currentPeriod = `${year}-${month}`;
+                
+                // Check if we need to reset for new month
+                let newNumber = 1;
+                if (runningData.lastPeriod === currentPeriod) {
+                    newNumber = parseInt(runningData.lastNumber || '000') + 1;
+                }
+                
+                const formattedNumber = String(newNumber).padStart(3, '0');
+                const prefix = runningData.prefix || '';
+                const jobId = prefix ? `${prefix}-${year}-${month}-${formattedNumber}` : `${year}-${month}-${formattedNumber}`;
+                
+                // Update the running number
+                await updateDoc(runningNumberRef, {
+                    lastNumber: formattedNumber,
+                    lastPeriod: currentPeriod
+                });
+                
+                return jobId;
+                
+            } catch (error) {
+                console.error('Error generating running job ID:', error);
+                // Fallback to old system
+                const year = new Date().getFullYear() + 543;
+                return `JOB-${year}-${String(Date.now()).slice(-4)}`;
+            }
+        }
+
+        // Handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('submit-btn');
+            const isEditMode = !!document.getElementById('edit-job-id').value;
+            
+            // Form validation with visual feedback
+            let customerId, branchLocation, inspectors, analysts, reportCreator, instrument;
+            
+            try {
+                customerId = choicesInstances.customer.getValue(true);
+                branchLocation = choicesInstances.branch.getValue(true);
+                inspectors = choicesInstances.inspector.getValue(true);
+                analysts = choicesInstances.analyst.getValue(true);
+                reportCreator = choicesInstances.reportCreator.getValue(true);
+                instrument = choicesInstances.instrument.getValue(true);
+            } catch (error) {
+                console.warn('Error getting choice values:', error);
+            }
+            
+            const measurementDate = document.getElementById('measurementDate').value;
+
+            // Clear previous validation styles
+            clearValidationStyles();
+
+            let hasErrors = false;
+            let firstErrorField = null;
+
+            if (!customerId) {
+                showFieldError('customer-select', 'กรุณาเลือกลูกค้า');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'customer-select';
+            }
+            if (!branchLocation) {
+                showFieldError('branch-select', 'กรุณาเลือกสาขา/สถานที่');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'branch-select';
+            }
+            if (!inspectors || inspectors.length === 0) {
+                showFieldError('inspector-select', 'กรุณาเลือกผู้ตรวจวัดอย่างน้อย 1 คน');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'inspector-select';
+            }
+            if (!analysts || analysts.length === 0) {
+                showFieldError('analyst-select', 'กรุณาเลือกผู้วิเคราะห์อย่างน้อย 1 คน');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'analyst-select';
+            }
+            if (!reportCreator) {
+                showFieldError('report-creator-select', 'กรุณาเลือกผู้จัดทำรายงาน');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'report-creator-select';
+            }
+            if (!measurementDate) {
+                showFieldError('measurementDate', 'กรุณาระบุวันที่ตรวจวัด');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'measurementDate';
+            }
+            if (!instrument || instrument === '') {
+                showFieldError('instrument-select', 'กรุณาเลือกเครื่องมือตรวจวัด');
+                hasErrors = true;
+                if (!firstErrorField) firstErrorField = 'instrument-select';
+            }
+
+            if (hasErrors) {
+                console.log('Validation errors found:', { customerId, branchLocation, inspectors, analysts, reportCreator, instrument, measurementDate });
+                showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'warning');
+                // Scroll to first error field
+                if (firstErrorField) {
+                    const element = document.getElementById(firstErrorField);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Focus on the field if possible
+                        setTimeout(() => {
+                            if (element.focus) element.focus();
+                        }, 500);
+                    }
+                }
+                return;
+            }
+            
+            showLoading(submitButton, isEditMode ? 'กำลังบันทึก...' : 'กำลังสร้าง...');
+            
+            try {
+                const customer = customersData.find(c => c.id === customerId);
+                const branch = customer.branches.find(b => b.location === branchLocation);
+
+                const jobData = {
+                    customerId: customerId,
+                    customerName: customer.name,
+                    location: branch.location,
+                    address: document.getElementById('job-address').value || branch.address || '',
+                    date: document.getElementById('measurementDate').value,
+                    time: document.getElementById('measurementTime').value,
+                    status: document.getElementById('jobStatus').value,
+                    inspectors: choicesInstances.inspector.getValue(true) || [],
+                    analysts: choicesInstances.analyst.getValue(true) || [],
+                    reportCreator: choicesInstances.reportCreator.getValue(true) || '',
+                    notes: document.getElementById('jobNotes').value,
+                    contactPerson: document.getElementById('contact-person').value,
+                    contactPhone: document.getElementById('contact-phone').value,
+                    workDescription: document.getElementById('work-description').value
+                };
+
+                // Handle instrument selection
+                const instrumentIndex = choicesInstances.instrument.getValue(true);
+                if (instrumentIndex !== null && instrumentIndex !== '' && instrumentsData[parseInt(instrumentIndex)]) {
+                    jobData.instrument = instrumentsData[parseInt(instrumentIndex)];
+                }
+                
+                if (isEditMode) {
+                    // Update existing job
+                    const jobId = document.getElementById('edit-job-id').value;
+                    await firebaseManager.updateDocument('jobs', jobId, jobData);
+                    
+                    showAlert('แก้ไขข้อมูลงานสำเร็จแล้ว', 'success');
+                    
+                    // Navigate back based on referrer
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const referrer = urlParams.get('from');
+                    
+                    setTimeout(() => {
+                        if (referrer === 'main') {
+                            window.location.href = 'main.html';
+                        } else if (referrer === 'job-details') {
+                            window.location.href = `job-details.html?id=${jobId}`;
+                        } else {
+                            // Default to main if no referrer
+                            window.location.href = 'main.html';
+                        }
+                    }, 1500);
+                } else {
+                    // Create new job with running number system
+                    const jobId = await generateRunningJobId();
+                    
+                    const newJobData = {
+                        ...jobData,
+                        results: []
+                    };
+                    
+                    // Create document with specific Job ID
+                    const { db } = firebaseManager.getInstances();
+                    const docRef = firebaseManager.getDocumentReference('jobs', jobId);
+                    await setDoc(docRef, newJobData);
+                    
+                    showAlert('สร้างงานใหม่สำเร็จแล้ว', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 1500);
+                }
+                
+            } catch (error) {
+                console.error('Error saving job:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            } finally {
+                hideLoading(submitButton);
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>

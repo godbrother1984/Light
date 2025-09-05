@@ -1,9 +1,9 @@
 <!-- 
   path: /ui/main.html
-  version: 5.2 (Fresh Version - No Cache Issues)
-  date: 2025-09-04
-  time: 18:00:00
-  description: Fresh version to bypass browser cache issues
+  version: 6.0 (Module System Optimized + Enhanced Navigation)
+  date: 2025-09-05
+  time: 19:00:00
+  description: Fully optimized with clickable rows, proper navigation, and module system
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -71,7 +71,9 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><h6 class="dropdown-header">User Profile</h6></li>
-                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">เชื่อมต่อ...</span></a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><small id="debug-info" class="text-muted">ระบบเริ่มต้น...</small></a></li>
                             </ul>
                         </li>
                     </ul>
@@ -142,6 +144,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="fas fa-list me-2"></i>รายการงานทั้งหมด
+                            <small class="text-muted ms-2 fw-normal">(คลิกที่แถวเพื่อดูรายละเอียด)</small>
                         </h5>
                         <div class="d-flex gap-2">
                             <input type="text" class="form-control form-control-sm" id="search-input" placeholder="ค้นหางาน..." style="width: 200px;">
@@ -157,7 +160,7 @@
                     <div class="card-body p-0">
                         <div class="data-grid">
                             <div class="data-grid-body" id="jobs-container">
-                                <div class="d-flex align-items-center justify-content-center p-5">
+                                <div id="loading-state" class="d-flex align-items-center justify-content-center p-5">
                                     <div class="spinner-border text-primary me-3" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
@@ -191,6 +194,19 @@
             const debugElement = document.getElementById('debug-info');
             if (debugElement) {
                 debugElement.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            }
+        }
+
+        // Update user display
+        function updateUserDisplay() {
+            const { auth } = firebaseManager.getInstances();
+            const userElement = document.getElementById('user-display');
+            
+            if (auth && auth.currentUser) {
+                const uid = auth.currentUser.uid;
+                userElement.textContent = `UID: ${uid.substring(0, 8)}...`;
+            } else {
+                userElement.textContent = 'ไม่ได้เชื่อมต่อ';
             }
         }
 
@@ -286,10 +302,12 @@
             const location = job.location || 'ไม่ระบุสถานที่';
             
             return `
-                <div class="data-grid-row" onclick="location.href='job-details.html?id=${job.id}'">
+                <div class="data-grid-row clickable-row" onclick="location.href='job-details.html?id=${job.id}'" title="คลิกเพื่อดูรายละเอียด">
                     <div class="row align-items-center">
                         <div class="col-md-3">
-                            <div class="fw-bold text-primary">${job.id}</div>
+                            <div class="fw-bold text-primary">
+                                <i class="fas fa-eye me-2"></i>${job.id}
+                            </div>
                             <small class="text-muted">${createdDate}</small>
                         </div>
                         <div class="col-md-3">
@@ -366,14 +384,16 @@
                 const success = await firebaseManager.initialize();
                 if (!success) {
                     showAlert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'danger');
-                    updateDebugInfo('Firebase connection failed');
+                    updateDebugInfo('เชื่อมต่อฐานข้อมูลล้มเหลว');
                     return;
                 }
+
+                // Update user display after Firebase init
+                updateUserDisplay();
 
                 setupEventListeners();
                 await loadJobs();
                 
-                showAlert('ระบบพร้อมใช้งาน', 'success', 3000);
                 updateDebugInfo('ระบบพร้อมใช้งาน');
                 
             } catch (error) {
@@ -462,7 +482,7 @@
         }
 
         // Global functions for job actions
-        window.editJob = (jobId) => location.href = `new-job.html?id=${jobId}`;
+        window.editJob = (jobId) => location.href = `new-job.html?id=${jobId}&from=main`;
         window.generateReport = (jobId) => location.href = `report-finalizer.html?id=${jobId}`;
         window.deleteJob = async (jobId) => {
             if (!confirm('ต้องการลบงานนี้หรือไม่?')) return;

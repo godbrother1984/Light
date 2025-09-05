@@ -1,8 +1,8 @@
 <!-- 
   path: /ui/master-data-manager.html
-  version: 6.0 (Complete - Removed inspectorCategory)
-  date: 2025-09-03
-  time: 23:30:00
+  version: 6.1 (Added Running Numbers management)
+  date: 2025-09-05
+  time: 10:45:00
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -91,6 +91,7 @@
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#work-types-tab">ลักษณะงาน</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#inspectors-tab">บุคลากร</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#instruments-tab">เครื่องมือ</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#running-numbers-tab">รหัสอ้างอิง</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#company-info-tab">ข้อมูลบริษัท</a></li>
                         </ul>
                     </div>
@@ -116,6 +117,27 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-tools me-2"></i>จัดการเครื่องมือ</h4><button id="addInstrumentBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มเครื่องมือ</button></div>
                                 <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ/รุ่น</th><th>Serial No.</th><th>วันสอบเทียบครั้งถัดไป</th><th class="text-center">Action</th></tr></thead><tbody id="instruments-table"></tbody></table></div>
                             </div>
+                            <!-- Tab: Running Numbers -->
+                            <div class="tab-pane fade" id="running-numbers-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4><i class="fas fa-hashtag me-2"></i>จัดการรหัสอ้างอิง (Running Numbers)</h4>
+                                    <button id="addRunningNumberBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มประเภทรหัส</button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ประเภทรหัส</th>
+                                                <th>รูปแบบ</th>
+                                                <th>รหัสล่าสุด</th>
+                                                <th>เดือน/ปี ล่าสุด</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="running-numbers-table"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                             <!-- Tab: Company Info -->
                             <div class="tab-pane fade" id="company-info-tab">
                                 <h4><i class="fas fa-building me-2"></i>จัดการข้อมูลบริษัทและผู้ลงนาม</h4>
@@ -136,6 +158,7 @@
     <div class="modal fade" id="inspectorModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="inspectorModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="inspectorForm"><input type="hidden" id="inspectorId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="inspectorName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="inspectorTitle" required></div><div class="mb-3"><label class="form-label">เลขที่ใบอนุญาต</label><input type="text" class="form-control" id="inspectorLicense" placeholder="เช่น ว-๓๒๙-ค-๙๖๓๙"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="inspectorForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
     <div class="modal fade" id="instrumentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="instrumentModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="instrumentForm"><input type="hidden" id="instrumentId"><div class="mb-3"><label class="form-label">ชื่อ/รุ่น</label><input type="text" class="form-control" id="instrumentName" required></div><div class="mb-3"><label class="form-label">Serial No.</label><input type="text" class="form-control" id="instrumentSerial" required></div><div class="mb-3"><label class="form-label">วันสอบเทียบครั้งถัดไป</label><input type="date" class="form-control" id="instrumentCalDate"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="instrumentForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
     <div class="modal fade" id="signatoryModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="signatoryModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="signatoryForm"><input type="hidden" id="signatoryId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="signatoryName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="signatoryTitle" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="signatoryForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="runningNumberModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="runningNumberModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="runningNumberForm"><input type="hidden" id="runningNumberId"><div class="mb-3"><label class="form-label">ประเภทรหัส *</label><input type="text" class="form-control" id="runningNumberType" required placeholder="เช่น JOB, REPORT"></div><div class="mb-3"><label class="form-label">คำอธิบาย</label><input type="text" class="form-control" id="runningNumberDescription" placeholder="เช่น รหัสงาน, รหัสรายงาน"></div><div class="mb-3"><label class="form-label">รูปแบบรหัส</label><input type="text" class="form-control" id="runningNumberFormat" value="YYYY-MM-XXX" readonly><small class="form-text text-muted">YYYY = ปี, MM = เดือน, XXX = หมายเลขลำดับ 3 หลัก</small></div><div class="mb-3"><label class="form-label">คำนำหน้า (Prefix)</label><input type="text" class="form-control" id="runningNumberPrefix" placeholder="เช่น JOB, RPT (ถ้ามี)"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="runningNumberForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="firebase-config.js"></script>
@@ -154,7 +177,8 @@
             workType: new bootstrap.Modal(document.getElementById('workTypeModal')),
             inspector: new bootstrap.Modal(document.getElementById('inspectorModal')),
             instrument: new bootstrap.Modal(document.getElementById('instrumentModal')),
-            signatory: new bootstrap.Modal(document.getElementById('signatoryModal'))
+            signatory: new bootstrap.Modal(document.getElementById('signatoryModal')),
+            runningNumber: new bootstrap.Modal(document.getElementById('runningNumberModal'))
         };
 
         const showAlert = (message, type = 'success', duration = 4000) => {
@@ -178,7 +202,8 @@
                 customers: [ { id: 'BBL', name: 'ธนาคารกรุงเทพ จำกัด (มหาชน)', branches: [ { location: 'สาขาฉะเชิงเทรา', address: '191/74 ถ.มหาจักรพรรดิ์'}, { location: 'สาขาสีลม', address: '333 ถนนสีลม'}, { location: 'สาขาสำนักงานใหญ่พระราม 3', address: '333/3 ถนนพระราม 3'}, { location: 'สาขาเยาวราช', address: '182-192 ถนนเยาวราช'}, { location: 'สาขาสุขุมวิท 41', address: '1110/5-6 ถนนสุขุมวิท'}, { location: 'สาขาเซ็นทรัลพลาซา ชลบุรี', address: '55/90-91 หมู่ 1 ต.เสม็ด'} ] }, { id: 'SAMPLE', name: 'บริษัท ตัวอย่าง อุตสาหกรรม จำกัด', branches: [{ location: 'โรงงาน จ.ระยอง', address: 'ที่อยู่ตัวอย่าง จ.ระยอง' }] } ],
                 work_types: [ { id: 'DOCS', workTypeName: 'งานเอกสาร', stdSpotMin: 400, stdSpotMax: 500 }, { id: 'DOCS_COMP', workTypeName: 'งานเอกสาร-คอมพิวเตอร์', stdSpotMin: 400, stdSpotMax: 500, stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'SERVICE', workTypeName: 'พื้นที่บริการลูกค้า', stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'PARKING', workTypeName: 'ลานจอดรถ', stdAreaAvg: 50, stdAreaMin: 25 }, { id: 'RESTROOM', workTypeName: 'ห้องน้ำ', stdAreaAvg: 100, stdAreaMin: 50 } ],
                 inspectors: [ { id: 'INSP01', inspectorName: 'นายณัฐวัฒน์ สินอนันต์', inspectorTitle: 'ผู้ควบคุมดูแลห้องปฏิบัติการวิเคราะห์', inspectorLicense: 'ว-๓๒๙-ค-๙๖๓๙' }, { id: 'INSP02', inspectorName: 'นางสาวสุกานดา คำก๋อง', inspectorTitle: 'ผู้ควบคุมดูแลห้องปฏิบัติการวิเคราะห์', inspectorLicense: 'ว-๓๒๙-ค-๐๐๐๓' }, { id: 'INSP03', inspectorName: 'นายณัฐวัฒน์ สินอนันต์', inspectorTitle: 'นักวิชาการสิ่งแวดล้อม', inspectorLicense: '' }, { id: 'INSP04', inspectorName: 'นางสาวดุษฎี วรรณหาร', inspectorTitle: 'เจ้าหน้าที่ความปลอดภัยในการทำงานระดับวิชาชีพ', inspectorLicense: 'จป.ว-XXXXX' }, { id: 'INSP05', inspectorName: 'นางสาวสุกานดา คำก๋อง', inspectorTitle: 'นักวิชาการสิ่งแวดล้อม', inspectorLicense: '' } ],
-                instruments: [ { id: 'INST01', instrumentName: 'Light Meter Digicon/Model LX-73', instrumentSerial: 'T.034939', instrumentCalDate: '2025-02-01' } ]
+                instruments: [ { id: 'INST01', instrumentName: 'Light Meter Digicon/Model LX-73', instrumentSerial: 'T.034939', instrumentCalDate: '2025-02-01' } ],
+                running_numbers: [ { id: 'JOB', type: 'JOB', description: 'รหัสงาน', prefix: 'JOB', lastNumber: '000', lastPeriod: '' }, { id: 'REPORT', type: 'REPORT', description: 'รหัสรายงาน', prefix: 'RPT', lastNumber: '000', lastPeriod: '' } ]
             };
             try {
                 for (const [collectionName, items] of Object.entries(dataToSeed)) {
@@ -202,6 +227,7 @@
         const renderInspectors = (docs) => { const tableBody = document.getElementById('inspectors-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.inspectorName || ''}</td><td>${d.inspectorTitle || ''}</td><td>${d.inspectorLicense || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
         const renderInstruments = (docs) => { const tableBody = document.getElementById('instruments-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.instrumentName || ''}</td><td>${d.instrumentSerial || ''}</td><td>${d.instrumentCalDate || ''}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
         const renderSignatories = (signatories = []) => { const tableBody = document.getElementById('signatories-table'); if (signatories.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>'; return; } tableBody.innerHTML = signatories.map((s) => `<tr><td>${s.name}</td><td>${s.title}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${s.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${s.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`).join(''); };
+        const renderRunningNumbers = (docs) => { const tableBody = document.getElementById('running-numbers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const formatDisplay = d.prefix ? `${d.prefix}-YYYY-MM-XXX` : 'YYYY-MM-XXX'; const lastNumber = d.lastNumber || '000'; const lastPeriod = d.lastPeriod || 'ยังไม่มี'; return `<tr><td>${d.type || ''}<br><small class="text-muted">${d.description || ''}</small></td><td>${formatDisplay}</td><td>${lastNumber}</td><td>${lastPeriod}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
 
         function setupTab(db, { collectionName, tableId, modal, formId, addBtnId, modalLabelId, renderFn, populateFormFn, onFormSubmit }) {
             const collectionRef = collection(db, `/artifacts/${appId}/public/data/${collectionName}`);
@@ -290,6 +316,10 @@
 
             setupTab(db, { collectionName: 'instruments', tableId: 'instruments-table', modal: Modals.instrument, formId: 'instrumentForm', addBtnId: 'addInstrumentBtn', modalLabelId: 'instrumentModalLabel', renderFn: renderInstruments,
                 onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+            });
+
+            setupTab(db, { collectionName: 'running_numbers', tableId: 'running-numbers-table', modal: Modals.runningNumber, formId: 'runningNumberForm', addBtnId: 'addRunningNumberBtn', modalLabelId: 'runningNumberModalLabel', renderFn: renderRunningNumbers,
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/running_numbers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { type: form.runningNumberType.value.toUpperCase(), description: form.runningNumberDescription.value, prefix: form.runningNumberPrefix.value.toUpperCase(), lastNumber: '000', lastPeriod: '' }; try { await setDoc(docRef, data); showAlert('บันทึกรหัสอ้างอิงสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
             
             setupCompanyInfo(db);

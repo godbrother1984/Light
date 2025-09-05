@@ -182,7 +182,7 @@ export class FirebaseManager {
      * @param {string} docId - Document ID
      * @returns {object} Document reference
      */
-    getDocument(path, docId) {
+    getDocumentReference(path, docId) {
         this.checkInitialization();
         const fullPath = path.startsWith('/') ? path : `/artifacts/${this.appId}/public/data/${path}`;
         return doc(this.db, fullPath, docId);
@@ -225,7 +225,7 @@ export class FirebaseManager {
     async updateDocument(collectionPath, docId, data) {
         this.checkInitialization();
         try {
-            const docRef = this.getDocument(collectionPath, docId);
+            const docRef = this.getDocumentReference(collectionPath, docId);
             const updatedData = {
                 ...data,
                 updatedAt: new Date()
@@ -248,7 +248,7 @@ export class FirebaseManager {
     async deleteDocument(collectionPath, docId) {
         this.checkInitialization();
         try {
-            const docRef = this.getDocument(collectionPath, docId);
+            const docRef = this.getDocumentReference(collectionPath, docId);
             await deleteDoc(docRef);
             console.log('Document deleted successfully:', docId);
         } catch (error) {
@@ -307,7 +307,7 @@ export class FirebaseManager {
     async getDocument(collectionPath, docId) {
         this.checkInitialization();
         try {
-            const docRef = this.getDocument(collectionPath, docId);
+            const docRef = this.getDocumentReference(collectionPath, docId);
             const docSnap = await getDoc(docRef);
             
             if (docSnap.exists()) {

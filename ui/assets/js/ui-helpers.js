@@ -1,9 +1,9 @@
 /*
   path: /ui/assets/js/ui-helpers.js
-  version: 1.0 (JavaScript Module Extraction - UI Helper Functions)
-  date: 2025-09-04
-  time: 16:00:00
-  description: Common UI helper functions for alerts, formatting, dropdowns, and form operations
+  version: 1.1 (Modern Toast Notifications)
+  date: 2025-09-05
+  time: 11:15:00
+  description: Updated alert system to use modern toast notifications with progress bars and animations
 */
 
 /**
@@ -14,49 +14,88 @@
 // ===== ALERT SYSTEM =====
 
 /**
- * Show alert message to user
- * @param {string} message - Alert message
- * @param {string} type - Alert type (success, warning, danger, info)
+ * Show modern toast notification
+ * @param {string} message - Notification message
+ * @param {string} type - Notification type (success, warning, danger, info)
  * @param {number} duration - Auto hide duration in milliseconds (0 = no auto hide)
  */
 export function showAlert(message, type = 'info', duration = 5000) {
-    const alertPlaceholder = document.getElementById('alert-placeholder');
-    if (!alertPlaceholder) {
-        console.warn('Alert placeholder not found');
-        return;
+    // Create toast container if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
     }
 
-    // Create alert element
-    const alertElement = document.createElement('div');
-    alertElement.className = `alert alert-${type} alert-dismissible fade show`;
-    alertElement.setAttribute('role', 'alert');
+    // Create toast element
+    const toastId = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = `custom-toast toast-${type}`;
     
-    alertElement.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="fas fa-${getAlertIcon(type)} me-2"></i>
-            <span>${message}</span>
+    const titleText = {
+        success: 'สำเร็จ',
+        warning: 'คำเตือน', 
+        danger: 'ข้อผิดพลาด',
+        info: 'ข้อมูล'
+    }[type] || 'การแจ้งเตือน';
+    
+    toast.innerHTML = `
+        <div class="toast-header">
+            <i class="fas fa-${getAlertIcon(type)} toast-icon"></i>
+            <strong class="me-auto">${titleText}</strong>
+            <button type="button" class="btn-close" aria-label="Close"></button>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="toast-body">
+            ${message}
+        </div>
+        ${duration > 0 ? `<div class="toast-progress"><div class="toast-progress-bar"></div></div>` : ''}
     `;
 
-    // Add to placeholder
-    alertPlaceholder.appendChild(alertElement);
+    // Add to container
+    toastContainer.appendChild(toast);
 
-    // Auto hide if duration is set
+    // Show toast with animation
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Setup close button
+    const closeBtn = toast.querySelector('.btn-close');
+    closeBtn.addEventListener('click', () => hideToast(toast));
+
+    // Setup auto hide with progress bar
     if (duration > 0) {
+        const progressBar = toast.querySelector('.toast-progress-bar');
+        if (progressBar) {
+            progressBar.style.transition = `transform ${duration}ms linear`;
+            setTimeout(() => {
+                progressBar.style.transform = 'translateX(0)';
+            }, 50);
+        }
+        
         setTimeout(() => {
-            if (alertElement && alertElement.parentNode) {
-                alertElement.classList.remove('show');
-                setTimeout(() => {
-                    if (alertElement && alertElement.parentNode) {
-                        alertElement.parentNode.removeChild(alertElement);
-                    }
-                }, 150);
-            }
+            hideToast(toast);
         }, duration);
     }
 
-    return alertElement;
+    return toast;
+}
+
+/**
+ * Hide toast with animation
+ * @param {Element} toast - Toast element to hide
+ */
+function hideToast(toast) {
+    if (!toast || !toast.parentNode) return;
+    
+    toast.classList.add('hiding');
+    setTimeout(() => {
+        if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
 }
 
 /**
