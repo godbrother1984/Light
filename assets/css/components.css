@@ -1,9 +1,9 @@
 /*
-  path: /ui/assets/css/components.css
-  version: 1.0 (CSS Module Extraction - UI Components)
-  date: 2025-09-04
-  time: 15:40:00
-  description: Cards, buttons, forms, modals, tables, and other UI components styling
+  path: /assets/css/components.css
+  version: 1.1 (Added job-details specific components)
+  date: 2025-09-05
+  time: 20:35:00
+  description: Cards, buttons, forms, modals, tables, and other UI components styling + job-details components
 */
 
 /* ===== CARD COMPONENTS ===== */
@@ -256,6 +256,64 @@
 
 .table-bordered {
     border: 1px solid #dee2e6;
+}
+
+/* ===== JOB-DETAILS SPECIFIC COMPONENTS ===== */
+.result-pass {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.result-fail {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+.action-icon {
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.action-icon:hover {
+    color: var(--danger-color);
+}
+
+.template-controls {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+
+.measurement-section {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.job-info-badge {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+}
+
+.keyboard-hint {
+    font-size: 0.75rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    margin: 2rem 0;
+}
+
+.choices__input {
+    background-color: var(--bs-body-bg) !important;
 }
 
 .table-bordered th,

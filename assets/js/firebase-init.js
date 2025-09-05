@@ -1,9 +1,9 @@
 /*
-  path: /ui/assets/js/firebase-init.js
-  version: 1.0 (JavaScript Module Extraction - Firebase Initialization)
-  date: 2025-09-04
-  time: 15:50:00
-  description: Firebase initialization, authentication, and common database operations
+  path: /assets/js/firebase-init.js
+  version: 1.1 (Added getCurrentUserId and getCurrentUser methods)
+  date: 2025-09-05
+  time: 20:40:00
+  description: Firebase initialization, authentication, and common database operations with user methods
 */
 
 // Firebase imports
@@ -390,6 +390,28 @@ export class FirebaseManager {
             auth: this.auth,
             appId: this.appId
         };
+    }
+    
+    /**
+     * Get current user ID
+     * @returns {string} Current user ID
+     */
+    getCurrentUserId() {
+        if (!this.auth || !this.auth.currentUser) {
+            throw new Error('No authenticated user');
+        }
+        return this.auth.currentUser.uid;
+    }
+    
+    /**
+     * Get current user object
+     * @returns {Object} Current user object
+     */
+    getCurrentUser() {
+        if (!this.auth || !this.auth.currentUser) {
+            return null;
+        }
+        return this.auth.currentUser;
     }
 }
 

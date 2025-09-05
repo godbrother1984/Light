@@ -1,5 +1,5 @@
 /* 
-  path: /ui/tag-processor.js
+  path: /tag-processor.js
   version: 1.0 (New Tag Processing Module)
   date: 2025-09-04
   time: 10:00:00

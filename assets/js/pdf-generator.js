@@ -1,5 +1,5 @@
 /*
-  path: /ui/assets/js/pdf-generator.js
+  path: /assets/js/pdf-generator.js
   version: 1.1 (Fixed Syntax Errors)
   date: 2025-09-04
   time: 17:30:00

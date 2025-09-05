@@ -1,5 +1,5 @@
 /*
-  path: /ui/assets/js/ui-helpers.js
+  path: /assets/js/ui-helpers.js
   version: 1.1 (Modern Toast Notifications)
   date: 2025-09-05
   time: 11:15:00

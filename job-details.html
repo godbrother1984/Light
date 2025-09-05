@@ -1,0 +1,901 @@
+<!-- 
+  path: /job-details.html
+  version: 9.4 (Added remark column)
+  date: 2025-09-05
+  time: 20:50:00
+  description: Added remark column to measurement table with full save/load functionality
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดงาน - Light Measurement System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+
+    <link rel="stylesheet" href="assets/css/main-styles.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+    
+    <div class="d-flex" id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <i class="fas fa-lightbulb me-2"></i>
+                <span class="logo-text">Light Measuring</span>
+            </div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item active" href="main.html">
+                    <i class="fas fa-tasks fa-fw me-3"></i>
+                    <span class="menu-text">รายการงานทั้งหมด</span>
+                </a>
+                <a class="list-group-item" href="master-data-manager.html">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a class="list-group-item" href="template-manager.html">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <div id="alert-placeholder"></div>
+                
+                <!-- Header Section -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1">
+                            รายละเอียดงาน: <span id="job-id-display" class="text-primary">Loading...</span>
+                        </h1>
+                        <div class="d-flex align-items-center">
+                            <span class="job-info-badge" id="job-customer">Loading...</span>
+                            <span class="job-info-badge ms-2" id="job-date">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="main.html" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ
+                        </a>
+                        <a href="#" id="edit-job-btn" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>แก้ไขข้อมูลงาน
+                        </a>
+                        <button id="save-data-btn" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>บันทึกผลการตรวจวัด
+                        </button>
+                        <a href="#" id="generate-report-btn" class="btn btn-primary">
+                            <i class="fas fa-file-pdf me-2"></i>สร้างรายงาน
+                        </a>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Template Management Section -->
+                <div class="card mb-4">
+                    <div class="card-header measurement-section">
+                        <h5 class="mb-0">
+                            <i class="fas fa-layer-group me-2"></i>จัดการ Template การตรวจวัด
+                        </h5>
+                    </div>
+                    <div class="card-body template-controls">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label for="template-selector" class="form-label fw-bold">เลือก Template ที่บันทึกไว้</label>
+                                <select id="template-selector" class="form-select">
+                                    <option value="">-- เลือก Template --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="template-name-input" class="form-label fw-bold">ชื่อ Template ใหม่</label>
+                                <input type="text" id="template-name-input" class="form-control" placeholder="ตั้งชื่อ Template...">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end gap-2">
+                                <button id="load-template-btn" class="btn btn-info">
+                                    <i class="fas fa-download me-1"></i>โหลด Template
+                                </button>
+                                <button id="save-template-btn" class="btn btn-success">
+                                    <i class="fas fa-upload me-1"></i>บันทึกเป็น Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Value Modal Section -->
+                <div class="card mb-4">
+                    <div class="card-header measurement-section">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>เครื่องมือช่วยบันทึกผล
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2 mb-2">
+                                    <button id="add-spot-row-btn" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>เพิ่มแถว (แบบจุด)
+                                    </button>
+                                    <button id="add-area-row-btn" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>เพิ่มแถว (แบบพื้นที่)
+                                    </button>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button id="bulk-add-btn" class="btn btn-info">
+                                        <i class="fas fa-magic me-2"></i>เครื่องมือช่วยสร้างแถว
+                                    </button>
+                                    <button id="default-values-btn" class="btn btn-secondary">
+                                        <i class="fas fa-wrench me-2"></i>ตั้งค่าเริ่มต้น
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light p-3 rounded">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-keyboard me-1"></i>คีย์บอร์ดช็อตคัท
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="keyboard-hint">Enter: ช่องถัดไป</span>
+                                        <span class="keyboard-hint">Tab: ช่องถัดไป</span>
+                                        <span class="keyboard-hint">Ctrl+S: บันทึก</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Table Section -->
+                <div class="card">
+                    <div class="card-header measurement-section">
+                        <h5 class="mb-0">
+                            <i class="fas fa-ruler-combined me-2"></i>ตารางบันทึกผลการตรวจวัด
+                            <span id="result-count" class="badge bg-secondary ms-2">0 รายการ</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr class="text-center">
+                                        <th style="width: 4%;">ลำดับ</th>
+                                        <th style="width: 12%;">Lay Out</th>
+                                        <th style="width: 15%;">พื้นที่ตรวจวัด</th>
+                                        <th style="width: 12%;">ลักษณะงาน</th>
+                                        <th style="width: 6%;">ประเภท</th>
+                                        <th style="width: 10%;">ค่ามาตรฐาน (LUX)</th>
+                                        <th style="width: 12%;">ผลที่วัดได้ (LUX)</th>
+                                        <th style="width: 6%;">ผลการประเมิน</th>
+                                        <th style="width: 18%;">หมายเหตุ</th>
+                                        <th style="width: 4%;">ลบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body">
+                                    <tr id="no-data-row">
+                                        <td colspan="10" class="text-center p-4">
+                                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted mb-0">ยังไม่มีข้อมูลการตรวจวัด</p>
+                                            <p class="text-muted small">เริ่มต้นด้วยการคลิก "เพิ่มแถว" ด้านบน</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal: Default Values -->
+    <div class="modal fade" id="defaultValuesModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-wrench me-2"></i>ตั้งค่าเริ่มต้น
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="default-values-form">
+                        <div class="mb-3">
+                            <label for="default-area" class="form-label">พื้นที่ตรวจวัด (เริ่มต้น)</label>
+                            <input type="text" id="default-area" class="form-control" placeholder="เช่น โต๊ะทำงาน, ห้องประชุม">
+                        </div>
+                        <div class="mb-3">
+                            <label for="default-work-type" class="form-label">ลักษณะงาน (เริ่มต้น)</label>
+                            <select id="default-work-type" class="form-select">
+                                <option value="">-- เลือกลักษณะงาน --</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" id="apply-defaults-btn" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>ตั้งค่า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Bulk Add Rows -->
+    <div class="modal fade" id="bulkAddModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-magic me-2"></i>เครื่องมือช่วยสร้างแถว
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bulk-add-form">
+                        <div class="mb-3">
+                            <label for="row-count-input" class="form-label">จำนวนแถวที่ต้องการสร้าง</label>
+                            <input type="number" id="row-count-input" class="form-control" value="10" min="1" max="100">
+                        </div>
+                        <div class="mb-3">
+                            <label for="layout-pattern" class="form-label">รูปแบบ Lay Out</label>
+                            <input type="text" id="layout-pattern" class="form-control" value="Lay Out จุดที่ {x}">
+                            <div class="form-text">ใช้ <strong>{x}</strong> แทน Running Number</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="start-number" class="form-label">เริ่มนับที่</label>
+                            <input type="number" id="start-number" class="form-control" value="1" min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bulk-area" class="form-label">พื้นที่ตรวจวัด (เริ่มต้น)</label>
+                            <input type="text" id="bulk-area" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bulk-work-type" class="form-label">ลักษณะงาน (เริ่มต้น)</label>
+                            <select id="bulk-work-type" class="form-select">
+                                <option value="">-- เลือกลักษณะงาน --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bulk-measurement-type" class="form-label">ประเภทการตรวจวัด</label>
+                            <select id="bulk-measurement-type" class="form-select">
+                                <option value="spot">แบบจุด (Spot)</option>
+                                <option value="area">แบบพื้นที่ (Area)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" id="execute-bulk-add" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>สร้างแถว
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+        let workTypes = [];
+        let choicesInstances = new Map();
+        let jobId = null;
+        let defaultValues = { area: '', workType: '' };
+
+        import { firebaseManager, onSnapshot, addDoc } from './assets/js/firebase-init.js?v=1.1';
+        import { showAlert, formatDate, showLoading, hideLoading } from './assets/js/ui-helpers.js?v=1.1';
+
+        // Create table row
+        const createTableRow = (data = {}) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="text-center row-number">1</td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" data-field="layout" value="${data.layout || ''}" 
+                           placeholder="Lay Out จุดที่...">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" data-field="area" 
+                           value="${data.area || defaultValues.area}" placeholder="พื้นที่ตรวจวัด">
+                </td>
+                <td>
+                    <select class="work-type-select form-select form-select-sm" data-field="workType">
+                        <option value="">-- เลือกลักษณะงาน --</option>
+                        ${workTypes.map(w => {
+                            const selectedValue = data.workType || defaultValues.workType;
+                            return `<option value="${w.id}" ${selectedValue === w.id ? 'selected' : ''}>${w.workTypeName}</option>`;
+                        }).join('')}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm" data-field="measurementType">
+                        <option value="spot" ${(!data.measurementType || data.measurementType === 'spot') ? 'selected' : ''}>จุด</option>
+                        <option value="area" ${data.measurementType === 'area' ? 'selected' : ''}>พื้นที่</option>
+                    </select>
+                </td>
+                <td class="text-center standard-display">-</td>
+                <td class="result-inputs"></td>
+                <td class="text-center result-evaluation">-</td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" data-field="remark" 
+                           value="${data.remark || ''}" placeholder="หมายเหตุ...">
+                </td>
+                <td class="text-center">
+                    <i class="fas fa-trash-alt action-icon delete-row-btn" title="ลบแถวนี้"></i>
+                </td>
+            `;
+            
+            updateRowDisplays(row);
+            return row;
+        };
+
+        // Update row displays based on work type and measurement type
+        const updateRowDisplays = (row) => {
+            const workTypeSelect = row.querySelector('[data-field="workType"]');
+            const measurementTypeSelect = row.querySelector('[data-field="measurementType"]');
+            const standardDisplay = row.querySelector('.standard-display');
+            const resultInputs = row.querySelector('.result-inputs');
+            
+            const selectedWorkType = workTypes.find(w => w.id === workTypeSelect.value);
+            const measurementType = measurementTypeSelect.value;
+            
+            if (!selectedWorkType) {
+                standardDisplay.textContent = '-';
+                resultInputs.innerHTML = '';
+                updateResultEvaluation(row);
+                return;
+            }
+            
+            if (measurementType === 'spot') {
+                const min = selectedWorkType.stdSpotMin || 'N/A';
+                const max = selectedWorkType.stdSpotMax || 'N/A';
+                standardDisplay.textContent = `${min}-${max}`;
+                resultInputs.innerHTML = `
+                    <input type="number" class="form-control form-control-sm text-center" 
+                           data-field="spotValue" placeholder="LUX" min="0" step="1">
+                `;
+            } else {
+                const avgMin = selectedWorkType.stdAreaAvg || 'N/A';
+                const minMin = selectedWorkType.stdAreaMin || 'N/A';
+                standardDisplay.innerHTML = `Avg≥${avgMin}<br>Min≥${minMin}`;
+                resultInputs.innerHTML = `
+                    <div class="d-flex gap-1">
+                        <input type="number" class="form-control form-control-sm text-center" 
+                               data-field="areaAvgValue" placeholder="เฉลี่ย" min="0" step="1">
+                        <input type="number" class="form-control form-control-sm text-center" 
+                               data-field="areaMinValue" placeholder="ต่ำสุด" min="0" step="1">
+                    </div>
+                `;
+            }
+            
+            updateResultEvaluation(row);
+        };
+
+        // Update result evaluation
+        const updateResultEvaluation = (row) => {
+            const workTypeSelect = row.querySelector('[data-field="workType"]');
+            const measurementTypeSelect = row.querySelector('[data-field="measurementType"]');
+            const resultEvaluation = row.querySelector('.result-evaluation');
+            
+            const selectedWorkType = workTypes.find(w => w.id === workTypeSelect.value);
+            const measurementType = measurementTypeSelect.value;
+            
+            if (!selectedWorkType) {
+                resultEvaluation.textContent = '-';
+                return;
+            }
+            
+            let passed = false;
+            let hasValue = false;
+            
+            if (measurementType === 'spot') {
+                const spotInput = row.querySelector('[data-field="spotValue"]');
+                if (spotInput && spotInput.value) {
+                    hasValue = true;
+                    const value = parseFloat(spotInput.value);
+                    const min = selectedWorkType.stdSpotMin || -Infinity;
+                    const max = selectedWorkType.stdSpotMax || Infinity;
+                    passed = value >= min && value <= max;
+                }
+            } else {
+                const avgInput = row.querySelector('[data-field="areaAvgValue"]');
+                const minInput = row.querySelector('[data-field="areaMinValue"]');
+                if (avgInput && avgInput.value && minInput && minInput.value) {
+                    hasValue = true;
+                    const avgValue = parseFloat(avgInput.value);
+                    const minValue = parseFloat(minInput.value);
+                    const avgStandard = selectedWorkType.stdAreaAvg || -Infinity;
+                    const minStandard = selectedWorkType.stdAreaMin || -Infinity;
+                    passed = avgValue >= avgStandard && minValue >= minStandard;
+                }
+            }
+            
+            if (hasValue) {
+                resultEvaluation.innerHTML = passed ? 
+                    '<span class="result-pass">ผ่าน</span>' : 
+                    '<span class="result-fail">ไม่ผ่าน</span>';
+            } else {
+                resultEvaluation.textContent = '-';
+            }
+        };
+
+        // Renumber table rows
+        const renumberRows = () => {
+            const tbody = document.getElementById('results-table-body');
+            const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+            rows.forEach((row, index) => {
+                const numberCell = row.querySelector('.row-number');
+                if (numberCell) {
+                    numberCell.textContent = index + 1;
+                }
+            });
+            
+            // Update result count
+            const resultCount = document.getElementById('result-count');
+            resultCount.textContent = `${rows.length} รายการ`;
+        };
+
+        // Remove no data row if exists
+        const removeNoDataRow = () => {
+            const noDataRow = document.getElementById('no-data-row');
+            if (noDataRow) {
+                noDataRow.remove();
+            }
+        };
+
+        // Add no data row if table is empty
+        const addNoDataRowIfEmpty = () => {
+            const tbody = document.getElementById('results-table-body');
+            const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+            if (rows.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="no-data-row">
+                        <td colspan="9" class="text-center p-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">ยังไม่มีข้อมูลการตรวจวัด</p>
+                            <p class="text-muted small">เริ่มต้นด้วยการคลิก "เพิ่มแถว" ด้านบน</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        };
+
+        // Main initialization  
+        async function main() {
+            if (!await firebaseManager.initialize()) {
+                showAlert('ไม่สามารถเชื่อมต่อ Firebase ได้', 'danger');
+                return;
+            }
+            
+            document.getElementById('user-display').textContent = `UID: ${firebaseManager.getCurrentUserId().substring(0, 8)}...`;
+            
+            try {
+                // Get job ID from URL
+                const params = new URLSearchParams(window.location.search);
+                jobId = params.get('id');
+                
+                if (!jobId) {
+                    showAlert('ไม่พบ Job ID ใน URL', 'danger');
+                    return;
+                }
+                
+                document.getElementById('job-id-display').textContent = jobId;
+                document.getElementById('edit-job-btn').href = `new-job.html?id=${jobId}&from=job-details`;
+                document.getElementById('generate-report-btn').href = `report-finalizer.html?id=${jobId}`;
+                
+                // Load work types
+                const workTypesRef = firebaseManager.getCollection('work_types');
+                onSnapshot(workTypesRef, (snapshot) => {
+                    workTypes = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    // Populate dropdowns
+                    const defaultWorkTypeSelect = document.getElementById('default-work-type');
+                    const bulkWorkTypeSelect = document.getElementById('bulk-work-type');
+                    
+                    const workTypeOptions = workTypes.map(w => 
+                        `<option value="${w.id}">${w.workTypeName}</option>`
+                    ).join('');
+                    
+                    defaultWorkTypeSelect.innerHTML = '<option value="">-- เลือกลักษณะงาน --</option>' + workTypeOptions;
+                    bulkWorkTypeSelect.innerHTML = '<option value="">-- เลือกลักษณะงาน --</option>' + workTypeOptions;
+                });
+                
+                // Load job data
+                const jobResult = await firebaseManager.getDocument('jobs', jobId);
+                
+                if (jobResult && jobResult.data) {
+                    const jobData = jobResult.data;
+                    console.log('Job data loaded:', jobData);
+                    
+                    // Update job info display
+                    document.getElementById('job-customer').textContent = jobData.customerName || 'ไม่ระบุลูกค้า';
+                    document.getElementById('job-date').textContent = jobData.date || 'ไม่ระบุวันที่';
+                    
+                    // Load existing results
+                    const tbody = document.getElementById('results-table-body');
+                    if (jobData.results && jobData.results.length > 0) {
+                        removeNoDataRow();
+                        jobData.results.forEach(result => {
+                            const row = createTableRow(result);
+                            tbody.appendChild(row);
+                            
+                            // Set values for existing data
+                            if (result.spotValue) {
+                                const spotInput = row.querySelector('[data-field="spotValue"]');
+                                if (spotInput) spotInput.value = result.spotValue;
+                            }
+                            if (result.areaAvgValue) {
+                                const avgInput = row.querySelector('[data-field="areaAvgValue"]');
+                                if (avgInput) avgInput.value = result.areaAvgValue;
+                            }
+                            if (result.areaMinValue) {
+                                const minInput = row.querySelector('[data-field="areaMinValue"]');
+                                if (minInput) minInput.value = result.areaMinValue;
+                            }
+                            if (result.remark) {
+                                const remarkInput = row.querySelector('[data-field="remark"]');
+                                if (remarkInput) remarkInput.value = result.remark;
+                            }
+                            
+                            updateResultEvaluation(row);
+                        });
+                        renumberRows();
+                    }
+                } else {
+                    showAlert('ไม่พบข้อมูลงานในระบบ', 'danger');
+                }
+                
+                // Load templates
+                const templatesRef = firebaseManager.getCollection('measurement_templates');
+                onSnapshot(templatesRef, (snapshot) => {
+                    const templateSelector = document.getElementById('template-selector');
+                    templateSelector.innerHTML = '<option value="">-- เลือก Template --</option>';
+                    
+                    snapshot.docs.forEach(doc => {
+                        const template = doc.data();
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = template.name;
+                        templateSelector.appendChild(option);
+                    });
+                });
+                
+                // Event listeners
+                setupEventListeners();
+                
+            } catch (error) {
+                showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger');
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            const tbody = document.getElementById('results-table-body');
+            
+            // Add row buttons
+            document.getElementById('add-spot-row-btn').addEventListener('click', () => {
+                removeNoDataRow();
+                const row = createTableRow({ measurementType: 'spot' });
+                tbody.appendChild(row);
+                renumberRows();
+                
+                // Focus on first input
+                const firstInput = row.querySelector('input');
+                if (firstInput) firstInput.focus();
+            });
+            
+            document.getElementById('add-area-row-btn').addEventListener('click', () => {
+                removeNoDataRow();
+                const row = createTableRow({ measurementType: 'area' });
+                tbody.appendChild(row);
+                renumberRows();
+                
+                // Focus on first input
+                const firstInput = row.querySelector('input');
+                if (firstInput) firstInput.focus();
+            });
+            
+            // Table event delegation
+            tbody.addEventListener('change', (e) => {
+                const row = e.target.closest('tr');
+                if (!row) return;
+                
+                if (e.target.matches('[data-field="workType"], [data-field="measurementType"]')) {
+                    updateRowDisplays(row);
+                }
+                updateResultEvaluation(row);
+            });
+            
+            tbody.addEventListener('input', (e) => {
+                const row = e.target.closest('tr');
+                if (row) {
+                    updateResultEvaluation(row);
+                }
+            });
+            
+            tbody.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-row-btn')) {
+                    const row = e.target.closest('tr');
+                    if (row) {
+                        if (confirm('ต้องการลบแถวนี้หรือไม่?')) {
+                            row.remove();
+                            renumberRows();
+                            addNoDataRowIfEmpty();
+                        }
+                    }
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    document.getElementById('save-data-btn').click();
+                }
+            });
+            
+            // Enhanced keyboard navigation
+            tbody.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                    const currentInput = e.target;
+                    const currentRow = currentInput.closest('tr');
+                    const allInputs = currentRow.querySelectorAll('input, select');
+                    const currentIndex = Array.from(allInputs).indexOf(currentInput);
+                    
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        
+                        if (currentIndex < allInputs.length - 1) {
+                            // Move to next input in same row
+                            allInputs[currentIndex + 1].focus();
+                        } else {
+                            // Move to first input of next row or create new row
+                            const nextRow = currentRow.nextElementSibling;
+                            if (nextRow && !nextRow.id) {
+                                const firstInput = nextRow.querySelector('input, select');
+                                if (firstInput) firstInput.focus();
+                            } else {
+                                // Create new row
+                                removeNoDataRow();
+                                const newRow = createTableRow({ measurementType: 'spot' });
+                                tbody.appendChild(newRow);
+                                renumberRows();
+                                const firstInput = newRow.querySelector('input');
+                                if (firstInput) firstInput.focus();
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Default values modal
+            document.getElementById('default-values-btn').addEventListener('click', () => {
+                const modal = new bootstrap.Modal(document.getElementById('defaultValuesModal'));
+                document.getElementById('default-area').value = defaultValues.area;
+                document.getElementById('default-work-type').value = defaultValues.workType;
+                modal.show();
+            });
+            
+            document.getElementById('apply-defaults-btn').addEventListener('click', () => {
+                defaultValues.area = document.getElementById('default-area').value;
+                defaultValues.workType = document.getElementById('default-work-type').value;
+                bootstrap.Modal.getInstance(document.getElementById('defaultValuesModal')).hide();
+                showAlert('ตั้งค่าเริ่มต้นสำเร็จ');
+            });
+            
+            // Bulk add modal
+            document.getElementById('bulk-add-btn').addEventListener('click', () => {
+                const modal = new bootstrap.Modal(document.getElementById('bulkAddModal'));
+                const currentRowCount = tbody.querySelectorAll('tr:not(#no-data-row)').length;
+                document.getElementById('start-number').value = currentRowCount + 1;
+                modal.show();
+            });
+            
+            document.getElementById('execute-bulk-add').addEventListener('click', () => {
+                const rowCount = parseInt(document.getElementById('row-count-input').value);
+                const layoutPattern = document.getElementById('layout-pattern').value;
+                const startNumber = parseInt(document.getElementById('start-number').value);
+                const bulkArea = document.getElementById('bulk-area').value;
+                const bulkWorkType = document.getElementById('bulk-work-type').value;
+                const bulkMeasurementType = document.getElementById('bulk-measurement-type').value;
+                
+                removeNoDataRow();
+                
+                for (let i = 0; i < rowCount; i++) {
+                    const rowData = {
+                        layout: layoutPattern.replace('{x}', startNumber + i),
+                        area: bulkArea,
+                        workType: bulkWorkType,
+                        measurementType: bulkMeasurementType
+                    };
+                    const row = createTableRow(rowData);
+                    tbody.appendChild(row);
+                }
+                
+                renumberRows();
+                bootstrap.Modal.getInstance(document.getElementById('bulkAddModal')).hide();
+                showAlert(`สร้าง ${rowCount} แถวสำเร็จ`);
+            });
+            
+            // Template management
+            document.getElementById('load-template-btn').addEventListener('click', async () => {
+                const templateId = document.getElementById('template-selector').value;
+                if (!templateId) {
+                    showAlert('กรุณาเลือก Template ที่ต้องการโหลด', 'warning');
+                    return;
+                }
+                
+                try {
+                    const templateResult = await firebaseManager.getDocument('measurement_templates', templateId);
+                    
+                    if (templateResult && templateResult.data) {
+                        const template = templateResult.data;
+                        
+                        // Clear existing rows
+                        const tbody = document.getElementById('results-table-body');
+                        tbody.innerHTML = '';
+                        
+                        // Add template data
+                        if (template.results && template.results.length > 0) {
+                            template.results.forEach(result => {
+                                const row = createTableRow(result);
+                                tbody.appendChild(row);
+                            });
+                            renumberRows();
+                        } else {
+                            addNoDataRowIfEmpty();
+                        }
+                        
+                        showAlert(`โหลด Template "${template.name}" สำเร็จ`);
+                    }
+                } catch (error) {
+                    showAlert(`เกิดข้อผิดพลาดในการโหลด Template: ${error.message}`, 'danger');
+                }
+            });
+            
+            document.getElementById('save-template-btn').addEventListener('click', async () => {
+                const templateName = document.getElementById('template-name-input').value.trim();
+                if (!templateName) {
+                    showAlert('กรุณาใส่ชื่อ Template', 'warning');
+                    return;
+                }
+                
+                // Collect current data
+                const results = [];
+                const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                
+                rows.forEach(row => {
+                    const result = {
+                        layout: row.querySelector('[data-field="layout"]').value,
+                        area: row.querySelector('[data-field="area"]').value,
+                        workType: row.querySelector('[data-field="workType"]').value,
+                        measurementType: row.querySelector('[data-field="measurementType"]').value
+                    };
+                    results.push(result);
+                });
+                
+                if (results.length === 0) {
+                    showAlert('ไม่มีข้อมูลสำหรับบันทึกเป็น Template', 'warning');
+                    return;
+                }
+                
+                try {
+                    const templateData = {
+                        name: templateName,
+                        results: results,
+                        createdAt: new Date().toISOString(),
+                        createdBy: firebaseManager.getCurrentUserId()
+                    };
+                    
+                    const templatesRef = firebaseManager.getCollection('measurement_templates');
+                    await addDoc(templatesRef, templateData);
+                    
+                    document.getElementById('template-name-input').value = '';
+                    showAlert(`บันทึก Template "${templateName}" สำเร็จ`);
+                } catch (error) {
+                    showAlert(`เกิดข้อผิดพลาดในการบันทึก Template: ${error.message}`, 'danger');
+                }
+            });
+            
+            // Save measurement results
+            document.getElementById('save-data-btn').addEventListener('click', async () => {
+                if (!jobId) {
+                    showAlert('ไม่พบ Job ID', 'danger');
+                    return;
+                }
+                
+                const saveBtn = document.getElementById('save-data-btn');
+                const originalContent = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
+                
+                try {
+                    const results = [];
+                    const rows = tbody.querySelectorAll('tr:not(#no-data-row)');
+                    
+                    rows.forEach(row => {
+                        const result = {
+                            layout: row.querySelector('[data-field="layout"]').value,
+                            area: row.querySelector('[data-field="area"]').value,
+                            workType: row.querySelector('[data-field="workType"]').value,
+                            measurementType: row.querySelector('[data-field="measurementType"]').value,
+                            standard: row.querySelector('.standard-display').textContent,
+                            evaluation: row.querySelector('.result-evaluation').textContent,
+                            remark: row.querySelector('[data-field="remark"]').value || ''
+                        };
+                        
+                        // Add measurement values
+                        if (result.measurementType === 'spot') {
+                            const spotInput = row.querySelector('[data-field="spotValue"]');
+                            result.spotValue = spotInput ? spotInput.value : null;
+                        } else {
+                            const avgInput = row.querySelector('[data-field="areaAvgValue"]');
+                            const minInput = row.querySelector('[data-field="areaMinValue"]');
+                            result.areaAvgValue = avgInput ? avgInput.value : null;
+                            result.areaMinValue = minInput ? minInput.value : null;
+                        }
+                        
+                        results.push(result);
+                    });
+                    
+                    await firebaseManager.updateDocument('jobs', jobId, {
+                        results: results,
+                        lastUpdated: new Date().toISOString(),
+                        status: results.length > 0 ? 'in-progress' : 'new'
+                    });
+                    
+                    showAlert('บันทึกผลการตรวจวัดสำเร็จแล้ว');
+                    
+                } catch (error) {
+                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'danger');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalContent;
+                }
+            });
+        }
+        
+        main();
+        
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        });
+    </script>
+</body>
+</html>

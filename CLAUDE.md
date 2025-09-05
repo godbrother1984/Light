@@ -14,7 +14,7 @@ This is a Thai-language **Light Measurement Recording System** built as a web ap
 The project uses a **module-based architecture** for performance and maintainability:
 
 ```
-/ui/
+/
 ├── assets/
 │   ├── css/              # Modular CSS system
 │   │   ├── main-styles.css      # Variables, typography, layouts
@@ -31,8 +31,9 @@ The project uses a **module-based architecture** for performance and maintainabi
 ```
 
 ### Migration Status
-- **✅ Fully Migrated**: `main.html` (v6.0), `new-job.html` (v3.2.0), `master-data-manager.html` (v6.1)
-- **🔄 Needs Migration**: `job-details.html`, `report-finalizer.html`, `template-manager.html`
+- **✅ Fully Migrated**: All files moved to root directory
+- **✅ Module System**: `main.html` (v6.0), `new-job.html` (v3.2.0), `master-data-manager.html` (v6.1)
+- **🔄 Needs Module Migration**: `job-details.html`, `report-finalizer.html`, `template-manager.html`
 
 ### Firebase Data Structure
 ```
@@ -53,16 +54,16 @@ The project uses a **module-based architecture** for performance and maintainabi
 # Start PHP development server
 php -S localhost:8000
 
-# Or Python server in ui/ directory  
-cd ui && python -m http.server 8001
+# Or Python server in root directory  
+python -m http.server 8001
 ```
 
 ### Testing
 ```bash
 # Test specific features
-open ui/test-toast.html          # Toast notification system
-open ui/test-running-numbers.html   # Running number system
-open ui/test-validation.html     # Form validation system
+open test-toast.html          # Toast notification system
+open test-running-numbers.html   # Running number system
+open test-validation.html     # Form validation system
 ```
 
 ### No Build Process
