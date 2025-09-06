@@ -1,0 +1,1877 @@
+<!-- 
+  path: /branch-manager.html
+  version: 1.2 (Enhanced UX with Beautiful Modals)
+  date: 2025-09-06
+  time: 09:30:00
+  description: Replaced prompt() dialogs with beautiful Bootstrap modals for adding regions, provinces, and branches. Added form validation and improved customer name display debugging.
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการสาขาลูกค้า - Light Measurement System</title>
+    
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts - Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="./assets/css/main-styles.css">
+    <link rel="stylesheet" href="./assets/css/sidebar.css">
+    <link rel="stylesheet" href="./assets/css/components.css">
+    
+    <style>
+        /* Branch Management Specific Styles */
+        .branch-tree {
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .branch-node {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .branch-node:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+        
+        .branch-node.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .branch-node.active:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .region-node {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+        }
+        
+        .province-node {
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            margin-left: 1rem;
+            max-width: calc(100% - 1rem);
+        }
+        
+        .branch-item-node {
+            background: #f5f5f5;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            max-width: calc(100% - 2rem);
+        }
+        
+        .branch-item-node small {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        
+        .tree-toggle {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 0.8rem;
+            padding: 0;
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+            transition: transform var(--transition-speed) ease;
+        }
+        
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .tree-children {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .tree-children.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .search-highlight {
+            background-color: #fff3cd !important;
+            border: 2px solid #ffc107 !important;
+        }
+        
+        .search-match {
+            background-color: #d1ecf1 !important;
+            color: #0c5460 !important;
+        }
+        
+        
+        .customer-info-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .branch-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        .management-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            min-height: 600px;
+        }
+        
+        .panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+        
+        .panel-body {
+            padding: 1.5rem;
+        }
+        
+        .tree-container {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .bulk-actions {
+            background: #fff8e1;
+            border: 1px solid #ffcc02;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive fixes for mobile */
+        @media (max-width: 768px) {
+            .branch-node {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .province-node {
+                margin-left: 0.5rem;
+                max-width: calc(100% - 0.5rem);
+            }
+            
+            .branch-item-node {
+                margin-left: 1rem;
+                max-width: calc(100% - 1rem);
+                font-size: 0.8rem;
+            }
+            
+            .tree-container {
+                max-height: 400px;
+            }
+            
+            .branch-node:hover {
+                transform: translateX(2px);
+            }
+        }
+        
+        /* Fix for very long text */
+        .branch-node * {
+            max-width: 100%;
+            word-break: break-word;
+        }
+        
+        /* Modern Button Styles */
+        .modern-btn {
+            position: relative;
+            background: linear-gradient(135deg, var(--bs-btn-bg), calc(var(--bs-btn-bg) + 10%)) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .modern-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .modern-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .modern-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .modern-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* Specific color enhancements */
+        .btn-primary.modern-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-primary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid #007bff !important;
+            color: #007bff !important;
+        }
+        
+        .btn-outline-secondary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid #6c757d !important;
+            color: #6c757d !important;
+        }
+        
+        .btn-success.modern-btn {
+            background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+            color: white !important;
+        }
+        
+        .btn-info.modern-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496) !important;
+            color: white !important;
+        }
+        
+        .btn-danger.modern-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-danger.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid #dc3545 !important;
+            color: #dc3545 !important;
+        }
+        
+        /* Icon spacing improvements */
+        .modern-btn i {
+            vertical-align: middle;
+        }
+        
+        /* Small button adjustments */
+        .modern-btn.btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush">
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2 modern-btn" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">เชื่อมต่อ...</span></a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><small id="debug-info" class="text-muted">ระบบเริ่มต้น...</small></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <!-- Alert Placeholder -->
+                <div id="alert-placeholder"></div>
+                
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1 text-gradient">
+                            <i class="fas fa-sitemap me-3"></i>จัดการสาขาลูกค้า
+                        </h1>
+                        <p class="text-muted mb-0">จัดการข้อมูลสาขาแบบลำดับชั้น: ภูมิภาค → จังหวัด → สาขา</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="master-data-manager.html" class="btn btn-outline-secondary modern-btn">
+                            <i class="fas fa-arrow-left me-2"></i>กลับไปหน้าหลัก
+                        </a>
+                    </div>
+                </div>
+    
+                <div class="container-fluid p-0">
+        <!-- Customer Information -->
+        <div class="customer-info-card">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4 id="customer-name" class="mb-2">
+                        <i class="fas fa-building me-2 text-primary"></i>กำลังโหลดข้อมูลลูกค้า...
+                    </h4>
+                    <p class="text-muted mb-0" id="customer-id">ID: -</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="branch-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-branches">0</div>
+                            <div class="stat-label">สาขาทั้งหมด</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-regions">0</div>
+                            <div class="stat-label">ภูมิภาค</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-provinces">0</div>
+                            <div class="stat-label">จังหวัด</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Management Interface -->
+        <div class="row">
+            <!-- Left Panel: Branch Tree Navigation -->
+            <div class="col-md-4">
+                <div class="management-panel">
+                    <div class="panel-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-tree me-2"></i>โครงสร้างสาขา
+                            </h6>
+                            <button class="btn btn-success btn-sm modern-btn" id="add-region-btn">
+                                <i class="fas fa-plus me-1"></i>เพิ่มภูมิภาค
+                            </button>
+                        </div>
+                        <!-- Search Bar -->
+                        <div class="mt-2">
+                            <input type="text" class="form-control form-control-sm" id="branch-search" 
+                                   placeholder="ค้นหาสาขา...">
+                        </div>
+                    </div>
+                    <div class="panel-body p-0">
+                        <div class="tree-container" id="branch-tree">
+                            <div class="text-center text-muted p-4">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                <p>กำลังโหลดข้อมูล...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Branch Management Details -->
+            <div class="col-md-8">
+                <div class="management-panel">
+                    <div class="panel-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>รายละเอียดและการจัดการ
+                            </h6>
+                            <div class="action-buttons">
+                                <button class="btn btn-info btn-sm modern-btn" id="import-excel-btn">
+                                    <i class="fas fa-file-excel me-1"></i>นำเข้า Excel
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm modern-btn" id="export-excel-btn">
+                                    <i class="fas fa-download me-1"></i>ส่งออก Excel
+                                </button>
+                                <button class="btn btn-primary btn-sm modern-btn" id="save-all-btn">
+                                    <i class="fas fa-save me-1"></i>บันทึกทั้งหมด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="management-content">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                                <h6>เลือกภูมิภาค จังหวัด หรือสาขา</h6>
+                                <p>คลิกรายการทางซ้ายเพื่อจัดการข้อมูล</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Region Modal -->
+    <div class="modal fade" id="addRegionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>เพิ่มภูมิภาคใหม่
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRegionForm">
+                        <div class="mb-3">
+                            <label for="regionName" class="form-label">ชื่อภูมิภาค</label>
+                            <input type="text" class="form-control" id="regionName" placeholder="เช่น ภาคเหนือ, ภาคใต้" required>
+                            <div class="form-text">ใส่ชื่อภูมิภาคที่ต้องการเพิ่ม</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-success modern-btn" id="confirmAddRegion">
+                        <i class="fas fa-check me-2"></i>เพิ่มภูมิภาค
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Province Modal -->
+    <div class="modal fade" id="addProvinceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>เพิ่มจังหวัดใหม่
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ภูมิภาค</label>
+                        <div class="form-control-plaintext bg-light p-2 rounded" id="currentRegionDisplay">
+                            <i class="fas fa-map me-2"></i>-
+                        </div>
+                    </div>
+                    <form id="addProvinceForm">
+                        <div class="mb-3">
+                            <label for="provinceName" class="form-label">ชื่อจังหวัด</label>
+                            <input type="text" class="form-control" id="provinceName" placeholder="เช่น เชียงใหม่, ภูเก็ต" required>
+                            <div class="form-text">ใส่ชื่อจังหวัดที่ต้องการเพิ่ม</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-info modern-btn" id="confirmAddProvince">
+                        <i class="fas fa-check me-2"></i>เพิ่มจังหวัด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Branch Modal -->
+    <div class="modal fade" id="addBranchModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-building me-2"></i>เพิ่มสาขาใหม่
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">ภูมิภาค</label>
+                            <div class="form-control-plaintext bg-light p-2 rounded" id="currentBranchRegionDisplay">
+                                <i class="fas fa-map me-2"></i>-
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">จังหวัด</label>
+                            <div class="form-control-plaintext bg-light p-2 rounded" id="currentBranchProvinceDisplay">
+                                <i class="fas fa-map-marker-alt me-2"></i>-
+                            </div>
+                        </div>
+                    </div>
+                    <form id="addBranchForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="branchName" class="form-label">ชื่อสาขา *</label>
+                                    <input type="text" class="form-control" id="branchName" placeholder="เช่น สาขาเซ็นทรัล, สาขาบิ๊กซี" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="branchContactPerson" class="form-label">ผู้ติดต่อ</label>
+                                    <input type="text" class="form-control" id="branchContactPerson" placeholder="ชื่อผู้ติดต่อ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="branchContactPhone" class="form-label">เบอร์โทรศัพท์</label>
+                                    <input type="text" class="form-control" id="branchContactPhone" placeholder="เบอร์โทรศัพท์">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="branchAddress" class="form-label">ที่อยู่</label>
+                            <textarea class="form-control" id="branchAddress" rows="3" placeholder="ที่อยู่ของสาขา"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary modern-btn" id="confirmAddBranch">
+                        <i class="fas fa-check me-2"></i>เพิ่มสาขา
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Add Branches Modal -->
+    <div class="modal fade" id="bulkAddBranchModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>เพิ่มหลายสาขา
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">ภูมิภาค</label>
+                            <div class="form-control-plaintext bg-light p-2 rounded" id="currentBulkRegionDisplay">
+                                <i class="fas fa-map me-2"></i>-
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">จังหวัด</label>
+                            <div class="form-control-plaintext bg-light p-2 rounded" id="currentBulkProvinceDisplay">
+                                <i class="fas fa-map-marker-alt me-2"></i>-
+                            </div>
+                        </div>
+                    </div>
+                    <form id="bulkAddBranchForm">
+                        <div class="mb-3">
+                            <label for="bulkBranchNames" class="form-label">ชื่อสาขา</label>
+                            <textarea class="form-control" id="bulkBranchNames" rows="8" 
+                                      placeholder="ใส่ชื่อสาขาแต่ละสาขาในแต่ละบรรทัด&#10;เช่น:&#10;สาขาเซ็นทรัล&#10;สาขาบิ๊กซี&#10;สาขาโลตัส&#10;สาขาโฮมโปร" required></textarea>
+                            <div class="form-text">ใส่ชื่อสาขาแต่ละสาขาในแต่ละบรรทัด</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-warning modern-btn text-dark" id="confirmBulkAddBranch">
+                        <i class="fas fa-check me-2"></i>เพิ่มหลายสาขา
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5.3.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="./firebase-config.js"></script>
+    
+    <!-- Modular JavaScript -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { showAlert, formatDate } from './assets/js/ui-helpers.js';
+        
+        // Firebase Configuration
+        const firebaseConfig = window.firebaseConfig;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+        
+        // Global variables
+        let currentCustomer = null;
+        let branchData = {};
+        let activeNode = null;
+        let currentModalData = {};
+        
+        // Thai provinces organized by region
+        const thaiProvinces = {
+            'ภาคเหนือ': ['เชียงใหม่', 'เชียงราย', 'แม่ฮ่องสอน', 'น่าน', 'พะเยา', 'เพชรบูรณ์', 'แพร่', 'ลำปาง', 'ลำพูน', 'สุโขทัย', 'อุตรดิตถ์', 'กำแพงเพชร', 'ตาก', 'นครสวรรค์', 'อุทัยธานี', 'พิจิตร', 'พิษณุโลก'],
+            'ภาคกลาง': ['กรุงเทพฯ', 'นนทบุรี', 'ปทุมธานี', 'นครปฐม', 'สมุทรปราการ', 'สมุทรสาคร', 'สมุทรสงคราม', 'อ่างทอง', 'พระนครศรีอยุธยา', 'ลพบุรี', 'ชัยนาท', 'สิงห์บุรี', 'สระบุรี', 'สุพรรณบุรี'],
+            'ภาคตะวันออก': ['ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'สระแก้ว'],
+            'ภาคตะวันออกเฉียงเหนือ': ['นครราชสีมา', 'ขอนแก่น', 'อุดรธานี', 'เลย', 'หนองคาย', 'ชัยภูมิ', 'ยโสธร', 'ร้อยเอ็ด', 'มหาสารคาม', 'มุกดาหาร', 'นครพนม', 'สกลนคร', 'ศรีสะเกษ', 'สุรินทร์', 'หนองบัวลำภู', 'บึงกาฬ', 'อำนาจเจริญ', 'อุบลราชธานี', 'บุรีรัมย์', 'กาฬสินธุ์'],
+            'ภาคตะวันตก': ['กาญจนบุรี', 'ราชบุรี', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'สุพรรณบุรี'],
+            'ภาคใต้': ['ชุมพร', 'ระนอง', 'สุราษฎร์ธานี', 'พังงา', 'ภูเก็ต', 'กระบี่', 'นครศรีธรรมราช', 'ตรัง', 'พัทลุง', 'สงขลา', 'สตูล', 'ปัตตานี', 'ยะลา', 'นราธิวาส']
+        };
+        
+        // Get customer ID from URL parameters
+        function getCustomerIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('customerId');
+        }
+        
+        // Initialize page
+        async function initializeBranchManager() {
+            const customerId = getCustomerIdFromURL();
+            if (!customerId) {
+                showAlert('ไม่พบรหัสลูกค้าใน URL กรุณาเข้าสู่หน้านี้ผ่านหน้า Master Data Manager', 'danger');
+                setTimeout(() => {
+                    window.location.href = 'master-data-manager.html';
+                }, 3000);
+                return;
+            }
+            
+            try {
+                // Wait for Firebase Authentication
+                await new Promise((resolve, reject) => {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            resolve(user);
+                        } else {
+                            try {
+                                const userCredential = await signInAnonymously(auth);
+                                resolve(userCredential.user);
+                            } catch (authError) {
+                                console.error('Authentication failed:', authError);
+                                reject(authError);
+                            }
+                        }
+                    });
+                });
+                
+                // Load customer data
+                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customers`, customerId);
+                const customerDoc = await getDoc(customerDocRef);
+                
+                if (!customerDoc.exists()) {
+                    showAlert('ไม่พบข้อมูลลูกค้านี้', 'danger');
+                    return;
+                }
+                
+                currentCustomer = { id: customerDoc.id, ...customerDoc.data() };
+                console.log('Loaded customer data:', currentCustomer);
+                
+                // Update UI
+                updateCustomerInfo();
+                
+                // Organize branches into hierarchical structure
+                organizeBranchesHierarchically();
+                
+                // Render branch tree
+                renderBranchTree();
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('Error initializing branch manager:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        }
+        
+        // Update customer information display
+        function updateCustomerInfo() {
+            console.log('Updating customer info:', currentCustomer);
+            const nameElement = document.getElementById('customer-name');
+            const idElement = document.getElementById('customer-id');
+            
+            if (nameElement && currentCustomer) {
+                nameElement.innerHTML = `
+                    <i class="fas fa-building me-2 text-primary"></i>${currentCustomer.name}
+                `;
+            }
+            if (idElement && currentCustomer) {
+                idElement.textContent = `ID: ${currentCustomer.id}`;
+            }
+            
+            // Update statistics
+            const branches = currentCustomer.branches || [];
+            const regions = new Set();
+            const provinces = new Set();
+            
+            branches.forEach(branch => {
+                if (branch.region) regions.add(branch.region);
+                if (branch.province) provinces.add(branch.province);
+            });
+            
+            document.getElementById('total-branches').textContent = branches.length;
+            document.getElementById('total-regions').textContent = regions.size;
+            document.getElementById('total-provinces').textContent = provinces.size;
+        }
+        
+        // Organize branches into hierarchical structure
+        function organizeBranchesHierarchically() {
+            branchData = {};
+            const branches = currentCustomer.branches || [];
+            
+            branches.forEach(branch => {
+                // Auto-assign region/province if not set
+                if (!branch.region || !branch.province) {
+                    autoAssignRegionProvince(branch);
+                }
+                
+                const region = branch.region || 'ไม่ระบุภูมิภาค';
+                const province = branch.province || 'ไม่ระบุจังหวัด';
+                
+                if (!branchData[region]) branchData[region] = {};
+                if (!branchData[region][province]) branchData[region][province] = [];
+                
+                branchData[region][province].push(branch);
+            });
+        }
+        
+        // Auto-assign region and province based on location
+        function autoAssignRegionProvince(branch) {
+            const location = branch.location || '';
+            
+            for (const [region, provinces] of Object.entries(thaiProvinces)) {
+                for (const province of provinces) {
+                    if (location.includes(province)) {
+                        branch.region = region;
+                        branch.province = province;
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Render branch tree
+        function renderBranchTree() {
+            const container = document.getElementById('branch-tree');
+            let html = '';
+            
+            for (const [region, provinces] of Object.entries(branchData)) {
+                const regionId = `region-${region.replace(/\s+/g, '-')}`;
+                html += `
+                    <div class="branch-node region-node" data-type="region" data-region="${region}">
+                        <button class="tree-toggle" data-target="${regionId}">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <i class="fas fa-map me-2"></i>
+                        <strong>${region}</strong>
+                        <span class="badge bg-light text-dark ms-2">${Object.keys(provinces).length} จังหวัด</span>
+                    </div>
+                    <div class="tree-children" id="${regionId}">
+                `;
+                
+                for (const [province, branches] of Object.entries(provinces)) {
+                    const provinceId = `province-${region.replace(/\s+/g, '-')}-${province.replace(/\s+/g, '-')}`;
+                    html += `
+                        <div class="branch-node province-node" data-type="province" data-region="${region}" data-province="${province}">
+                            <button class="tree-toggle" data-target="${provinceId}">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            ${province}
+                            <span class="badge bg-info ms-2">${branches.length} สาขา</span>
+                        </div>
+                        <div class="tree-children" id="${provinceId}">
+                    `;
+                    
+                    branches.forEach((branch, index) => {
+                        html += `
+                            <div class="branch-node branch-item-node" data-type="branch" 
+                                 data-region="${region}" data-province="${province}" data-index="${index}">
+                                <i class="fas fa-building me-2"></i>
+                                ${branch.location}
+                                <small class="text-muted d-block">${branch.address || 'ไม่มีที่อยู่'}</small>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+            }
+            
+            if (html === '') {
+                html = `
+                    <div class="text-center text-muted p-4">
+                        <i class="fas fa-plus-circle fa-2x mb-3"></i>
+                        <p>ยังไม่มีข้อมูลสาขา</p>
+                        <button class="btn btn-primary modern-btn" id="create-first-branch">
+                            <i class="fas fa-plus me-2"></i>เพิ่มสาขาแรก
+                        </button>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tree toggle functionality
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.tree-toggle')) {
+                    const toggle = e.target.closest('.tree-toggle');
+                    const targetId = toggle.dataset.target;
+                    const target = document.getElementById(targetId);
+                    const icon = toggle.querySelector('i');
+                    
+                    if (target.classList.contains('show')) {
+                        target.classList.remove('show');
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-right');
+                        toggle.classList.remove('expanded');
+                    } else {
+                        target.classList.add('show');
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                        toggle.classList.add('expanded');
+                    }
+                    e.stopPropagation();
+                }
+                
+                // Node selection
+                if (e.target.closest('.branch-node')) {
+                    const node = e.target.closest('.branch-node');
+                    
+                    // Remove active class from all nodes
+                    document.querySelectorAll('.branch-node').forEach(n => n.classList.remove('active'));
+                    
+                    // Add active class to clicked node
+                    node.classList.add('active');
+                    activeNode = node;
+                    
+                    // Show management content based on node type
+                    showManagementContent(node);
+                }
+            });
+            
+            // Search functionality
+            document.getElementById('branch-search').addEventListener('input', (e) => {
+                searchBranches(e.target.value);
+            });
+            
+            // Header buttons
+            document.getElementById('add-region-btn').addEventListener('click', addNewRegion);
+            document.getElementById('import-excel-btn').addEventListener('click', importExcel);
+            document.getElementById('export-excel-btn').addEventListener('click', exportExcel);
+            document.getElementById('save-all-btn').addEventListener('click', saveAllBranches);
+        }
+        
+        // Show management content based on selected node
+        function showManagementContent(node) {
+            const type = node.dataset.type;
+            const region = node.dataset.region;
+            const province = node.dataset.province;
+            const index = node.dataset.index;
+            
+            const container = document.getElementById('management-content');
+            
+            if (type === 'region') {
+                showRegionManagement(region);
+            } else if (type === 'province') {
+                showProvinceManagement(region, province);
+            } else if (type === 'branch') {
+                showBranchManagement(region, province, parseInt(index));
+            }
+        }
+        
+        // Show region management interface
+        function showRegionManagement(regionName) {
+            const provinces = branchData[regionName] || {};
+            const totalBranches = Object.values(provinces).reduce((sum, branches) => sum + branches.length, 0);
+            
+            document.getElementById('management-content').innerHTML = `
+                <div class="form-section">
+                    <h5><i class="fas fa-map me-2 text-primary"></i>${regionName}</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <div class="stat-number">${Object.keys(provinces).length}</div>
+                                <div class="stat-label">จังหวัด</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <div class="stat-number">${totalBranches}</div>
+                                <div class="stat-label">สาขาทั้งหมด</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons mb-3">
+                        <button class="btn btn-success modern-btn" onclick="addProvince('${regionName}')">
+                            <i class="fas fa-plus me-2"></i>เพิ่มจังหวัด
+                        </button>
+                        <button class="btn btn-danger modern-btn" onclick="deleteRegion('${regionName}')">
+                            <i class="fas fa-trash me-2"></i>ลบภูมิภาค
+                        </button>
+                    </div>
+                    
+                    <h6>จังหวัดในภูมิภาคนี้:</h6>
+                    <div class="row">
+                        ${Object.entries(provinces).map(([province, branches]) => `
+                            <div class="col-md-4 mb-2">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <strong>${province}</strong>
+                                        <small class="text-muted d-block">${branches.length} สาขา</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Show province management interface  
+        function showProvinceManagement(regionName, provinceName) {
+            const branches = branchData[regionName]?.[provinceName] || [];
+            
+            document.getElementById('management-content').innerHTML = `
+                <div class="form-section">
+                    <h5><i class="fas fa-map-marker-alt me-2 text-primary"></i>${provinceName}</h5>
+                    <p><strong>ภูมิภาค:</strong> ${regionName}</p>
+                    <p><strong>จำนวนสาขา:</strong> ${branches.length} สาขา</p>
+                    
+                    <div class="action-buttons mb-3">
+                        <button class="btn btn-success modern-btn" onclick="addBranch('${regionName}', '${provinceName}')">
+                            <i class="fas fa-plus me-2"></i>เพิ่มสาขาใหม่
+                        </button>
+                        <button class="btn btn-info modern-btn" onclick="bulkAddBranches('${regionName}', '${provinceName}')">
+                            <i class="fas fa-plus-circle me-2"></i>เพิ่มหลายสาขา
+                        </button>
+                        <button class="btn btn-danger modern-btn" onclick="deleteProvince('${regionName}', '${provinceName}')">
+                            <i class="fas fa-trash me-2"></i>ลบจังหวัด
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อสาขา</th>
+                                    <th>ที่อยู่</th>
+                                    <th>ผู้ติดต่อ</th>
+                                    <th width="100">การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${branches.map((branch, index) => `
+                                    <tr>
+                                        <td><strong>${branch.location}</strong></td>
+                                        <td><small class="text-muted">${branch.address || '-'}</small></td>
+                                        <td>
+                                            <small>${branch.contactPerson || '-'}</small>
+                                            ${branch.contactPhone ? `<br><small class="text-muted">${branch.contactPhone}</small>` : ''}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary modern-btn" onclick="editBranch('${regionName}', '${provinceName}', ${index})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger modern-btn" onclick="deleteBranch('${regionName}', '${provinceName}', ${index})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Show branch management interface
+        function showBranchManagement(regionName, provinceName, branchIndex) {
+            const branch = branchData[regionName]?.[provinceName]?.[branchIndex];
+            if (!branch) return;
+            
+            document.getElementById('management-content').innerHTML = `
+                <div class="form-section">
+                    <h5><i class="fas fa-building me-2 text-primary"></i>${branch.location}</h5>
+                    
+                    <form id="branchEditForm" onsubmit="saveBranchDetails(event, '${regionName}', '${provinceName}', ${branchIndex})">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ชื่อสาขา</label>
+                                    <input type="text" class="form-control" name="location" value="${branch.location}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ภูมิภาค</label>
+                                    <select class="form-select" name="region">
+                                        ${Object.keys(thaiProvinces).map(region => 
+                                            `<option value="${region}" ${branch.region === region ? 'selected' : ''}>${region}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">จังหวัด</label>
+                                    <select class="form-select" name="province">
+                                        ${thaiProvinces[branch.region]?.map(province => 
+                                            `<option value="${province}" ${branch.province === province ? 'selected' : ''}>${province}</option>`
+                                        ).join('') || ''}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ผู้ติดต่อ</label>
+                                    <input type="text" class="form-control" name="contactPerson" value="${branch.contactPerson || ''}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">เบอร์โทรศัพท์</label>
+                                    <input type="text" class="form-control" name="contactPhone" value="${branch.contactPhone || ''}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ที่อยู่</label>
+                            <textarea class="form-control" name="address" rows="3">${branch.address || ''}</textarea>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary modern-btn">
+                                <i class="fas fa-save me-2"></i>บันทึกการแก้ไข
+                            </button>
+                            <button type="button" class="btn btn-danger modern-btn" onclick="deleteBranch('${regionName}', '${provinceName}', ${branchIndex})">
+                                <i class="fas fa-trash me-2"></i>ลบสาขา
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+        
+        // Search branches
+        function searchBranches(searchTerm) {
+            const nodes = document.querySelectorAll('.branch-node');
+            
+            // Clear previous highlights
+            nodes.forEach(node => {
+                node.classList.remove('search-highlight', 'search-match');
+                node.style.display = 'block';
+            });
+            
+            if (!searchTerm.trim()) return;
+            
+            const searchLower = searchTerm.toLowerCase();
+            let hasMatches = false;
+            
+            nodes.forEach(node => {
+                const text = node.textContent.toLowerCase();
+                const type = node.dataset.type;
+                
+                if (text.includes(searchLower)) {
+                    node.classList.add('search-match');
+                    hasMatches = true;
+                    
+                    // Expand parent nodes
+                    let parent = node.parentElement;
+                    while (parent) {
+                        if (parent.classList.contains('tree-children')) {
+                            parent.classList.add('show');
+                            const toggle = document.querySelector(`[data-target="${parent.id}"]`);
+                            if (toggle) {
+                                const icon = toggle.querySelector('i');
+                                icon.classList.remove('fa-chevron-right');
+                                icon.classList.add('fa-chevron-down');
+                                toggle.classList.add('expanded');
+                            }
+                        }
+                        parent = parent.parentElement;
+                    }
+                } else if (type === 'branch') {
+                    node.style.display = 'none';
+                }
+            });
+            
+            if (!hasMatches) {
+                showAlert('ไม่พบสาขาที่ตรงกับคำค้นหา', 'info');
+            }
+        }
+        
+        // Global functions for button events
+        window.addProvince = function(regionName) {
+            currentModalData = { regionName };
+            document.getElementById('currentRegionDisplay').innerHTML = `<i class="fas fa-map me-2"></i>${regionName}`;
+            document.getElementById('provinceName').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('addProvinceModal'));
+            modal.show();
+        };
+        
+        window.addBranch = function(regionName, provinceName) {
+            currentModalData = { regionName, provinceName };
+            document.getElementById('currentBranchRegionDisplay').innerHTML = `<i class="fas fa-map me-2"></i>${regionName}`;
+            document.getElementById('currentBranchProvinceDisplay').innerHTML = `<i class="fas fa-map-marker-alt me-2"></i>${provinceName}`;
+            
+            // Clear form
+            document.getElementById('branchName').value = '';
+            document.getElementById('branchContactPerson').value = '';
+            document.getElementById('branchContactPhone').value = '';
+            document.getElementById('branchAddress').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('addBranchModal'));
+            modal.show();
+        };
+        
+        window.bulkAddBranches = function(regionName, provinceName) {
+            currentModalData = { regionName, provinceName };
+            document.getElementById('currentBulkRegionDisplay').innerHTML = `<i class="fas fa-map me-2"></i>${regionName}`;
+            document.getElementById('currentBulkProvinceDisplay').innerHTML = `<i class="fas fa-map-marker-alt me-2"></i>${provinceName}`;
+            document.getElementById('bulkBranchNames').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('bulkAddBranchModal'));
+            modal.show();
+        };
+        
+        window.saveBranchDetails = function(event, regionName, provinceName, branchIndex) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const updatedBranch = {
+                location: formData.get('location'),
+                address: formData.get('address'),
+                contactPerson: formData.get('contactPerson'),
+                contactPhone: formData.get('contactPhone'),
+                region: formData.get('region'),
+                province: formData.get('province')
+            };
+            
+            // Remove from old location
+            branchData[regionName][provinceName].splice(branchIndex, 1);
+            
+            // Add to new location
+            const newRegion = updatedBranch.region;
+            const newProvince = updatedBranch.province;
+            
+            if (!branchData[newRegion]) branchData[newRegion] = {};
+            if (!branchData[newRegion][newProvince]) branchData[newRegion][newProvince] = [];
+            
+            branchData[newRegion][newProvince].push(updatedBranch);
+            
+            renderBranchTree();
+            updateCustomerInfo();
+            showAlert('บันทึกข้อมูลสาขาสำเร็จ', 'success');
+        };
+        
+        window.deleteBranch = function(regionName, provinceName, branchIndex) {
+            const branch = branchData[regionName]?.[provinceName]?.[branchIndex];
+            if (!branch) return;
+            
+            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบสาขา "${branch.location}"?`)) {
+                branchData[regionName][provinceName].splice(branchIndex, 1);
+                
+                // Clean up empty structures
+                if (branchData[regionName][provinceName].length === 0) {
+                    delete branchData[regionName][provinceName];
+                    if (Object.keys(branchData[regionName]).length === 0) {
+                        delete branchData[regionName];
+                    }
+                }
+                
+                renderBranchTree();
+                updateCustomerInfo();
+                document.getElementById('management-content').innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                        <h6>เลือกภูมิภาค จังหวัด หรือสาขา</h6>
+                        <p>คลิกรายการทางซ้ายเพื่อจัดการข้อมูล</p>
+                    </div>
+                `;
+                showAlert(`ลบสาขา "${branch.location}" สำเร็จ`, 'success');
+            }
+        };
+        
+        window.deleteProvince = function(regionName, provinceName) {
+            const branches = branchData[regionName]?.[provinceName] || [];
+            if (branches.length > 0) {
+                if (!confirm(`จังหวัด "${provinceName}" มี ${branches.length} สาขา คุณแน่ใจหรือไม่ว่าต้องการลบ?`)) return;
+            }
+            
+            delete branchData[regionName][provinceName];
+            if (Object.keys(branchData[regionName]).length === 0) {
+                delete branchData[regionName];
+            }
+            
+            renderBranchTree();
+            updateCustomerInfo();
+            document.getElementById('management-content').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                    <h6>เลือกภูมิภาค จังหวัด หรือสาขา</h6>
+                    <p>คลิกรายการทางซ้ายเพื่อจัดการข้อมูล</p>
+                </div>
+            `;
+            showAlert(`ลบจังหวัด "${provinceName}" สำเร็จ`, 'success');
+        };
+        
+        window.deleteRegion = function(regionName) {
+            const provinces = branchData[regionName] || {};
+            const totalBranches = Object.values(provinces).reduce((sum, branches) => sum + branches.length, 0);
+            
+            if (totalBranches > 0) {
+                if (!confirm(`ภูมิภาค "${regionName}" มี ${totalBranches} สาขาทั้งหมด คุณแน่ใจหรือไม่ว่าต้องการลบ?`)) return;
+            }
+            
+            delete branchData[regionName];
+            renderBranchTree();
+            updateCustomerInfo();
+            document.getElementById('management-content').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                    <h6>เลือกภูมิภาค จังหวัด หรือสาขา</h6>
+                    <p>คลิกรายการทางซ้ายเพื่อจัดการข้อมูล</p>
+                </div>
+            `;
+            showAlert(`ลบภูมิภาค "${regionName}" สำเร็จ`, 'success');
+        };
+        
+        function addNewRegion() {
+            const modal = new bootstrap.Modal(document.getElementById('addRegionModal'));
+            document.getElementById('regionName').value = '';
+            modal.show();
+        }
+        
+        function importExcel() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.xlsx,.xls,.csv';
+            fileInput.style.display = 'none';
+            
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!currentCustomer) {
+                    showAlert('ไม่พบข้อมูลลูกค้า', 'warning');
+                    return;
+                }
+                
+                try {
+                    showAlert('กำลังอ่านไฟล์...', 'info');
+                    
+                    let importedBranches = [];
+                    
+                    if (file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv')) {
+                        // Handle CSV files
+                        const text = await file.text();
+                        importedBranches = parseCSV(text);
+                    } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+                        // Handle Excel files using SheetJS
+                        await loadSheetJS();
+                        const arrayBuffer = await file.arrayBuffer();
+                        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        importedBranches = parseExcelData(data);
+                    } else {
+                        showAlert('รองรับเฉพาะไฟล์ .xlsx, .xls, .csv เท่านั้น', 'warning');
+                        return;
+                    }
+                    
+                    if (importedBranches.length === 0) {
+                        showAlert('ไม่พบข้อมูลสาขาในไฟล์', 'warning');
+                        return;
+                    }
+                    
+                    // Show preview and confirmation
+                    showImportPreview(importedBranches);
+                    
+                } catch (error) {
+                    console.error('Error importing file:', error);
+                    showAlert(`เกิดข้อผิดพลาดในการอ่านไฟล์: ${error.message}`, 'danger');
+                }
+            };
+            
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        }
+        
+        // Load SheetJS library dynamically
+        async function loadSheetJS() {
+            if (typeof XLSX !== 'undefined') return;
+            
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Parse CSV data
+        function parseCSV(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            if (lines.length < 2) return [];
+            
+            const branches = [];
+            const headers = lines[0].toLowerCase().split(',').map(h => h.replace(/"/g, '').trim());
+            
+            // Find column indices
+            const locationIdx = findColumnIndex(headers, ['ชื่อสาขา', 'สาขา', 'location', 'branch']);
+            const addressIdx = findColumnIndex(headers, ['ที่อยู่', 'address']);
+            const contactPersonIdx = findColumnIndex(headers, ['ผู้ติดต่อ', 'contact', 'person']);
+            const contactPhoneIdx = findColumnIndex(headers, ['เบอร์โทรศัพท์', 'phone', 'tel']);
+            const regionIdx = findColumnIndex(headers, ['ภูมิภาค', 'region']);
+            const provinceIdx = findColumnIndex(headers, ['จังหวัด', 'province']);
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVRow(lines[i]);
+                if (values.length > 0 && values[locationIdx]) {
+                    const branch = {
+                        location: values[locationIdx] || '',
+                        address: values[addressIdx] || '',
+                        contactPerson: values[contactPersonIdx] || '',
+                        contactPhone: values[contactPhoneIdx] || '',
+                        region: values[regionIdx] || '',
+                        province: values[provinceIdx] || ''
+                    };
+                    
+                    // Auto-assign region/province if not provided
+                    if (!branch.region || !branch.province) {
+                        autoAssignRegionProvince(branch);
+                    }
+                    
+                    branches.push(branch);
+                }
+            }
+            
+            return branches;
+        }
+        
+        // Parse Excel data
+        function parseExcelData(data) {
+            if (data.length < 2) return [];
+            
+            const branches = [];
+            const headers = data[0].map(h => h ? h.toString().toLowerCase() : '');
+            
+            // Find column indices
+            const locationIdx = findColumnIndex(headers, ['ชื่อสาขา', 'สาขา', 'location', 'branch']);
+            const addressIdx = findColumnIndex(headers, ['ที่อยู่', 'address']);
+            const contactPersonIdx = findColumnIndex(headers, ['ผู้ติดต่อ', 'contact', 'person']);
+            const contactPhoneIdx = findColumnIndex(headers, ['เบอร์โทรศัพท์', 'phone', 'tel']);
+            const regionIdx = findColumnIndex(headers, ['ภูมิภาค', 'region']);
+            const provinceIdx = findColumnIndex(headers, ['จังหวัด', 'province']);
+            
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (row && row[locationIdx]) {
+                    const branch = {
+                        location: (row[locationIdx] || '').toString().trim(),
+                        address: (row[addressIdx] || '').toString().trim(),
+                        contactPerson: (row[contactPersonIdx] || '').toString().trim(),
+                        contactPhone: (row[contactPhoneIdx] || '').toString().trim(),
+                        region: (row[regionIdx] || '').toString().trim(),
+                        province: (row[provinceIdx] || '').toString().trim()
+                    };
+                    
+                    // Auto-assign region/province if not provided
+                    if (!branch.region || !branch.province) {
+                        autoAssignRegionProvince(branch);
+                    }
+                    
+                    branches.push(branch);
+                }
+            }
+            
+            return branches;
+        }
+        
+        // Find column index by possible names
+        function findColumnIndex(headers, possibleNames) {
+            for (const name of possibleNames) {
+                const idx = headers.findIndex(h => h.includes(name));
+                if (idx !== -1) return idx;
+            }
+            return -1;
+        }
+        
+        // Parse CSV row handling quotes
+        function parseCSVRow(row) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < row.length; i++) {
+                const char = row[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current.trim());
+            return result;
+        }
+        
+        // Show import preview modal
+        function showImportPreview(branches) {
+            const existingBranches = getFlattenedBranches();
+            const totalAfterImport = existingBranches.length + branches.length;
+            
+            const modalHTML = `
+                <div class="modal fade" id="importPreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-file-excel me-2"></i>ตัวอย่างข้อมูลที่จะนำเข้า
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="stat-item bg-light p-3 rounded">
+                                            <div class="stat-number text-primary">${branches.length}</div>
+                                            <div class="stat-label">สาขาใหม่</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-item bg-light p-3 rounded">
+                                            <div class="stat-number text-secondary">${existingBranches.length}</div>
+                                            <div class="stat-label">สาขาเดิม</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-item bg-light p-3 rounded">
+                                            <div class="stat-number text-success">${totalAfterImport}</div>
+                                            <div class="stat-label">รวมทั้งหมด</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive" style="max-height: 400px;">
+                                    <table class="table table-striped table-sm">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>ชื่อสาขา</th>
+                                                <th>ภูมิภาค</th>
+                                                <th>จังหวัด</th>
+                                                <th>ที่อยู่</th>
+                                                <th>ผู้ติดต่อ</th>
+                                                <th>เบอร์โทรศัพท์</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${branches.map(branch => `
+                                                <tr>
+                                                    <td><strong>${branch.location}</strong></td>
+                                                    <td><span class="badge bg-primary">${branch.region}</span></td>
+                                                    <td><span class="badge bg-info">${branch.province}</span></td>
+                                                    <td><small>${branch.address || '-'}</small></td>
+                                                    <td><small>${branch.contactPerson || '-'}</small></td>
+                                                    <td><small>${branch.contactPhone || '-'}</small></td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                <button type="button" class="btn btn-success" onclick="confirmImport()" data-bs-dismiss="modal">
+                                    <i class="fas fa-check me-2"></i>ยืนยันนำเข้าข้อมูล
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('importPreviewModal');
+            if (existingModal) existingModal.remove();
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Store branches for import
+            window.pendingImportBranches = branches;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('importPreviewModal'));
+            modal.show();
+        }
+        
+        // Confirm and execute import
+        window.confirmImport = async function() {
+            if (!window.pendingImportBranches || !currentCustomer) return;
+            
+            try {
+                showAlert('กำลังนำเข้าข้อมูล...', 'info');
+                
+                // Add imported branches to existing data
+                const existingBranches = getFlattenedBranches();
+                const allBranches = [...existingBranches, ...window.pendingImportBranches];
+                
+                // Update current customer branches
+                currentCustomer.branches = allBranches;
+                
+                // Re-organize hierarchically
+                organizeBranchesHierarchically();
+                
+                // Update UI
+                updateCustomerInfo();
+                renderBranchTree();
+                
+                const importCount = window.pendingImportBranches.length;
+                
+                // Clear pending data
+                window.pendingImportBranches = null;
+                
+                showAlert(`นำเข้าข้อมูล ${importCount} สาขาสำเร็จ`, 'success');
+                
+            } catch (error) {
+                console.error('Error during import:', error);
+                showAlert(`เกิดข้อผิดพลาดในการนำเข้าข้อมูล: ${error.message}`, 'danger');
+            }
+        };
+        
+        function exportExcel() {
+            const branches = getFlattenedBranches();
+            if (branches.length === 0) {
+                showAlert('ไม่มีข้อมูลสาขาให้ส่งออก', 'warning');
+                return;
+            }
+            
+            let csvContent = "ภูมิภาค,จังหวัด,ชื่อสาขา,ที่อยู่,ผู้ติดต่อ,เบอร์โทรศัพท์\n";
+            
+            branches.forEach(branch => {
+                csvContent += `"${branch.region || ''}","${branch.province || ''}","${branch.location || ''}","${branch.address || ''}","${branch.contactPerson || ''}","${branch.contactPhone || ''}"\n`;
+            });
+            
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `สาขา-${currentCustomer.name}-${new Date().toISOString().split('T')[0]}.csv`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('ส่งออกข้อมูลสาขาเป็น CSV สำเร็จ', 'success');
+        }
+        
+        async function saveAllBranches() {
+            const saveBtn = document.getElementById('save-all-btn');
+            const originalText = saveBtn.innerHTML;
+            
+            try {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
+                
+                const branches = getFlattenedBranches();
+                const customersCollection = collection(db, `artifacts/${appId}/public/data/customers`);
+                const customerDocRef = doc(customersCollection, currentCustomer.id);
+                
+                await updateDoc(customerDocRef, { 
+                    branches: branches,
+                    lastUpdated: new Date().toISOString()
+                });
+                
+                // Update current customer data
+                currentCustomer.branches = branches;
+                
+                showAlert(`บันทึกข้อมูลสาขาของ ${currentCustomer.name} สำเร็จ`, 'success');
+                
+            } catch (error) {
+                console.error('Error saving branches:', error);
+                showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'danger');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        }
+        
+        function getFlattenedBranches() {
+            const branches = [];
+            for (const [region, provinces] of Object.entries(branchData)) {
+                for (const [province, provinceBranches] of Object.entries(provinces)) {
+                    branches.push(...provinceBranches);
+                }
+            }
+            return branches;
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeBranchManager();
+            setupSidebarToggle();
+            setupModalHandlers();
+        });
+        
+        // Setup sidebar toggle functionality
+        function setupSidebarToggle() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const wrapper = document.getElementById('wrapper');
+                    wrapper.classList.toggle('sidebar-toggled');
+                });
+            }
+            
+            // Auto-collapse sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('wrapper').classList.add('sidebar-toggled');
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const wrapper = document.getElementById('wrapper');
+                if (window.innerWidth <= 768) {
+                    wrapper.classList.add('sidebar-toggled');
+                } else {
+                    wrapper.classList.remove('sidebar-toggled');
+                }
+            });
+        }
+        
+        // Setup modal event handlers
+        function setupModalHandlers() {
+            // Add Region Modal
+            document.getElementById('confirmAddRegion').addEventListener('click', () => {
+                const regionName = document.getElementById('regionName').value.trim();
+                if (!regionName) {
+                    showAlert('กรุณาใส่ชื่อภูมิภาค', 'warning');
+                    return;
+                }
+                
+                if (!branchData[regionName]) {
+                    branchData[regionName] = {};
+                    renderBranchTree();
+                    updateCustomerInfo();
+                    bootstrap.Modal.getInstance(document.getElementById('addRegionModal')).hide();
+                    showAlert(`เพิ่มภูมิภาค "${regionName}" สำเร็จ`, 'success');
+                } else {
+                    showAlert(`ภูมิภาค "${regionName}" มีอยู่แล้ว`, 'warning');
+                }
+            });
+            
+            // Add Province Modal
+            document.getElementById('confirmAddProvince').addEventListener('click', () => {
+                const provinceName = document.getElementById('provinceName').value.trim();
+                if (!provinceName) {
+                    showAlert('กรุณาใส่ชื่อจังหวัด', 'warning');
+                    return;
+                }
+                
+                const regionName = currentModalData.regionName;
+                if (!branchData[regionName]) branchData[regionName] = {};
+                
+                if (!branchData[regionName][provinceName]) {
+                    branchData[regionName][provinceName] = [];
+                    renderBranchTree();
+                    updateCustomerInfo();
+                    bootstrap.Modal.getInstance(document.getElementById('addProvinceModal')).hide();
+                    showAlert(`เพิ่มจังหวัด "${provinceName}" ในภูมิภาค "${regionName}" สำเร็จ`, 'success');
+                } else {
+                    showAlert('จังหวัดนี้มีอยู่แล้ว', 'warning');
+                }
+            });
+            
+            // Add Branch Modal
+            document.getElementById('confirmAddBranch').addEventListener('click', () => {
+                const branchName = document.getElementById('branchName').value.trim();
+                if (!branchName) {
+                    showAlert('กรุณาใส่ชื่อสาขา', 'warning');
+                    return;
+                }
+                
+                const { regionName, provinceName } = currentModalData;
+                const newBranch = {
+                    location: branchName,
+                    address: document.getElementById('branchAddress').value.trim(),
+                    contactPerson: document.getElementById('branchContactPerson').value.trim(),
+                    contactPhone: document.getElementById('branchContactPhone').value.trim(),
+                    region: regionName,
+                    province: provinceName
+                };
+                
+                branchData[regionName][provinceName].push(newBranch);
+                renderBranchTree();
+                updateCustomerInfo();
+                bootstrap.Modal.getInstance(document.getElementById('addBranchModal')).hide();
+                showAlert(`เพิ่มสาขา "${branchName}" สำเร็จ`, 'success');
+            });
+            
+            // Bulk Add Branches Modal
+            document.getElementById('confirmBulkAddBranch').addEventListener('click', () => {
+                const branchText = document.getElementById('bulkBranchNames').value.trim();
+                if (!branchText) {
+                    showAlert('กรุณาใส่ชื่อสาขา', 'warning');
+                    return;
+                }
+                
+                const branches = branchText.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0);
+                    
+                if (branches.length === 0) {
+                    showAlert('ไม่พบชื่อสาขาที่ถูกต้อง', 'warning');
+                    return;
+                }
+                
+                const { regionName, provinceName } = currentModalData;
+                branches.forEach(location => {
+                    const newBranch = {
+                        location: location,
+                        address: '',
+                        contactPerson: '',
+                        contactPhone: '',
+                        region: regionName,
+                        province: provinceName
+                    };
+                    branchData[regionName][provinceName].push(newBranch);
+                });
+                
+                renderBranchTree();
+                updateCustomerInfo();
+                bootstrap.Modal.getInstance(document.getElementById('bulkAddBranchModal')).hide();
+                showAlert(`เพิ่มสาขาจำนวน ${branches.length} สาขาสำเร็จ`, 'success');
+            });
+        }
+    </script>
+</body>
+</html>

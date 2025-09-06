@@ -1,9 +1,9 @@
 /* 
   path: /tag-processor.js
-  version: 1.0 (New Tag Processing Module)
-  date: 2025-09-04
-  time: 10:00:00
-  description: Module for processing all report tags with job data and master data
+  version: 1.1 (Enhanced Remark System + Master/Job Remarks)
+  date: 2025-09-06
+  time: 10:30:00
+  description: Added {{REMARK_MASTER}} and {{REMARK_JOB}} tags with auto-pagination
 */
 
 class TagProcessor {
@@ -46,13 +46,17 @@ class TagProcessor {
         // Measurement detail tags
         const measurementTags = this.getMeasurementTags(jobData);
 
+        // Remark tags
+        const remarkTags = this.getRemarkTags(jobData);
+
         // Combine all tags
         const allTags = {
             ...basicTags,
             ...personnelTags,
             ...companyTags,
             ...resultsTags,
-            ...measurementTags
+            ...measurementTags,
+            ...remarkTags
         };
 
         // Replace tags in content
@@ -284,6 +288,18 @@ class TagProcessor {
 
             tablesHtml += '</tbody></table>';
 
+            // Add REMARK_MASTER and REMARK_JOB after each page table
+            tablesHtml += `
+                <div style="margin-top: 20px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        {{REMARK_MASTER}}
+                    </div>
+                    <div>
+                        {{REMARK_JOB}}
+                    </div>
+                </div>
+            `;
+
             if (totalPages > 1) {
                 tablesHtml += `<p style="text-align: center; font-size: 0.9em; color: #666;">หน้าที่ ${page + 1} จาก ${totalPages} (รายการที่ ${startIndex + 1}-${endIndex} จากทั้งหมด ${results.length} รายการ)</p>`;
             }
@@ -364,6 +380,65 @@ class TagProcessor {
         `;
 
         return tableHtml;
+    }
+
+    // Remark tags for master and job-specific remarks
+    getRemarkTags(jobData) {
+        const tags = {};
+        
+        // REMARK_MASTER - ข้อเสนอแนะมาตรฐานจาก Master Data (ยังไม่มี - จะเพิ่มใน master-data-manager.html)
+        tags['{{REMARK_MASTER}}'] = `
+            <div style="padding: 15px; border-left: 4px solid #2196f3; background-color: #f8f9fa; margin-bottom: 10px;">
+                <h5 style="color: #2196f3; margin: 0 0 10px 0;"><i class="fas fa-lightbulb"></i> ข้อเสนอแนะมาตรฐาน</h5>
+                <div style="font-size: 14px; line-height: 1.6;">
+                    • เพิ่มจำนวนหลอดไฟในพื้นที่ที่มีค่าแสงสว่างไม่เพียงพอ<br>
+                    • เปลี่ยนหลอดไฟเป็นแบบให้แสงสว่างมากกว่าเดิม<br>
+                    • ตรวจสอบและทำความสะอาดหลอดไฟเป็นประจำ<br>
+                    • ปรับตำแหน่งการจัดวางโต๊ะทำงานให้รับแสงได้ดีขึ้น<br>
+                    • หลีกเลี่ยงการติดตั้งไฟส่องสว่างในตำแหน่งที่ก่อให้เกิดเงา
+                </div>
+            </div>
+        `;
+        
+        // REMARK_JOB - ข้อเสนอแนะและข้อสังเกตจากงานเฉพาะ
+        const recommendations = jobData.recommendations || '';
+        const observations = jobData.observations || '';
+        
+        let jobRemarkContent = '';
+        if (recommendations) {
+            jobRemarkContent += `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ff9800;">ข้อเสนอแนะเฉพาะงาน:</strong><br>
+                    <div style="margin-left: 15px; font-size: 14px; line-height: 1.6;">
+                        ${recommendations.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (observations) {
+            jobRemarkContent += `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #4caf50;">ข้อสังเกตและหมายเหตุ:</strong><br>
+                    <div style="margin-left: 15px; font-size: 14px; line-height: 1.6;">
+                        ${observations.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (!jobRemarkContent) {
+            jobRemarkContent = '<div style="font-style: italic; color: #666;">ไม่มีข้อเสนอแนะเฉพาะสำหรับงานนี้</div>';
+        }
+        
+        tags['{{REMARK_JOB}}'] = `
+            <div style="padding: 15px; border-left: 4px solid #ff9800; background-color: #fff8e1; margin-bottom: 10px;">
+                <h5 style="color: #ff9800; margin: 0 0 10px 0;"><i class="fas fa-clipboard-check"></i> ข้อเสนอแนะเฉพาะงาน</h5>
+                ${jobRemarkContent}
+            </div>
+        `;
+        
+        return tags;
     }
 }
 

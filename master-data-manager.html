@@ -1,9 +1,9 @@
 <!-- 
   path: /master-data-manager.html
-  version: 6.4 (Enhanced Button & Modal Contrast)
-  date: 2025-09-05
-  time: 22:30:00
-  description: Fixed button contrast issues and improved modal text readability
+  version: 7.3 (Enhanced Remark System - Standard Recommendations)
+  date: 2025-09-06
+  time: 10:45:00
+  description: Added remarks management tab with category filtering, priority system, and CRUD operations
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -201,8 +201,17 @@
         }
         
         .branch-tree-node.active {
-            background-color: var(--bs-primary);
-            color: white;
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+            border-color: var(--bs-primary) !important;
+        }
+        
+        .branch-tree-node.active *,
+        .branch-tree-node.active .branch-location,
+        .branch-tree-node.active .branch-address,
+        .branch-tree-node.active small,
+        .branch-tree-node.active .text-muted {
+            color: white !important;
         }
         
         .branch-tree-node.region {
@@ -333,6 +342,7 @@
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#inspectors-tab">บุคลากร</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#instruments-tab">เครื่องมือ</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#running-numbers-tab">รหัสอ้างอิง</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#remarks-tab">ข้อเสนอแนะมาตรฐาน</a></li>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#company-info-tab">ข้อมูลบริษัท</a></li>
                         </ul>
                     </div>
@@ -379,6 +389,62 @@
                                     </table>
                                 </div>
                             </div>
+                            <!-- Tab: Remarks Standards -->
+                            <div class="tab-pane fade" id="remarks-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4><i class="fas fa-lightbulb me-2"></i>จัดการข้อเสนอแนะมาตรฐาน</h4>
+                                    <button id="addRemarkBtn" class="btn btn-primary btn-sm modern-btn">
+                                        <i class="fas fa-plus-circle me-2"></i>เพิ่มข้อเสนอแนะ
+                                    </button>
+                                </div>
+                                
+                                <!-- Category Filter -->
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="remark-category-filter">
+                                            <option value="">ทุกหมวดหมู่</option>
+                                            <option value="LOW_LIGHT">แสงสว่างไม่เพียงพอ</option>
+                                            <option value="HIGH_LIGHT">แสงสว่างเกินมาตรฐาน</option>
+                                            <option value="GENERAL">ทั่วไป</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="remark-priority-filter">
+                                            <option value="">ทุกระดับความสำคัญ</option>
+                                            <option value="HIGH">สำคัญมาก</option>
+                                            <option value="MEDIUM">สำคัญปานกลาง</option>
+                                            <option value="LOW">สำคัญน้อย</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="remark-search" placeholder="🔍 ค้นหาข้อเสนอแนะ...">
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 40%;">ข้อเสนอแนะ</th>
+                                                <th style="width: 15%;">หมวดหมู่</th>
+                                                <th style="width: 15%;">ความสำคัญ</th>
+                                                <th style="width: 15%;">สถานะ</th>
+                                                <th style="width: 15%;" class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="remarks-table">
+                                            <!-- Sample data will be loaded here -->
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-4">
+                                                    <i class="fas fa-lightbulb fa-2x mb-2"></i>
+                                                    <br>ยังไม่มีข้อเสนอแนะมาตรฐาน - คลิกปุ่มเพิ่มเพื่อเริ่มต้น
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
                             <!-- Tab: Company Info -->
                             <div class="tab-pane fade" id="company-info-tab">
                                 <h4><i class="fas fa-building me-2"></i>จัดการข้อมูลบริษัทและผู้ลงนาม</h4>
@@ -471,6 +537,72 @@
     <div class="modal fade" id="signatoryModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="signatoryModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="signatoryForm"><input type="hidden" id="signatoryId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="signatoryName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="signatoryTitle" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="signatoryForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
     <div class="modal fade" id="runningNumberModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="runningNumberModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="runningNumberForm"><input type="hidden" id="runningNumberId"><div class="mb-3"><label class="form-label">ประเภทรหัส *</label><input type="text" class="form-control" id="runningNumberType" required placeholder="เช่น JOB, REPORT"></div><div class="mb-3"><label class="form-label">คำอธิบาย</label><input type="text" class="form-control" id="runningNumberDescription" placeholder="เช่น รหัสงาน, รหัสรายงาน"></div><div class="mb-3"><label class="form-label">รูปแบบรหัส</label><input type="text" class="form-control" id="runningNumberFormat" value="YYYY-MM-XXX" readonly><small class="form-text text-muted">YYYY = ปี, MM = เดือน, XXX = หมายเลขลำดับ 3 หลัก</small></div><div class="mb-3"><label class="form-label">คำนำหน้า (Prefix)</label><input type="text" class="form-control" id="runningNumberPrefix" placeholder="เช่น JOB, RPT (ถ้ามี)"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="runningNumberForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
 
+    <!-- Remark Modal -->
+    <div class="modal fade" id="remarkModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white" id="remarkModalLabel">
+                        <i class="fas fa-lightbulb me-2"></i>จัดการข้อเสนอแนะมาตรฐาน
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="remarkForm">
+                        <input type="hidden" id="remarkId">
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ข้อเสนอแนะ <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="remarkText" rows="4" required 
+                                              placeholder="ระบุข้อเสนอแนะมาตรฐาน เช่น เพิ่มจำนวนหลอดไฟในพื้นที่ที่มีค่าแสงสว่างไม่เพียงพอ"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">หมวดหมู่ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="remarkCategory" required>
+                                        <option value="">เลือกหมวดหมู่</option>
+                                        <option value="LOW_LIGHT">แสงสว่างไม่เพียงพอ</option>
+                                        <option value="HIGH_LIGHT">แสงสว่างเกินมาตรฐาน</option>
+                                        <option value="GENERAL">ทั่วไป</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ระดับความสำคัญ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="remarkPriority" required>
+                                        <option value="">เลือกระดับ</option>
+                                        <option value="HIGH">สำคัญมาก</option>
+                                        <option value="MEDIUM">สำคัญปานกลาง</option>
+                                        <option value="LOW">สำคัญน้อย</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">สถานะ</label>
+                                    <select class="form-select" id="remarkStatus">
+                                        <option value="ACTIVE">ใช้งาน</option>
+                                        <option value="INACTIVE">ไม่ใช้งาน</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>ยกเลิก
+                    </button>
+                    <button type="submit" form="remarkForm" class="btn btn-primary modern-btn">
+                        <i class="fas fa-save me-2"></i>บันทึก
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="firebase-config.js"></script>
     
@@ -494,8 +626,12 @@
             inspector: new bootstrap.Modal(document.getElementById('inspectorModal')),
             instrument: new bootstrap.Modal(document.getElementById('instrumentModal')),
             signatory: new bootstrap.Modal(document.getElementById('signatoryModal')),
-            runningNumber: new bootstrap.Modal(document.getElementById('runningNumberModal'))
+            runningNumber: new bootstrap.Modal(document.getElementById('runningNumberModal')),
+            remark: new bootstrap.Modal(document.getElementById('remarkModal'))
         };
+
+        // Data storage
+        let remarksData = [];
 
         // Branch Management System
         class BranchManager {
@@ -696,7 +832,7 @@
                                 <p><strong>จำนวนสาขารวม:</strong> ${totalBranches} สาขา</p>
                             </div>
                             <div class="col-md-6">
-                                <button class="btn btn-success modern-btn btn-sm mb-2" onclick="branchManager.addProvince('${regionName}')">
+                                <button class="btn btn-success modern-btn btn-sm mb-2" data-action="addProvince" data-region="${regionName}">
                                     <i class="fas fa-plus me-1"></i>เพิ่มจังหวัด
                                 </button>
                             </div>
@@ -727,10 +863,10 @@
                         <p><strong>จำนวนสาขา:</strong> ${branches.length} สาขา</p>
                         
                         <div class="d-flex gap-2 mb-3">
-                            <button class="btn btn-success modern-btn btn-sm" onclick="branchManager.addBranch('${regionName}', '${provinceName}')">
+                            <button class="btn btn-success modern-btn btn-sm" data-action="addBranch" data-region="${regionName}" data-province="${provinceName}">
                                 <i class="fas fa-plus me-1"></i>เพิ่มสาขาใหม่
                             </button>
-                            <button class="btn btn-info modern-btn btn-sm" onclick="branchManager.bulkAddBranches('${regionName}', '${provinceName}')">
+                            <button class="btn btn-info modern-btn btn-sm" data-action="bulkAddBranches" data-region="${regionName}" data-province="${provinceName}">
                                 <i class="fas fa-plus-circle me-1"></i>เพิ่มหลายสาขา
                             </button>
                         </div>
@@ -750,10 +886,10 @@
                                             <td>${branch.location}</td>
                                             <td><small class="text-muted">${branch.address || '-'}</small></td>
                                             <td>
-                                                <button class="btn btn-xs btn-outline-secondary" onclick="branchManager.editBranch('${regionName}', '${provinceName}', ${index})">
+                                                <button class="btn btn-xs btn-outline-secondary" data-action="editBranch" data-region="${regionName}" data-province="${provinceName}" data-index="${index}">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-xs btn-outline-danger" onclick="branchManager.deleteBranch('${regionName}', '${provinceName}', ${index})">
+                                                <button class="btn btn-xs btn-outline-danger" data-action="deleteBranch" data-region="${regionName}" data-province="${provinceName}" data-index="${index}">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -801,11 +937,21 @@
                                 <textarea class="form-control" rows="3" name="address">${branch.address || ''}</textarea>
                             </div>
                             
+                            <div class="mb-3">
+                                <label class="form-label">ผู้ติดต่อ</label>
+                                <input type="text" class="form-control" name="contactPerson" value="${branch.contactPerson || ''}" placeholder="ชื่อผู้ติดต่อ">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">เบอร์โทรศัพท์</label>
+                                <input type="tel" class="form-control" name="contactPhone" value="${branch.contactPhone || ''}" placeholder="หมายเลขโทรศัพท์">
+                            </div>
+                            
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary modern-btn">
                                     <i class="fas fa-save me-1"></i>บันทึก
                                 </button>
-                                <button type="button" class="btn btn-danger modern-btn" onclick="branchManager.deleteBranch('${regionName}', '${provinceName}', ${branchIndex})">
+                                <button type="button" class="btn btn-danger modern-btn" data-action="deleteBranch" data-region="${regionName}" data-province="${provinceName}" data-index="${branchIndex}">
                                     <i class="fas fa-trash me-1"></i>ลบสาขา
                                 </button>
                             </div>
@@ -852,10 +998,17 @@
                 
                 const location = formData.get('location');
                 const address = formData.get('address');
+                const contactPerson = formData.get('contactPerson');
+                const contactPhone = formData.get('contactPhone');
                 const newProvince = formData.get('newProvince');
                 
                 // Update branch data
-                this.branchData[regionName][provinceName][branchIndex] = { location, address };
+                this.branchData[regionName][provinceName][branchIndex] = { 
+                    location, 
+                    address, 
+                    contactPerson: contactPerson || '', 
+                    contactPhone: contactPhone || '' 
+                };
                 
                 // If province changed, move branch
                 if (newProvince !== provinceName) {
@@ -920,10 +1073,10 @@
                 }
 
                 const branches = this.currentCustomer.branches;
-                let csvContent = "ลำดับ,ชื่อสาขา,ที่อยู่\n";
+                let csvContent = "ลำดับ,ชื่อสาขา,ที่อยู่,ผู้ติดต่อ,เบอร์โทรศัพท์\n";
                 
                 branches.forEach((branch, index) => {
-                    csvContent += `${index + 1},"${branch.location || ''}","${branch.address || ''}"\n`;
+                    csvContent += `${index + 1},"${branch.location || ''}","${branch.address || ''}","${branch.contactPerson || ''}","${branch.contactPhone || ''}"\n`;
                 });
 
                 // Create and download file
@@ -938,6 +1091,128 @@
                 document.body.removeChild(link);
 
                 showAlert(`ส่งออกข้อมูล ${branches.length} สาขาสำเร็จ`, 'success');
+            }
+
+            // Add new branch to specific region/province
+            addBranch(regionName, provinceName) {
+                const location = prompt('ชื่อสาขาใหม่:', '');
+                if (!location || !location.trim()) return;
+                
+                const address = prompt('ที่อยู่ (ถ้ามี):', '') || '';
+                const contactPerson = prompt('ผู้ติดต่อ (ถ้ามี):', '') || '';
+                const contactPhone = prompt('เบอร์โทรศัพท์ (ถ้ามี):', '') || '';
+                
+                if (!this.branchData[regionName]) {
+                    this.branchData[regionName] = {};
+                }
+                if (!this.branchData[regionName][provinceName]) {
+                    this.branchData[regionName][provinceName] = [];
+                }
+                
+                this.branchData[regionName][provinceName].push({
+                    location: location.trim(),
+                    address: address.trim(),
+                    contactPerson: contactPerson.trim(),
+                    contactPhone: contactPhone.trim()
+                });
+                
+                this.renderBranchTree(this.currentCustomer);
+                showAlert(`เพิ่มสาขา "${location.trim()}" สำเร็จ`, 'success');
+            }
+            
+            // Edit existing branch
+            editBranch(regionName, provinceName, branchIndex) {
+                if (!this.branchData[regionName] || !this.branchData[regionName][provinceName] || 
+                    !this.branchData[regionName][provinceName][branchIndex]) {
+                    showAlert('ไม่พบสาขาที่ต้องการแก้ไข', 'warning');
+                    return;
+                }
+                
+                const branch = this.branchData[regionName][provinceName][branchIndex];
+                const newLocation = prompt('ชื่อสาขา:', branch.location);
+                if (newLocation === null) return; // Cancel
+                
+                const newAddress = prompt('ที่อยู่:', branch.address || '');
+                const newContactPerson = prompt('ผู้ติดต่อ:', branch.contactPerson || '');
+                const newContactPhone = prompt('เบอร์โทรศัพท์:', branch.contactPhone || '');
+                
+                this.branchData[regionName][provinceName][branchIndex] = {
+                    location: newLocation.trim(),
+                    address: (newAddress || '').trim(),
+                    contactPerson: (newContactPerson || '').trim(),
+                    contactPhone: (newContactPhone || '').trim()
+                };
+                
+                this.renderBranchTree(this.currentCustomer);
+                showAlert('แก้ไขสาขาสำเร็จ', 'success');
+            }
+            
+            // Delete branch
+            deleteBranch(regionName, provinceName, branchIndex) {
+                if (!this.branchData[regionName] || !this.branchData[regionName][provinceName] || 
+                    !this.branchData[regionName][provinceName][branchIndex]) {
+                    showAlert('ไม่พบสาขาที่ต้องการลบ', 'warning');
+                    return;
+                }
+                
+                const branchName = this.branchData[regionName][provinceName][branchIndex].location;
+                this.branchData[regionName][provinceName].splice(branchIndex, 1);
+                
+                // Remove empty province
+                if (this.branchData[regionName][provinceName].length === 0) {
+                    delete this.branchData[regionName][provinceName];
+                }
+                
+                // Remove empty region  
+                if (Object.keys(this.branchData[regionName]).length === 0) {
+                    delete this.branchData[regionName];
+                }
+                
+                this.renderBranchTree(this.currentCustomer);
+                showAlert(`ลบสาขา "${branchName}" สำเร็จ`, 'success');
+            }
+            
+            // Bulk add branches
+            bulkAddBranches(regionName, provinceName) {
+                const branchesText = prompt(
+                    `เพิ่มหลายสาขาสำหรับ ${regionName} > ${provinceName}\n\nใส่ข้อมูลสาขาในรูปแบบ:\n` +
+                    `ชื่อสาขา1, ที่อยู่1, ผู้ติดต่อ1, เบอร์โทร1\n` +
+                    `ชื่อสาขา2, ที่อยู่2, ผู้ติดต่อ2, เบอร์โทร2\n` +
+                    `(แต่ละบรรทัดคือสาขาใหม่)`,
+                    ''
+                );
+                
+                if (!branchesText || !branchesText.trim()) return;
+                
+                const lines = branchesText.split('\n').filter(line => line.trim());
+                let addedCount = 0;
+                
+                if (!this.branchData[regionName]) {
+                    this.branchData[regionName] = {};
+                }
+                if (!this.branchData[regionName][provinceName]) {
+                    this.branchData[regionName][provinceName] = [];
+                }
+                
+                lines.forEach(line => {
+                    const parts = line.split(',').map(part => part.trim());
+                    if (parts.length >= 1 && parts[0]) {
+                        this.branchData[regionName][provinceName].push({
+                            location: parts[0],
+                            address: parts[1] || '',
+                            contactPerson: parts[2] || '',
+                            contactPhone: parts[3] || ''
+                        });
+                        addedCount++;
+                    }
+                });
+                
+                if (addedCount > 0) {
+                    this.renderBranchTree(this.currentCustomer);
+                    showAlert(`เพิ่ม ${addedCount} สาขาสำเร็จ`, 'success');
+                } else {
+                    showAlert('ไม่พบข้อมูลสาขาที่ถูกต้อง', 'warning');
+                }
             }
 
             // Search branches functionality
@@ -1040,27 +1315,222 @@
         // Initialize branch manager
         const branchManager = new BranchManager();
 
+        // Remarks Management Functions
+        function loadRemarks() {
+            const remarksCollection = collection(db, `artifacts/${appId}/public/data/remarks`);
+            onSnapshot(remarksCollection, (snapshot) => {
+                remarksData = [];
+                snapshot.forEach((doc) => {
+                    remarksData.push({ id: doc.id, ...doc.data() });
+                });
+                renderRemarksTable();
+            });
+        }
+
+        function renderRemarksTable() {
+            const tbody = document.getElementById('remarks-table');
+            if (!tbody) return;
+
+            if (remarksData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-lightbulb fa-2x mb-2"></i>
+                            <br>ยังไม่มีข้อเสนอแนะมาตรฐาน - คลิกปุ่มเพิ่มเพื่อเริ่มต้น
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Apply filters
+            let filteredData = [...remarksData];
+            
+            const categoryFilter = document.getElementById('remark-category-filter')?.value;
+            const priorityFilter = document.getElementById('remark-priority-filter')?.value;
+            const searchTerm = document.getElementById('remark-search')?.value?.toLowerCase();
+
+            if (categoryFilter) {
+                filteredData = filteredData.filter(remark => remark.category === categoryFilter);
+            }
+            
+            if (priorityFilter) {
+                filteredData = filteredData.filter(remark => remark.priority === priorityFilter);
+            }
+            
+            if (searchTerm) {
+                filteredData = filteredData.filter(remark => 
+                    remark.text?.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            tbody.innerHTML = filteredData.map(remark => {
+                const categoryLabels = {
+                    'LOW_LIGHT': '<span class="badge bg-warning">แสงสว่างไม่เพียงพอ</span>',
+                    'HIGH_LIGHT': '<span class="badge bg-info">แสงสว่างเกินมาตรฐาน</span>',
+                    'GENERAL': '<span class="badge bg-secondary">ทั่วไป</span>'
+                };
+                
+                const priorityLabels = {
+                    'HIGH': '<span class="badge bg-danger">สำคัญมาก</span>',
+                    'MEDIUM': '<span class="badge bg-warning">สำคัญปานกลาง</span>',
+                    'LOW': '<span class="badge bg-success">สำคัญน้อย</span>'
+                };
+                
+                const statusLabels = {
+                    'ACTIVE': '<span class="badge bg-success">ใช้งาน</span>',
+                    'INACTIVE': '<span class="badge bg-secondary">ไม่ใช้งาน</span>'
+                };
+
+                return `
+                    <tr>
+                        <td style="word-break: break-word;">${remark.text || ''}</td>
+                        <td>${categoryLabels[remark.category] || ''}</td>
+                        <td>${priorityLabels[remark.priority] || ''}</td>
+                        <td>${statusLabels[remark.status] || statusLabels['ACTIVE']}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary modern-btn me-1 edit-remark-btn" data-id="${remark.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger modern-btn delete-remark-btn" data-id="${remark.id}" data-text="${remark.text?.substring(0, 50)}...">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Add event listeners for edit and delete buttons
+            tbody.querySelectorAll('.edit-remark-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => editRemark(e.target.closest('button').dataset.id));
+            });
+            
+            tbody.querySelectorAll('.delete-remark-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    deleteRemark(button.dataset.id, button.dataset.text);
+                });
+            });
+        }
+
+        function editRemark(remarkId = null) {
+            const modal = Modals.remark;
+            const form = document.getElementById('remarkForm');
+            const modalTitle = document.getElementById('remarkModalLabel');
+            
+            // Reset form
+            form.reset();
+            
+            if (remarkId) {
+                // Edit mode
+                const remark = remarksData.find(r => r.id === remarkId);
+                if (remark) {
+                    document.getElementById('remarkId').value = remarkId;
+                    document.getElementById('remarkText').value = remark.text || '';
+                    document.getElementById('remarkCategory').value = remark.category || '';
+                    document.getElementById('remarkPriority').value = remark.priority || '';
+                    document.getElementById('remarkStatus').value = remark.status || 'ACTIVE';
+                    modalTitle.innerHTML = '<i class="fas fa-edit me-2"></i>แก้ไขข้อเสนอแนะมาตรฐาน';
+                }
+            } else {
+                // Add mode
+                document.getElementById('remarkId').value = '';
+                document.getElementById('remarkStatus').value = 'ACTIVE';
+                modalTitle.innerHTML = '<i class="fas fa-plus me-2"></i>เพิ่มข้อเสนอแนะมาตรฐาน';
+            }
+            
+            modal.show();
+        }
+
+        async function saveRemark() {
+            const remarkId = document.getElementById('remarkId').value;
+            const text = document.getElementById('remarkText').value.trim();
+            const category = document.getElementById('remarkCategory').value;
+            const priority = document.getElementById('remarkPriority').value;
+            const status = document.getElementById('remarkStatus').value;
+            
+            if (!text || !category || !priority) {
+                showAlert('กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+                return;
+            }
+            
+            try {
+                const remarkData = {
+                    text,
+                    category,
+                    priority,
+                    status,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                if (remarkId) {
+                    // Update existing
+                    const docRef = doc(db, `artifacts/${appId}/public/data/remarks`, remarkId);
+                    await updateDoc(docRef, remarkData);
+                    showAlert('อัปเดตข้อเสนอแนะสำเร็จ', 'success');
+                } else {
+                    // Add new
+                    remarkData.createdAt = new Date().toISOString();
+                    const remarksCollection = collection(db, `artifacts/${appId}/public/data/remarks`);
+                    await setDoc(doc(remarksCollection), remarkData);
+                    showAlert('เพิ่มข้อเสนอแนะสำเร็จ', 'success');
+                }
+                
+                Modals.remark.hide();
+            } catch (error) {
+                console.error('Error saving remark:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        }
+
+        function deleteRemark(remarkId, remarkText) {
+            const modalBody = document.getElementById('confirmDeleteModalBody');
+            modalBody.innerHTML = `คุณแน่ใจหรือไม่ว่าต้องการลบข้อเสนอแนะ: <br><strong>"${remarkText}"</strong>`;
+            
+            // Set up delete confirmation
+            document.getElementById('confirmDeleteBtn').onclick = async () => {
+                try {
+                    const docRef = doc(db, `artifacts/${appId}/public/data/remarks`, remarkId);
+                    await deleteDoc(docRef);
+                    showAlert('ลบข้อเสนอแนะสำเร็จ', 'success');
+                    Modals.confirmDelete.hide();
+                } catch (error) {
+                    console.error('Error deleting remark:', error);
+                    showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                }
+            };
+            
+            Modals.confirmDelete.show();
+        }
+
         // Add event listener for save all branches button and search functionality
         document.addEventListener('DOMContentLoaded', () => {
             // Save branches functionality
             document.getElementById('save-all-branches').addEventListener('click', async () => {
+                const saveBtn = document.getElementById('save-all-branches');
+                const originalText = saveBtn.innerHTML;
+                
+                // Early validation check
+                if (!branchManager.currentCustomer || !branchManager.currentCustomer.id) {
+                    showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
+                    return;
+                }
+                
                 try {
-                    if (!branchManager.currentCustomer) {
-                        showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
-                        return;
-                    }
-                    
                     // Show loading state
-                    const saveBtn = document.getElementById('save-all-branches');
-                    const originalText = saveBtn.innerHTML;
                     saveBtn.disabled = true;
                     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
                     
                     // Get flattened branches from hierarchical structure
                     const branches = branchManager.getFlattenedBranches();
                     
-                    // Get customer document reference
-                    const customerDocRef = doc(db, `/artifacts/${appId}/public/data/customers`, branchManager.currentCustomer.id);
+                    // Get customer document reference using correct Firebase path
+                    const customerId = branchManager.currentCustomer.id;
+                    console.log('Saving branches for customer ID:', customerId);
+                    
+                    // Use correct Firebase collection reference
+                    const customersCollection = collection(db, `artifacts/${appId}/public/data/customers`);
+                    const customerDocRef = doc(customersCollection, customerId);
                     
                     // Update customer document with new branches
                     await updateDoc(customerDocRef, { 
@@ -1080,7 +1550,6 @@
                     showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'danger');
                 } finally {
                     // Restore button state
-                    const saveBtn = document.getElementById('save-all-branches');
                     saveBtn.disabled = false;
                     saveBtn.innerHTML = originalText;
                 }
@@ -1111,7 +1580,85 @@
             });
 
             document.getElementById('import-branches-btn').addEventListener('click', () => {
-                showAlert('ฟีเจอร์นำเข้า Excel จะเปิดให้ใช้งานในเร็วๆ นี้', 'info');
+                // Create file input for Excel import
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.xlsx,.xls,.csv';
+                fileInput.style.display = 'none';
+                
+                fileInput.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    if (!branchManager.currentCustomer) {
+                        showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
+                        return;
+                    }
+                    
+                    try {
+                        showAlert('กำลังอ่านไฟล์...', 'info');
+                        
+                        const text = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = reject;
+                            
+                            if (file.name.endsWith('.csv')) {
+                                reader.readAsText(file, 'UTF-8');
+                            } else {
+                                // For Excel files, read as text for basic CSV format
+                                reader.readAsText(file, 'UTF-8');
+                            }
+                        });
+                        
+                        // Parse CSV data
+                        const lines = text.split('\n').filter(line => line.trim());
+                        const branches = [];
+                        
+                        // Skip header if present
+                        const startIndex = lines[0].includes('สาขา') || lines[0].includes('location') ? 1 : 0;
+                        
+                        for (let i = startIndex; i < lines.length; i++) {
+                            const columns = lines[i].split(',').map(col => col.trim().replace(/['"]/g, ''));
+                            if (columns.length >= 2 && columns[0]) {
+                                branches.push({
+                                    location: columns[0] || '',
+                                    address: columns[1] || '',
+                                    contactPerson: columns[2] || '',
+                                    contactPhone: columns[3] || ''
+                                });
+                            }
+                        }
+                        
+                        if (branches.length === 0) {
+                            showAlert('ไม่พบข้อมูลสาขาในไฟล์', 'warning');
+                            return;
+                        }
+                        
+                        // Update branch manager data
+                        branches.forEach(branch => {
+                            if (!branchManager.branchData['นำเข้าจาก Excel']) {
+                                branchManager.branchData['นำเข้าจาก Excel'] = {};
+                            }
+                            if (!branchManager.branchData['นำเข้าจาก Excel']['ทั่วไป']) {
+                                branchManager.branchData['นำเข้าจาก Excel']['ทั่วไป'] = [];
+                            }
+                            branchManager.branchData['นำเข้าจาก Excel']['ทั่วไป'].push(branch);
+                        });
+                        
+                        // Re-render tree
+                        branchManager.renderBranchTree(branchManager.currentCustomer);
+                        
+                        showAlert(`นำเข้าข้อมูล ${branches.length} สาขาสำเร็จ`, 'success');
+                        
+                    } catch (error) {
+                        showAlert(`เกิดข้อผิดพลาดในการนำเข้าไฟล์: ${error.message}`, 'danger');
+                    }
+                };
+                
+                document.body.appendChild(fileInput);
+                fileInput.click();
+                document.body.removeChild(fileInput);
             });
 
             document.getElementById('export-branches-btn').addEventListener('click', () => {
@@ -1119,6 +1666,68 @@
                     branchManager.exportBranches();
                 } else {
                     showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
+                }
+            });
+
+            // Remarks Tab Event Listeners
+            document.getElementById('addRemarkBtn').addEventListener('click', () => editRemark());
+            
+            // Remark form submit
+            document.getElementById('remarkForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveRemark();
+            });
+            
+            // Remark filter event listeners
+            document.getElementById('remark-category-filter').addEventListener('change', renderRemarksTable);
+            document.getElementById('remark-priority-filter').addEventListener('change', renderRemarksTable);
+            document.getElementById('remark-search').addEventListener('input', renderRemarksTable);
+
+            // Event delegation for branch management buttons
+            document.addEventListener('click', async (e) => {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+                const region = target.dataset.region;
+                const province = target.dataset.province;
+                const index = target.dataset.index;
+                
+                try {
+                    switch (action) {
+                        case 'addProvince':
+                            const provinceName = prompt('ชื่อจังหวัดใหม่:', '');
+                            if (provinceName && provinceName.trim()) {
+                                if (!branchManager.branchData[region]) {
+                                    branchManager.branchData[region] = {};
+                                }
+                                branchManager.branchData[region][provinceName.trim()] = [];
+                                branchManager.renderBranchTree(branchManager.currentCustomer);
+                                showAlert(`เพิ่มจังหวัด "${provinceName.trim()}" ในภูมิภาค "${region}" สำเร็จ`, 'success');
+                            }
+                            break;
+                            
+                        case 'addBranch':
+                            branchManager.addBranch(region, province);
+                            break;
+                            
+                        case 'bulkAddBranches':
+                            branchManager.bulkAddBranches(region, province);
+                            break;
+                            
+                        case 'editBranch':
+                            branchManager.editBranch(region, province, parseInt(index));
+                            break;
+                            
+                        case 'deleteBranch':
+                            if (confirm('คุณต้องการลบสาขานี้หรือไม่?')) {
+                                branchManager.deleteBranch(region, province, parseInt(index));
+                            }
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Branch management action failed:', error);
+                    showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
                 }
             });
         });
@@ -1201,21 +1810,8 @@
                     }
                 } else if (target.classList.contains('manage-branches-btn')) {
                     e.preventDefault();
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        
-                        // Setup branch management modal
-                        document.getElementById('branchManagementModalLabel').innerHTML = `
-                            <i class="fas fa-sitemap me-2"></i>จัดการสาขา: ${data.name}
-                        `;
-                        
-                        // Render branch tree
-                        branchManager.renderBranchTree(data);
-                        
-                        // Show modal
-                        Modals.branchManagement.show();
-                    }
+                    // Navigate to branch management page in same window
+                    window.location.href = `branch-manager.html?customerId=${docId}`;
                 }
             });
             document.getElementById(formId).addEventListener('submit', (e) => onFormSubmit(e, db, modal));
@@ -1246,13 +1842,40 @@
             } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'danger'); }
             
             const branchesContainer = document.getElementById('branches-container');
-            const addBranchInput = (branch = { location: '', address: '' }) => { const div = document.createElement('div'); div.className = 'input-group mb-2'; div.innerHTML = `<input type="text" class="form-control branch-location" placeholder="ชื่อสาขา/สถานที่" value="${branch.location}" required><input type="text" class="form-control branch-address" placeholder="ที่อยู่ (ถ้ามี)" value="${branch.address}"><button class="btn btn-outline-danger remove-branch-btn" type="button"><i class="fas fa-trash"></i></button>`; branchesContainer.appendChild(div); };
+            const addBranchInput = (branch = { location: '', address: '', contactPerson: '', contactPhone: '' }) => { 
+                const div = document.createElement('div'); 
+                div.className = 'card mb-3'; 
+                div.innerHTML = `
+                    <div class="card-body p-3">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control branch-location" placeholder="ชื่อสาขา/สถานที่" value="${branch.location}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control branch-address" placeholder="ที่อยู่ (ถ้ามี)" value="${branch.address}">
+                                    <button class="btn btn-outline-danger remove-branch-btn" type="button" title="ลบสาขา">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control branch-contact-person" placeholder="ผู้ติดต่อ" value="${branch.contactPerson || ''}">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="tel" class="form-control branch-contact-phone" placeholder="เบอร์โทรศัพท์" value="${branch.contactPhone || ''}">
+                            </div>
+                        </div>
+                    </div>
+                `; 
+                branchesContainer.appendChild(div); 
+            };
             document.getElementById('add-branch-btn').addEventListener('click', () => addBranchInput());
-            branchesContainer.addEventListener('click', e => { if (e.target.closest('.remove-branch-btn')) { e.target.closest('.input-group').remove(); } });
+            branchesContainer.addEventListener('click', e => { if (e.target.closest('.remove-branch-btn')) { e.target.closest('.card').remove(); } });
             
             setupTab(db, { collectionName: 'customers', tableId: 'customers-table', modal: Modals.customer, formId: 'customerForm', addBtnId: 'addCustomerBtn', modalLabelId: 'customerModalLabel', renderFn: renderCustomers, 
                 populateFormFn: (data, form) => { branchesContainer.innerHTML = ''; if (data && data.branches) { data.branches.forEach(branch => addBranchInput(branch)); } else { addBranchInput(); } },
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .input-group').forEach(group => { const location = group.querySelector('.branch-location').value.trim(); const address = group.querySelector('.branch-address').value.trim(); if(location) branches.push({ location, address }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .card').forEach(card => { const location = card.querySelector('.branch-location').value.trim(); const address = card.querySelector('.branch-address').value.trim(); const contactPerson = card.querySelector('.branch-contact-person').value.trim(); const contactPhone = card.querySelector('.branch-contact-phone').value.trim(); if(location) branches.push({ location, address, contactPerson, contactPhone }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'work_types', tableId: 'work-types-table', modal: Modals.workType, formId: 'workTypeForm', addBtnId: 'addWorkTypeBtn', modalLabelId: 'workTypeModalLabel', renderFn: renderWorkTypes,
@@ -1292,6 +1915,9 @@
                 } catch(err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
                 } finally { Modals.confirmDelete.hide(); delete button.dataset.docPath; delete button.dataset.signatoryId; }
             });
+            
+            // Load remarks data when main loads
+            loadRemarks();
         }
         main();
     </script>
