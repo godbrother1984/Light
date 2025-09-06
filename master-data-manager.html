@@ -1,8 +1,9 @@
 <!-- 
   path: /master-data-manager.html
-  version: 6.1 (Added Running Numbers management)
+  version: 6.4 (Enhanced Button & Modal Contrast)
   date: 2025-09-05
-  time: 10:45:00
+  time: 22:30:00
+  description: Fixed button contrast issues and improved modal text readability
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -15,35 +16,255 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="assets/css/main-styles.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    
     <style>
-        :root {
-            --primary-color: #0d47a1;
-            --secondary-color: #1976d2;
-            --background-color: #f4f7f9;
-            --sidebar-width: 260px;
-            --sidebar-mini-width: 80px;
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            --transition-speed: 0.3s;
+        /* Modern Button Styles */
+        .modern-btn {
+            position: relative;
+            background: linear-gradient(135deg, var(--bs-btn-bg), calc(var(--bs-btn-bg) + 10%)) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+            overflow: hidden;
         }
-        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
-        #wrapper { display: flex; }
-        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
-        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
-        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
-        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
-        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
-        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
-        .list-group-item i { font-size: 1.25rem; }
-        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
-        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
-        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
-        #page-content-wrapper { flex-grow: 1; }
-        .navbar { box-shadow: var(--card-shadow); }
-        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
-        .nav-pills .nav-link.active { background-color: var(--primary-color); }
-        .nav-pills .nav-link { color: var(--primary-color); }
+        
+        .modern-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .modern-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .modern-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .modern-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* Specific color enhancements */
+        .btn-primary.modern-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            color: white !important;
+        }
+        
+        .btn-success.modern-btn {
+            background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+            color: white !important;
+        }
+        
+        .btn-secondary.modern-btn {
+            background: linear-gradient(135deg, #6c757d, #545b62) !important;
+            color: white !important;
+            border: 1px solid #6c757d !important;
+        }
+        
+        .btn-outline-secondary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 2px solid #6c757d !important;
+            color: #495057 !important;
+            font-weight: 600;
+        }
+        
+        .btn-outline-secondary.modern-btn:hover {
+            background: linear-gradient(135deg, #6c757d, #545b62) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-success.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 2px solid #28a745 !important;
+            color: #1e7e34 !important;
+            font-weight: 600;
+        }
+        
+        .btn-outline-success.modern-btn:hover {
+            background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-danger.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 2px solid #dc3545 !important;
+            color: #c82333 !important;
+            font-weight: 600;
+        }
+        
+        .btn-outline-danger.modern-btn:hover {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color: white !important;
+        }
+        
+        /* Fix delete confirmation button text color */
+        .btn-danger.modern-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        .btn-danger.modern-btn:hover {
+            background: linear-gradient(135deg, #c82333, #a71e2a) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-primary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 2px solid #007bff !important;
+            color: #0056b3 !important;
+            font-weight: 600;
+        }
+        
+        .btn-outline-primary.modern-btn:hover {
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            color: white !important;
+        }
+        
+        /* Icon spacing improvements */
+        .modern-btn i {
+            vertical-align: middle;
+        }
+        
+        /* Small button adjustments */
+        .modern-btn.btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px !important;
+        }
+
+        /* Search functionality styles */
+        .search-match {
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107 !important;
+            animation: highlight 0.3s ease;
+        }
+
+        .search-info {
+            font-size: 0.875rem;
+            border-left: 4px solid #0dcaf0;
+        }
+
+        @keyframes highlight {
+            0% { background-color: #ffeb3b; }
+            100% { background-color: #fff3cd; }
+        }
+        
+        /* Modal improvements */
+        .modal-title {
+            color: #212529 !important;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        /* Legacy styles for table and other components */
         .table-action-btn { width: 40px; }
         .branch-details-link { cursor: pointer; text-decoration: underline; color: var(--secondary-color); }
+        
+        /* Branch Management Tree Styling */
+        .branch-tree-node {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .branch-tree-node:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        
+        .branch-tree-node.active {
+            background-color: var(--bs-primary);
+            color: white;
+        }
+        
+        .branch-tree-node.region {
+            font-weight: 600;
+            background-color: #e8f4fd;
+            border-left: 4px solid var(--bs-primary);
+        }
+        
+        .branch-tree-node.province {
+            font-weight: 500;
+            margin-left: 1rem;
+            background-color: #f8f9fa;
+            border-left: 3px solid var(--bs-success);
+        }
+        
+        .branch-tree-node.branch {
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            border-left: 2px solid var(--bs-info);
+        }
+        
+        .tree-toggle {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 0.75rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .tree-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .branch-count {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+        
+        .branch-details-form {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .branch-actions {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+            padding: 1rem 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -51,11 +272,32 @@
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
             <div class="list-group list-group-flush">
-                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
-                <a class="list-group-item active" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
-                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
             </div>
         </div>
 
@@ -63,10 +305,10 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
                 <div class="container-fluid">
-                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <button class="btn btn-outline-primary me-2 modern-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
                     <ul class="navbar-nav ms-auto d-flex flex-row">
                         <li class="nav-item me-2">
-                           <button id="seedDataBtn" class="btn btn-outline-success btn-sm mt-1"><i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)</button>
+                           <button id="seedDataBtn" class="btn btn-outline-success btn-sm modern-btn mt-1"><i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น</button>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -83,7 +325,6 @@
 
             <main class="container-fluid p-4">
                 <h1 class="h3 mb-3">ศูนย์จัดการข้อมูลหลัก (Master Data)</h1>
-                <div id="alert-placeholder"></div>
                 <div class="card">
                     <div class="card-header">
                         <ul class="nav nav-pills card-header-pills">
@@ -99,29 +340,29 @@
                         <div class="tab-content">
                             <!-- Tab: Customers -->
                             <div class="tab-pane fade show active" id="customers-tab">
-                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-user-tie me-2"></i>จัดการลูกค้า</h4><button id="addCustomerBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มลูกค้า</button></div>
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-user-tie me-2"></i>จัดการลูกค้า</h4><button id="addCustomerBtn" class="btn btn-primary btn-sm modern-btn"><i class="fas fa-plus-circle me-2"></i>เพิ่มลูกค้า</button></div>
                                 <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อลูกค้า</th><th>จำนวนสาขา</th><th class="text-center">Action</th></tr></thead><tbody id="customers-table"></tbody></table></div>
                             </div>
                             <!-- Tab: Work Types -->
                              <div class="tab-pane fade" id="work-types-tab">
-                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-briefcase me-2"></i>จัดการลักษณะงาน</h4><button id="addWorkTypeBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มลักษณะงาน</button></div>
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-briefcase me-2"></i>จัดการลักษณะงาน</h4><button id="addWorkTypeBtn" class="btn btn-primary btn-sm modern-btn"><i class="fas fa-plus-circle me-2"></i>เพิ่มลักษณะงาน</button></div>
                                 <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light align-middle text-center"><tr><th rowspan="2">ชื่อลักษณะงาน</th><th colspan="2">ค่ามาตรฐาน (แบบจุด)</th><th colspan="2">ค่ามาตรฐาน (แบบพื้นที่)</th><th rowspan="2">Action</th></tr><tr><th>Min (Lux)</th><th>Max (Lux)</th><th>Avg (Lux)</th><th>Min (Lux)</th></tr></thead><tbody id="work-types-table"></tbody></table></div>
                             </div>
                             <!-- Tab: Inspectors -->
                             <div class="tab-pane fade" id="inspectors-tab">
-                                 <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-users me-2"></i>จัดการบุคลากร</h4><button id="addInspectorBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มบุคลากร</button></div>
+                                 <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-users me-2"></i>จัดการบุคลากร</h4><button id="addInspectorBtn" class="btn btn-primary btn-sm modern-btn"><i class="fas fa-plus-circle me-2"></i>เพิ่มบุคลากร</button></div>
                                 <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>เลขที่ใบอนุญาต</th><th class="text-center">Action</th></tr></thead><tbody id="inspectors-table"></tbody></table></div>
                             </div>
                             <!-- Tab: Instruments -->
                             <div class="tab-pane fade" id="instruments-tab">
-                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-tools me-2"></i>จัดการเครื่องมือ</h4><button id="addInstrumentBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มเครื่องมือ</button></div>
-                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ/รุ่น</th><th>Serial No.</th><th>วันสอบเทียบครั้งถัดไป</th><th class="text-center">Action</th></tr></thead><tbody id="instruments-table"></tbody></table></div>
+                                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="fas fa-tools me-2"></i>จัดการเครื่องมือ</h4><button id="addInstrumentBtn" class="btn btn-primary btn-sm modern-btn"><i class="fas fa-plus-circle me-2"></i>เพิ่มเครื่องมือ</button></div>
+                                <div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ/รุ่น</th><th>Serial No.</th><th>มาตรฐาน</th><th>วันสอบเทียบครั้งล่าสุด</th><th>วันสอบเทียบครั้งถัดไป</th><th class="text-center">Action</th></tr></thead><tbody id="instruments-table"></tbody></table></div>
                             </div>
                             <!-- Tab: Running Numbers -->
                             <div class="tab-pane fade" id="running-numbers-tab">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h4><i class="fas fa-hashtag me-2"></i>จัดการรหัสอ้างอิง (Running Numbers)</h4>
-                                    <button id="addRunningNumberBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>เพิ่มประเภทรหัส</button>
+                                    <button id="addRunningNumberBtn" class="btn btn-primary btn-sm modern-btn"><i class="fas fa-plus-circle me-2"></i>เพิ่มประเภทรหัส</button>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-hover">
@@ -141,7 +382,7 @@
                             <!-- Tab: Company Info -->
                             <div class="tab-pane fade" id="company-info-tab">
                                 <h4><i class="fas fa-building me-2"></i>จัดการข้อมูลบริษัทและผู้ลงนาม</h4>
-                                <div class="row mt-3"><div class="col-md-6"><h5>ข้อมูลใบอนุญาต</h5><form id="company-info-form"><div class="mb-3"><label class="form-label">เลขทะเบียน ว-๓๒๙</label><input type="text" class="form-control" id="license_factory"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดระดับความเข้มข้นของสารเคมีอันตราย</label><input type="text" class="form-control" id="license_chemical_measurement"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการวิเคราะห์ระดับความเข้มข้นของสารเคมีอันตราย</label><input type="text" class="form-control" id="license_chemical_analysis"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับความร้อน</label><input type="text" class="form-control" id="license_heat"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับแสงสว่าง</label><input type="text" class="form-control" id="license_welfare_light"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับเสียง</label><input type="text" class="form-control" id="license_sound"></div><button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>บันทึกข้อมูลบริษัท</button></form></div><div class="col-md-6"><h5>ผู้ลงนามในรายงาน</h5><button id="addSignatoryBtn" class="btn btn-primary btn-sm mb-2"><i class="fas fa-user-plus me-2"></i>เพิ่มผู้ลงนาม</button><div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th class="text-center">Action</th></tr></thead><tbody id="signatories-table"></tbody></table></div></div></div>
+                                <div class="row mt-3"><div class="col-md-6"><h5>ข้อมูลใบอนุญาต</h5><form id="company-info-form"><div class="mb-3"><label class="form-label">เลขทะเบียน ว-๓๒๙</label><input type="text" class="form-control" id="license_factory"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดระดับความเข้มข้นของสารเคมีอันตราย</label><input type="text" class="form-control" id="license_chemical_measurement"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการวิเคราะห์ระดับความเข้มข้นของสารเคมีอันตราย</label><input type="text" class="form-control" id="license_chemical_analysis"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับความร้อน</label><input type="text" class="form-control" id="license_heat"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับแสงสว่าง</label><input type="text" class="form-control" id="license_welfare_light"></div><div class="mb-3"><label class="form-label">ผู้ให้บริการตรวจวัดและวิเคราะห์สภาวะการทำงานเกี่ยวกับระดับเสียง</label><input type="text" class="form-control" id="license_sound"></div><button type="submit" class="btn btn-success modern-btn"><i class="fas fa-save me-2"></i>บันทึกข้อมูลบริษัท</button></form></div><div class="col-md-6"><h5>ผู้ลงนามในรายงาน</h5><button id="addSignatoryBtn" class="btn btn-primary btn-sm modern-btn mb-2"><i class="fas fa-user-plus me-2"></i>เพิ่มผู้ลงนาม</button><div class="table-responsive"><table class="table table-bordered table-hover"><thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th class="text-center">Action</th></tr></thead><tbody id="signatories-table"></tbody></table></div></div></div>
                             </div>
                         </div>
                     </div>
@@ -151,27 +392,102 @@
     </div>
     
     <!-- Modals -->
+    
+    <!-- Advanced Branch Management Modal -->
+    <div class="modal fade" id="branchManagementModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="branchManagementModalLabel">
+                        <i class="fas fa-sitemap me-2"></i>จัดการสาขาทั้งหมด
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="row g-0 h-100">
+                        <!-- Left Panel: Hierarchical Tree -->
+                        <div class="col-md-4 border-end bg-light">
+                            <div class="p-3 border-bottom bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0"><i class="fas fa-tree me-2"></i>โครงสร้างสาขา</h6>
+                                    <span class="badge bg-primary" id="total-branches-count">0 สาขา</span>
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="branch-search" placeholder="ค้นหาสาขา...">
+                                </div>
+                            </div>
+                            <div class="p-3" style="height: calc(100vh - 200px); overflow-y: auto;">
+                                <div id="branch-tree"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel: Branch Management -->
+                        <div class="col-md-8">
+                            <div class="p-3 border-bottom bg-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-edit me-2"></i>รายละเอียดสาขา</h6>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-success modern-btn" id="add-region-btn">
+                                            <i class="fas fa-plus me-1"></i>เพิ่มภูมิภาค
+                                        </button>
+                                        <button class="btn btn-info modern-btn" id="import-branches-btn">
+                                            <i class="fas fa-file-excel me-1"></i>นำเข้า Excel
+                                        </button>
+                                        <button class="btn btn-outline-secondary modern-btn" id="export-branches-btn">
+                                            <i class="fas fa-download me-1"></i>ส่งออก
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4" style="height: calc(100vh - 200px); overflow-y: auto;">
+                                <div id="branch-details-panel">
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                                        <p>เลือกภูมิภาค จังหวัด หรือสาขาจากรายการทางซ้ายเพื่อจัดการ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" class="btn btn-primary modern-btn" id="save-all-branches">
+                        <i class="fas fa-save me-2"></i>บันทึกการเปลี่ยนแปลงทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Branch List Modal (for simple viewing) -->
     <div class="modal fade" id="branchListModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="branchListModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="branchListModalBody"></div></div></div></div>
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">ยืนยันการลบ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="confirmDeleteModalBody">คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?</p></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="button" class="btn btn-danger" id="confirmDeleteBtn">ยืนยัน</button></div></div></div></div>
-    <div class="modal fade" id="customerModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customerModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="customerForm"><input type="hidden" id="customerId"><div class="mb-3"><label class="form-label">ชื่อลูกค้า</label><input type="text" class="form-control" id="customerName" required></div><h6><i class="fas fa-map-marker-alt me-2"></i>สาขา / สถานที่</h6><div id="branches-container"></div><button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-branch-btn"><i class="fas fa-plus me-2"></i>เพิ่มสาขา</button></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="customerForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
-    <div class="modal fade" id="workTypeModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="workTypeModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="workTypeForm"><input type="hidden" id="workTypeId"><div class="mb-3"><label class="form-label">ชื่อลักษณะงาน</label><input type="text" class="form-control" id="workTypeName" required></div><fieldset class="border p-2"><legend class="float-none w-auto p-2 h6">ค่ามาตรฐาน</legend><div class="row"><div class="col-md-6"><h6>แบบจุด</h6><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdSpotMin"><label class="form-label">ค่าสูงสุด (Max)</label><input type="number" class="form-control mb-2" id="stdSpotMax"></div><div class="col-md-6"><h6>แบบพื้นที่</h6><label class="form-label">ค่าเฉลี่ย (Avg)</label><input type="number" class="form-control mb-2" id="stdAreaAvg"><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdAreaMin"></div></div></fieldset></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="workTypeForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
-    <div class="modal fade" id="inspectorModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="inspectorModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="inspectorForm"><input type="hidden" id="inspectorId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="inspectorName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="inspectorTitle" required></div><div class="mb-3"><label class="form-label">เลขที่ใบอนุญาต</label><input type="text" class="form-control" id="inspectorLicense" placeholder="เช่น ว-๓๒๙-ค-๙๖๓๙"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="inspectorForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
-    <div class="modal fade" id="instrumentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="instrumentModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="instrumentForm"><input type="hidden" id="instrumentId"><div class="mb-3"><label class="form-label">ชื่อ/รุ่น</label><input type="text" class="form-control" id="instrumentName" required></div><div class="mb-3"><label class="form-label">Serial No.</label><input type="text" class="form-control" id="instrumentSerial" required></div><div class="mb-3"><label class="form-label">วันสอบเทียบครั้งถัดไป</label><input type="date" class="form-control" id="instrumentCalDate"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="instrumentForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
-    <div class="modal fade" id="signatoryModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="signatoryModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="signatoryForm"><input type="hidden" id="signatoryId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="signatoryName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="signatoryTitle" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="signatoryForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
-    <div class="modal fade" id="runningNumberModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="runningNumberModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="runningNumberForm"><input type="hidden" id="runningNumberId"><div class="mb-3"><label class="form-label">ประเภทรหัส *</label><input type="text" class="form-control" id="runningNumberType" required placeholder="เช่น JOB, REPORT"></div><div class="mb-3"><label class="form-label">คำอธิบาย</label><input type="text" class="form-control" id="runningNumberDescription" placeholder="เช่น รหัสงาน, รหัสรายงาน"></div><div class="mb-3"><label class="form-label">รูปแบบรหัส</label><input type="text" class="form-control" id="runningNumberFormat" value="YYYY-MM-XXX" readonly><small class="form-text text-muted">YYYY = ปี, MM = เดือน, XXX = หมายเลขลำดับ 3 หลัก</small></div><div class="mb-3"><label class="form-label">คำนำหน้า (Prefix)</label><input type="text" class="form-control" id="runningNumberPrefix" placeholder="เช่น JOB, RPT (ถ้ามี)"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="runningNumberForm" class="btn btn-primary">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">ยืนยันการลบ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="confirmDeleteModalBody">คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?</p></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="button" class="btn btn-danger modern-btn" id="confirmDeleteBtn">ยืนยัน</button></div></div></div></div>
+    <div class="modal fade" id="customerModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customerModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="customerForm"><input type="hidden" id="customerId"><div class="mb-3"><label class="form-label">ชื่อลูกค้า</label><input type="text" class="form-control" id="customerName" required></div><h6><i class="fas fa-map-marker-alt me-2"></i>สาขา / สถานที่</h6><div id="branches-container"></div><button type="button" class="btn btn-sm btn-outline-primary modern-btn mt-2" id="add-branch-btn"><i class="fas fa-plus me-2"></i>เพิ่มสาขา</button></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="customerForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="workTypeModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="workTypeModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="workTypeForm"><input type="hidden" id="workTypeId"><div class="mb-3"><label class="form-label">ชื่อลักษณะงาน</label><input type="text" class="form-control" id="workTypeName" required></div><fieldset class="border p-2"><legend class="float-none w-auto p-2 h6">ค่ามาตรฐาน</legend><div class="row"><div class="col-md-6"><h6>แบบจุด</h6><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdSpotMin"><label class="form-label">ค่าสูงสุด (Max)</label><input type="number" class="form-control mb-2" id="stdSpotMax"></div><div class="col-md-6"><h6>แบบพื้นที่</h6><label class="form-label">ค่าเฉลี่ย (Avg)</label><input type="number" class="form-control mb-2" id="stdAreaAvg"><label class="form-label">ค่าต่ำสุด (Min)</label><input type="number" class="form-control mb-2" id="stdAreaMin"></div></div></fieldset></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="workTypeForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="inspectorModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="inspectorModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="inspectorForm"><input type="hidden" id="inspectorId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="inspectorName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="inspectorTitle" required></div><div class="mb-3"><label class="form-label">เลขที่ใบอนุญาต</label><input type="text" class="form-control" id="inspectorLicense" placeholder="เช่น ว-๓๒๙-ค-๙๖๓๙"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="inspectorForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="instrumentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="instrumentModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="instrumentForm"><input type="hidden" id="instrumentId"><div class="mb-3"><label class="form-label">ชื่อ/รุ่น</label><input type="text" class="form-control" id="instrumentName" required></div><div class="mb-3"><label class="form-label">Serial No.</label><input type="text" class="form-control" id="instrumentSerial" required></div><div class="mb-3"><label class="form-label">มาตรฐาน/ความแม่นยำ</label><input type="text" class="form-control" id="instrumentAccuracy" placeholder="เช่น ±3% หรือ Class II"></div><div class="mb-3"><label class="form-label">วันสอบเทียบครั้งล่าสุด</label><input type="date" class="form-control" id="instrumentLastCalDate"></div><div class="mb-3"><label class="form-label">วันสอบเทียบครั้งถัดไป</label><input type="date" class="form-control" id="instrumentCalDate"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="instrumentForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="signatoryModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="signatoryModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="signatoryForm"><input type="hidden" id="signatoryId"><div class="mb-3"><label class="form-label">ชื่อ-นามสกุล</label><input type="text" class="form-control" id="signatoryName" required></div><div class="mb-3"><label class="form-label">ตำแหน่ง</label><input type="text" class="form-control" id="signatoryTitle" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="signatoryForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
+    <div class="modal fade" id="runningNumberModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="runningNumberModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="runningNumberForm"><input type="hidden" id="runningNumberId"><div class="mb-3"><label class="form-label">ประเภทรหัส *</label><input type="text" class="form-control" id="runningNumberType" required placeholder="เช่น JOB, REPORT"></div><div class="mb-3"><label class="form-label">คำอธิบาย</label><input type="text" class="form-control" id="runningNumberDescription" placeholder="เช่น รหัสงาน, รหัสรายงาน"></div><div class="mb-3"><label class="form-label">รูปแบบรหัส</label><input type="text" class="form-control" id="runningNumberFormat" value="YYYY-MM-XXX" readonly><small class="form-text text-muted">YYYY = ปี, MM = เดือน, XXX = หมายเลขลำดับ 3 หลัก</small></div><div class="mb-3"><label class="form-label">คำนำหน้า (Prefix)</label><input type="text" class="form-control" id="runningNumberPrefix" placeholder="เช่น JOB, RPT (ถ้ามี)"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" form="runningNumberForm" class="btn btn-primary modern-btn">บันทึก</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="firebase-config.js"></script>
+    
+    <!-- Load CSS for toast notifications -->
+    <link rel="stylesheet" href="assets/css/toast-notifications.css">
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { showAlert } from './assets/js/ui-helpers.js';
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
         let db;
 
         const Modals = {
             branchList: new bootstrap.Modal(document.getElementById('branchListModal')),
+            branchManagement: new bootstrap.Modal(document.getElementById('branchManagementModal')),
             confirmDelete: new bootstrap.Modal(document.getElementById('confirmDeleteModal')),
             customer: new bootstrap.Modal(document.getElementById('customerModal')),
             workType: new bootstrap.Modal(document.getElementById('workTypeModal')),
@@ -181,17 +497,633 @@
             runningNumber: new bootstrap.Modal(document.getElementById('runningNumberModal'))
         };
 
-        const showAlert = (message, type = 'success', duration = 4000) => {
-            const alertPlaceholder = document.getElementById('alert-placeholder');
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-            alertPlaceholder.innerHTML = '';
-            alertPlaceholder.append(wrapper);
-            setTimeout(() => {
-                const alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
-                if(alert) alert.close();
-            }, duration);
-        };
+        // Branch Management System
+        class BranchManager {
+            constructor() {
+                this.currentCustomer = null;
+                this.branchData = {};
+                this.activeNode = null;
+                this.regions = [
+                    'ภาคเหนือ', 'ภาคกลาง', 'ภาคตะวันออก', 
+                    'ภาคตะวันออกเฉียงเหนือ', 'ภาคตะวันตก', 'ภาคใต้'
+                ];
+            }
+
+            // Thai provinces by region
+            getProvincesByRegion(region) {
+                const provinces = {
+                    'ภาคเหนือ': ['เชียงใหม่', 'เชียงราย', 'แม่ฮ่องสอน', 'น่าน', 'พะเยา', 'แพร่', 'ลำปาง', 'ลำพูน', 'สุโขทัย', 'อุตรดิตถ์', 'ตาก', 'พิษณุโลก', 'พิจิตร', 'เพชรบูรณ์', 'กำแพงเพชร'],
+                    'ภาคกลาง': ['กรุงเทพฯ', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'นครปฐม', 'สมุทรสาคร', 'สมุทรสงคราม', 'ราชบุรี', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'กาญจนบุรี', 'สุพรรณบุรี', 'นครนายก', 'ชัยนาท', 'ลพบุรี', 'สิงห์บุรี', 'อ่างทอง', 'พระนครศรีอยุธยา', 'สระบุรี'],
+                    'ภาคตะวันออก': ['ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'สระแก้ว'],
+                    'ภาคตะวันออกเฉียงเหนือ': ['นครราชสีมา', 'ขอนแก่น', 'อุดรธานี', 'อุบลราชธานี', 'สกลนคร', 'หนองคาย', 'เลย', 'บึงกาฬ', 'หนองบัวลำภู', 'มุกดาหาร', 'ยโสธร', 'กาฬสินธุ์', 'มหาสารคาม', 'ร้อยเอ็ด', 'สุรินทร์', 'บุรีรัมย์', 'ศรีสะเกษ', 'อำนาจเจริญ', 'ชัยภูมิ'],
+                    'ภาคตะวันตก': ['กาญจนบุรี', 'ราชบุรี'],
+                    'ภาคใต้': ['นครศรีธรรมราช', 'ภูเก็ต', 'กระบี่', 'พังงา', 'สุราษฎร์ธานี', 'ระนอง', 'ชุมพร', 'สงขลา', 'ปัตตานี', 'ยะลา', 'นราธิวาส', 'สตูล', 'ตรัง', 'พัทลุง']
+                };
+                return provinces[region] || [];
+            }
+
+            // Convert flat branches to hierarchical structure
+            organizeBranchesHierarchically(branches) {
+                const organized = {};
+                
+                branches.forEach(branch => {
+                    // Try to extract region/province from address or location
+                    const region = this.detectRegion(branch.location, branch.address);
+                    const province = this.detectProvince(branch.location, branch.address);
+                    
+                    if (!organized[region]) organized[region] = {};
+                    if (!organized[region][province]) organized[region][province] = [];
+                    organized[region][province].push(branch);
+                });
+                
+                return organized;
+            }
+
+            detectRegion(location, address) {
+                // Simple heuristic - can be improved with more sophisticated logic
+                const text = `${location} ${address}`.toLowerCase();
+                
+                if (text.includes('เชียงใหม่') || text.includes('เชียงราย') || text.includes('แม่ฮ่องสอน')) return 'ภาคเหนือ';
+                if (text.includes('กรุงเทพ') || text.includes('นนทบุรี') || text.includes('ปทุมธานี')) return 'ภาคกลาง';
+                if (text.includes('ชลบุรี') || text.includes('ระยอง') || text.includes('พัทยา')) return 'ภาคตะวันออก';
+                if (text.includes('ขอนแก่น') || text.includes('อุดร') || text.includes('นครราชสีมา')) return 'ภาคตะวันออกเฉียงเหนือ';
+                if (text.includes('ภูเก็ต') || text.includes('สงขลา') || text.includes('นครศรี')) return 'ภาคใต้';
+                
+                return 'ภาคกลาง'; // Default
+            }
+
+            detectProvince(location, address) {
+                const text = `${location} ${address}`.toLowerCase();
+                
+                // Try to detect province from text
+                for (const region of this.regions) {
+                    const provinces = this.getProvincesByRegion(region);
+                    for (const province of provinces) {
+                        if (text.includes(province.toLowerCase())) return province;
+                    }
+                }
+                
+                return 'อื่นๆ'; // Default
+            }
+
+            // Render hierarchical tree
+            renderBranchTree(customerData) {
+                this.currentCustomer = customerData;
+                this.branchData = this.organizeBranchesHierarchically(customerData.branches || []);
+                
+                const treeContainer = document.getElementById('branch-tree');
+                const totalBranches = (customerData.branches || []).length;
+                document.getElementById('total-branches-count').textContent = `${totalBranches} สาขา`;
+                
+                let html = '';
+                for (const [region, provinces] of Object.entries(this.branchData)) {
+                    const regionBranchCount = Object.values(provinces).flat().length;
+                    html += this.renderRegionNode(region, provinces, regionBranchCount);
+                }
+                
+                treeContainer.innerHTML = html;
+                this.attachTreeEventListeners();
+            }
+
+            renderRegionNode(region, provinces, branchCount) {
+                const regionId = `region-${region}`;
+                let html = `
+                    <div class="branch-tree-node region" data-type="region" data-id="${region}">
+                        <span class="tree-toggle" data-target="${regionId}">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                        <i class="fas fa-globe-asia me-2"></i>
+                        <span>${region}</span>
+                        <span class="branch-count">${branchCount}</span>
+                    </div>
+                    <div id="${regionId}" class="region-children">
+                `;
+                
+                for (const [province, branches] of Object.entries(provinces)) {
+                    html += this.renderProvinceNode(region, province, branches);
+                }
+                
+                html += '</div>';
+                return html;
+            }
+
+            renderProvinceNode(region, province, branches) {
+                const provinceId = `province-${region}-${province}`;
+                let html = `
+                    <div class="branch-tree-node province" data-type="province" data-region="${region}" data-id="${province}">
+                        <span class="tree-toggle" data-target="${provinceId}">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        <span>${province}</span>
+                        <span class="branch-count">${branches.length}</span>
+                    </div>
+                    <div id="${provinceId}" class="province-children">
+                `;
+                
+                branches.forEach((branch, index) => {
+                    html += this.renderBranchNode(region, province, branch, index);
+                });
+                
+                html += '</div>';
+                return html;
+            }
+
+            renderBranchNode(region, province, branch, index) {
+                return `
+                    <div class="branch-tree-node branch" data-type="branch" data-region="${region}" data-province="${province}" data-index="${index}">
+                        <i class="fas fa-building me-2"></i>
+                        <span>${branch.location}</span>
+                    </div>
+                `;
+            }
+
+            attachTreeEventListeners() {
+                // Tree toggle functionality
+                document.querySelectorAll('.tree-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const target = document.getElementById(toggle.dataset.target);
+                        const isCollapsed = target.style.display === 'none';
+                        
+                        target.style.display = isCollapsed ? 'block' : 'none';
+                        toggle.classList.toggle('collapsed', !isCollapsed);
+                    });
+                });
+
+                // Node selection
+                document.querySelectorAll('.branch-tree-node').forEach(node => {
+                    node.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tree-toggle')) return;
+                        
+                        // Remove previous active state
+                        document.querySelectorAll('.branch-tree-node.active').forEach(n => n.classList.remove('active'));
+                        
+                        // Add active state
+                        node.classList.add('active');
+                        this.activeNode = node;
+                        
+                        // Show details panel
+                        this.showNodeDetails(node);
+                    });
+                });
+            }
+
+            showNodeDetails(node) {
+                const type = node.dataset.type;
+                const panel = document.getElementById('branch-details-panel');
+                
+                if (type === 'region') {
+                    this.showRegionDetails(node.dataset.id);
+                } else if (type === 'province') {
+                    this.showProvinceDetails(node.dataset.region, node.dataset.id);
+                } else if (type === 'branch') {
+                    this.showBranchDetails(node.dataset.region, node.dataset.province, parseInt(node.dataset.index));
+                }
+            }
+
+            showRegionDetails(regionName) {
+                const panel = document.getElementById('branch-details-panel');
+                const provinces = this.branchData[regionName] || {};
+                const totalBranches = Object.values(provinces).flat().length;
+                
+                panel.innerHTML = `
+                    <div class="branch-details-form">
+                        <h5><i class="fas fa-globe-asia me-2"></i>${regionName}</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>จำนวนจังหวัด:</strong> ${Object.keys(provinces).length} จังหวัด</p>
+                                <p><strong>จำนวนสาขารวม:</strong> ${totalBranches} สาขา</p>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-success modern-btn btn-sm mb-2" onclick="branchManager.addProvince('${regionName}')">
+                                    <i class="fas fa-plus me-1"></i>เพิ่มจังหวัด
+                                </button>
+                            </div>
+                        </div>
+                        <h6>จังหวัดในภูมิภาคนี้:</h6>
+                        <div class="row">
+                            ${Object.entries(provinces).map(([province, branches]) => `
+                                <div class="col-md-4 mb-2">
+                                    <div class="card card-body py-2">
+                                        <strong>${province}</strong>
+                                        <small class="text-muted">${branches.length} สาขา</small>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            showProvinceDetails(regionName, provinceName) {
+                const panel = document.getElementById('branch-details-panel');
+                const branches = this.branchData[regionName]?.[provinceName] || [];
+                
+                panel.innerHTML = `
+                    <div class="branch-details-form">
+                        <h5><i class="fas fa-map-marker-alt me-2"></i>${provinceName}</h5>
+                        <p><strong>ภูมิภาค:</strong> ${regionName}</p>
+                        <p><strong>จำนวนสาขา:</strong> ${branches.length} สาขา</p>
+                        
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-success modern-btn btn-sm" onclick="branchManager.addBranch('${regionName}', '${provinceName}')">
+                                <i class="fas fa-plus me-1"></i>เพิ่มสาขาใหม่
+                            </button>
+                            <button class="btn btn-info modern-btn btn-sm" onclick="branchManager.bulkAddBranches('${regionName}', '${provinceName}')">
+                                <i class="fas fa-plus-circle me-1"></i>เพิ่มหลายสาขา
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อสาขา</th>
+                                        <th>ที่อยู่</th>
+                                        <th width="80">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${branches.map((branch, index) => `
+                                        <tr>
+                                            <td>${branch.location}</td>
+                                            <td><small class="text-muted">${branch.address || '-'}</small></td>
+                                            <td>
+                                                <button class="btn btn-xs btn-outline-secondary" onclick="branchManager.editBranch('${regionName}', '${provinceName}', ${index})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-xs btn-outline-danger" onclick="branchManager.deleteBranch('${regionName}', '${provinceName}', ${index})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showBranchDetails(regionName, provinceName, branchIndex) {
+                const panel = document.getElementById('branch-details-panel');
+                const branch = this.branchData[regionName]?.[provinceName]?.[branchIndex];
+                
+                if (!branch) return;
+                
+                panel.innerHTML = `
+                    <div class="branch-details-form">
+                        <h5><i class="fas fa-building me-2"></i>${branch.location}</h5>
+                        
+                        <form id="branchEditForm" onsubmit="branchManager.saveBranchDetails(event, '${regionName}', '${provinceName}', ${branchIndex})">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">ชื่อสาขา</label>
+                                        <input type="text" class="form-control" value="${branch.location}" name="location" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">จังหวัด</label>
+                                        <select class="form-control" name="newProvince">
+                                            ${this.getProvincesByRegion(regionName).map(p => `
+                                                <option value="${p}" ${p === provinceName ? 'selected' : ''}>${p}</option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">ที่อยู่</label>
+                                <textarea class="form-control" rows="3" name="address">${branch.address || ''}</textarea>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary modern-btn">
+                                    <i class="fas fa-save me-1"></i>บันทึก
+                                </button>
+                                <button type="button" class="btn btn-danger modern-btn" onclick="branchManager.deleteBranch('${regionName}', '${provinceName}', ${branchIndex})">
+                                    <i class="fas fa-trash me-1"></i>ลบสาขา
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            }
+
+            // Add new province to region
+            addProvince(regionName) {
+                const provinceName = prompt('ชื่อจังหวัดใหม่:');
+                if (!provinceName) return;
+                
+                if (!this.branchData[regionName]) this.branchData[regionName] = {};
+                if (!this.branchData[regionName][provinceName]) {
+                    this.branchData[regionName][provinceName] = [];
+                    this.renderBranchTree(this.currentCustomer);
+                    showAlert(`เพิ่มจังหวัด "${provinceName}" ในภูมิภาค "${regionName}" สำเร็จ`, 'success');
+                } else {
+                    showAlert('จังหวัดนี้มีอยู่แล้ว', 'warning');
+                }
+            }
+
+            // Add new branch
+            addBranch(regionName, provinceName) {
+                const location = prompt('ชื่อสาขาใหม่:');
+                if (!location) return;
+                
+                const address = prompt('ที่อยู่ (ไม่บังคับ):') || '';
+                
+                if (!this.branchData[regionName]) this.branchData[regionName] = {};
+                if (!this.branchData[regionName][provinceName]) this.branchData[regionName][provinceName] = [];
+                
+                this.branchData[regionName][provinceName].push({ location, address });
+                this.renderBranchTree(this.currentCustomer);
+                showAlert(`เพิ่มสาขา "${location}" สำเร็จ`, 'success');
+            }
+
+            // Save branch details
+            saveBranchDetails(event, regionName, provinceName, branchIndex) {
+                event.preventDefault();
+                const form = event.target;
+                const formData = new FormData(form);
+                
+                const location = formData.get('location');
+                const address = formData.get('address');
+                const newProvince = formData.get('newProvince');
+                
+                // Update branch data
+                this.branchData[regionName][provinceName][branchIndex] = { location, address };
+                
+                // If province changed, move branch
+                if (newProvince !== provinceName) {
+                    const branch = this.branchData[regionName][provinceName][branchIndex];
+                    this.branchData[regionName][provinceName].splice(branchIndex, 1);
+                    
+                    if (!this.branchData[regionName][newProvince]) this.branchData[regionName][newProvince] = [];
+                    this.branchData[regionName][newProvince].push(branch);
+                }
+                
+                this.renderBranchTree(this.currentCustomer);
+                showAlert('บันทึกข้อมูลสาขาสำเร็จ', 'success');
+            }
+
+            // Delete branch
+            deleteBranch(regionName, provinceName, branchIndex) {
+                if (!confirm('คุณต้องการลบสาขานี้หรือไม่?')) return;
+                
+                this.branchData[regionName][provinceName].splice(branchIndex, 1);
+                
+                // Remove empty province
+                if (this.branchData[regionName][provinceName].length === 0) {
+                    delete this.branchData[regionName][provinceName];
+                }
+                
+                // Remove empty region
+                if (Object.keys(this.branchData[regionName]).length === 0) {
+                    delete this.branchData[regionName];
+                }
+                
+                this.renderBranchTree(this.currentCustomer);
+                showAlert('ลบสาขาสำเร็จ', 'success');
+            }
+
+            // Get flattened branches for saving
+            getFlattenedBranches() {
+                const branches = [];
+                for (const [region, provinces] of Object.entries(this.branchData)) {
+                    for (const [province, provinceBranches] of Object.entries(provinces)) {
+                        branches.push(...provinceBranches);
+                    }
+                }
+                return branches;
+            }
+
+            // Add new region
+            addRegion(regionName) {
+                if (!this.branchData[regionName]) {
+                    this.branchData[regionName] = {};
+                    this.renderBranchTree(this.currentCustomer);
+                    showAlert(`เพิ่มภูมิภาค "${regionName}" สำเร็จ`, 'success');
+                } else {
+                    showAlert(`ภูมิภาค "${regionName}" มีอยู่แล้ว`, 'warning');
+                }
+            }
+
+            // Export branches to CSV
+            exportBranches() {
+                if (!this.currentCustomer || !this.currentCustomer.branches) {
+                    showAlert('ไม่มีข้อมูลสาขาให้ส่งออก', 'warning');
+                    return;
+                }
+
+                const branches = this.currentCustomer.branches;
+                let csvContent = "ลำดับ,ชื่อสาขา,ที่อยู่\n";
+                
+                branches.forEach((branch, index) => {
+                    csvContent += `${index + 1},"${branch.location || ''}","${branch.address || ''}"\n`;
+                });
+
+                // Create and download file
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `สาขา_${this.currentCustomer.name}_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showAlert(`ส่งออกข้อมูล ${branches.length} สาขาสำเร็จ`, 'success');
+            }
+
+            // Search branches functionality
+            searchBranches(searchTerm) {
+                const treeContainer = document.getElementById('branch-tree');
+                if (!treeContainer) return;
+
+                // Clear previous search highlights
+                treeContainer.querySelectorAll('.search-highlight').forEach(el => {
+                    el.classList.remove('search-highlight');
+                });
+                treeContainer.querySelectorAll('.search-match').forEach(el => {
+                    el.classList.remove('search-match');
+                });
+
+                if (!searchTerm || searchTerm.trim() === '') {
+                    // Show all elements
+                    treeContainer.querySelectorAll('.branch-node').forEach(node => {
+                        node.style.display = 'block';
+                    });
+                    return;
+                }
+
+                const searchLower = searchTerm.toLowerCase().trim();
+                let hasMatches = false;
+                let matchCount = 0;
+
+                // Hide all branch nodes first
+                treeContainer.querySelectorAll('.branch-node').forEach(node => {
+                    node.style.display = 'none';
+                });
+
+                // Search and highlight matches
+                treeContainer.querySelectorAll('.branch-item').forEach(branchItem => {
+                    const locationText = branchItem.querySelector('.branch-location')?.textContent || '';
+                    const addressText = branchItem.querySelector('.branch-address')?.textContent || '';
+                    
+                    const locationMatch = locationText.toLowerCase().includes(searchLower);
+                    const addressMatch = addressText.toLowerCase().includes(searchLower);
+
+                    if (locationMatch || addressMatch) {
+                        hasMatches = true;
+                        matchCount++;
+                        
+                        // Show the branch node
+                        const branchNode = branchItem.closest('.branch-node');
+                        if (branchNode) {
+                            branchNode.style.display = 'block';
+                            
+                            // Show parent province and region
+                            const provinceNode = branchNode.closest('.province-children');
+                            if (provinceNode) {
+                                const provinceToggle = provinceNode.previousElementSibling;
+                                if (provinceToggle) {
+                                    provinceToggle.style.display = 'block';
+                                    // Expand province
+                                    const toggleBtn = provinceToggle.querySelector('.toggle-btn');
+                                    if (toggleBtn && !toggleBtn.textContent.includes('−')) {
+                                        toggleBtn.click();
+                                    }
+                                }
+                                
+                                // Show parent region
+                                const regionNode = provinceNode.closest('.region-item');
+                                if (regionNode) {
+                                    regionNode.style.display = 'block';
+                                    // Expand region
+                                    const regionToggle = regionNode.querySelector('.toggle-btn');
+                                    if (regionToggle && !regionToggle.textContent.includes('−')) {
+                                        regionToggle.click();
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Highlight matching text
+                        if (locationMatch) {
+                            branchItem.classList.add('search-match');
+                        }
+                    }
+                });
+
+                // Update search results count
+                const searchResults = hasMatches 
+                    ? `พบ ${matchCount} สาขาที่ตรงกับ "${searchTerm}"` 
+                    : `ไม่พบสาขาที่ตรงกับ "${searchTerm}"`;
+                
+                // Add search results info if not exists
+                let searchInfo = treeContainer.querySelector('.search-info');
+                if (!searchInfo) {
+                    searchInfo = document.createElement('div');
+                    searchInfo.className = 'search-info alert alert-info alert-sm mb-3';
+                    treeContainer.insertBefore(searchInfo, treeContainer.firstChild);
+                }
+                searchInfo.textContent = searchResults;
+                searchInfo.style.display = 'block';
+            }
+        }
+
+        // Initialize branch manager
+        const branchManager = new BranchManager();
+
+        // Add event listener for save all branches button and search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Save branches functionality
+            document.getElementById('save-all-branches').addEventListener('click', async () => {
+                try {
+                    if (!branchManager.currentCustomer) {
+                        showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const saveBtn = document.getElementById('save-all-branches');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
+                    
+                    // Get flattened branches from hierarchical structure
+                    const branches = branchManager.getFlattenedBranches();
+                    
+                    // Get customer document reference
+                    const customerDocRef = doc(db, `/artifacts/${appId}/public/data/customers`, branchManager.currentCustomer.id);
+                    
+                    // Update customer document with new branches
+                    await updateDoc(customerDocRef, { 
+                        branches: branches,
+                        lastUpdated: new Date().toISOString()
+                    });
+                    
+                    showAlert(`บันทึกข้อมูลสาขาของ ${branchManager.currentCustomer.name} สำเร็จ`, 'success');
+                    
+                    // Close modal after successful save
+                    setTimeout(() => {
+                        Modals.branchManagement.hide();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error saving branches:', error);
+                    showAlert(`เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'danger');
+                } finally {
+                    // Restore button state
+                    const saveBtn = document.getElementById('save-all-branches');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                }
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('branch-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    branchManager.searchBranches(e.target.value);
+                });
+                
+                // Clear search on escape key
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        e.target.value = '';
+                        branchManager.searchBranches('');
+                    }
+                });
+            }
+
+            // Header buttons functionality
+            document.getElementById('add-region-btn').addEventListener('click', () => {
+                const regionName = prompt('ชื่อภูมิภาคใหม่:', '');
+                if (regionName && regionName.trim()) {
+                    branchManager.addRegion(regionName.trim());
+                }
+            });
+
+            document.getElementById('import-branches-btn').addEventListener('click', () => {
+                showAlert('ฟีเจอร์นำเข้า Excel จะเปิดให้ใช้งานในเร็วๆ นี้', 'info');
+            });
+
+            document.getElementById('export-branches-btn').addEventListener('click', () => {
+                if (branchManager.currentCustomer) {
+                    branchManager.exportBranches();
+                } else {
+                    showAlert('ไม่พบข้อมูลลูกค้าที่กำลังแก้ไข', 'warning');
+                }
+            });
+        });
+
+        // Using modern toast notifications from ui-helpers.js
 
         async function seedInitialData() {
             const seedBtn = document.getElementById('seedDataBtn');
@@ -217,17 +1149,17 @@
                 const companyDocSnap = await getDoc(companyDocRef);
                 if (!companyDocSnap.exists()) { batch.set(companyDocRef, { license_factory: 'ว-๓๒๙', license_chemical_measurement: '๐๒๐๑-๐๓-๒๕๖๕-๐๐๓๐', license_chemical_analysis: '๐๒๐๒-๐๓-๒๕๖๕-๐๐๒๑', license_heat: '๐๔๐๑-๐๓-๒๕๖๕-๐๐๔๑', license_welfare_light: '๐๔๐๒-๐๓-๒๕๖๕-๐๐๔๒', license_sound: '๐๔๐๓-๐๓-๒๕๖๕-๐๐๔๑', signatories: [{ id: `sig_${Date.now()}`, name: 'นางสาวสุกานดา คำก๋อง', title: 'ผู้ควบคุมห้องปฏิบัติการวิเคราะห์' }] }); }
                 await batch.commit();
-                showAlert('เติมข้อมูลเริ่มต้นสำเร็จ!');
+                showAlert('เติมข้อมูลเริ่มต้นสำเร็จ!', 'success');
             } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } 
             finally { seedBtn.disabled = false; seedBtn.innerHTML = `<i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)`; }
         }
 
-        const renderCustomers = (docs) => { const tableBody = document.getElementById('customers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const branchCount = d.branches ? d.branches.length : 0; const branchDisplay = branchCount > 0 ? `<a href="#" class="branch-details-link" data-id="${doc.id}">${branchCount} สาขา</a>` : 'ไม่มีสาขา'; return `<tr><td>${d.name || ''}</td><td>${branchDisplay}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderWorkTypes = (docs) => { const tableBody = document.getElementById('work-types-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.workTypeName || ''}</td><td class="text-center">${d.stdSpotMin || '-'}</td><td class="text-center">${d.stdSpotMax || '-'}</td><td class="text-center">${d.stdAreaAvg || '-'}</td><td class="text-center">${d.stdAreaMin || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderInspectors = (docs) => { const tableBody = document.getElementById('inspectors-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.inspectorName || ''}</td><td>${d.inspectorTitle || ''}</td><td>${d.inspectorLicense || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderInstruments = (docs) => { const tableBody = document.getElementById('instruments-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.instrumentName || ''}</td><td>${d.instrumentSerial || ''}</td><td>${d.instrumentCalDate || ''}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderCustomers = (docs) => { const tableBody = document.getElementById('customers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const branchCount = d.branches ? d.branches.length : 0; const branchDisplay = branchCount > 0 ? `<div class="d-flex align-items-center gap-2"><a href="#" class="branch-details-link" data-id="${doc.id}">${branchCount} สาขา</a><button class="btn btn-xs btn-outline-primary modern-btn manage-branches-btn" data-id="${doc.id}" title="จัดการสาขาขั้นสูง"><i class="fas fa-sitemap"></i></button></div>` : 'ไม่มีสาขา'; return `<tr><td>${d.name || ''}</td><td>${branchDisplay}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderWorkTypes = (docs) => { const tableBody = document.getElementById('work-types-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.workTypeName || ''}</td><td class="text-center">${d.stdSpotMin || '-'}</td><td class="text-center">${d.stdSpotMax || '-'}</td><td class="text-center">${d.stdAreaAvg || '-'}</td><td class="text-center">${d.stdAreaMin || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderInspectors = (docs) => { const tableBody = document.getElementById('inspectors-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.inspectorName || ''}</td><td>${d.inspectorTitle || ''}</td><td>${d.inspectorLicense || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderInstruments = (docs) => { const tableBody = document.getElementById('instruments-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.instrumentName || ''}</td><td>${d.instrumentSerial || ''}</td><td>${d.instrumentAccuracy || '-'}</td><td>${d.instrumentLastCalDate || '-'}</td><td>${d.instrumentCalDate || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
         const renderSignatories = (signatories = []) => { const tableBody = document.getElementById('signatories-table'); if (signatories.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>'; return; } tableBody.innerHTML = signatories.map((s) => `<tr><td>${s.name}</td><td>${s.title}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${s.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${s.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`).join(''); };
-        const renderRunningNumbers = (docs) => { const tableBody = document.getElementById('running-numbers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const formatDisplay = d.prefix ? `${d.prefix}-YYYY-MM-XXX` : 'YYYY-MM-XXX'; const lastNumber = d.lastNumber || '000'; const lastPeriod = d.lastPeriod || 'ยังไม่มี'; return `<tr><td>${d.type || ''}<br><small class="text-muted">${d.description || ''}</small></td><td>${formatDisplay}</td><td>${lastNumber}</td><td>${lastPeriod}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderRunningNumbers = (docs) => { const tableBody = document.getElementById('running-numbers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const formatDisplay = d.prefix ? `${d.prefix}-YYYY-MM-XXX` : 'YYYY-MM-XXX'; const lastNumber = d.lastNumber || '000'; const lastPeriod = d.lastPeriod || 'ยังไม่มี'; return `<tr><td>${d.type || ''}<br><small class="text-muted">${d.description || ''}</small></td><td>${formatDisplay}</td><td>${lastNumber}</td><td>${lastPeriod}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
 
         function setupTab(db, { collectionName, tableId, modal, formId, addBtnId, modalLabelId, renderFn, populateFormFn, onFormSubmit }) {
             const collectionRef = collection(db, `/artifacts/${appId}/public/data/${collectionName}`);
@@ -267,6 +1199,23 @@
                         }
                         Modals.branchList.show();
                     }
+                } else if (target.classList.contains('manage-branches-btn')) {
+                    e.preventDefault();
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        
+                        // Setup branch management modal
+                        document.getElementById('branchManagementModalLabel').innerHTML = `
+                            <i class="fas fa-sitemap me-2"></i>จัดการสาขา: ${data.name}
+                        `;
+                        
+                        // Render branch tree
+                        branchManager.renderBranchTree(data);
+                        
+                        // Show modal
+                        Modals.branchManagement.show();
+                    }
                 }
             });
             document.getElementById(formId).addEventListener('submit', (e) => onFormSubmit(e, db, modal));
@@ -275,9 +1224,9 @@
         function setupCompanyInfo(db) {
             const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info/main`);
             onSnapshot(companyDocRef, (docSnap) => { if(docSnap.exists()) { const data = docSnap.data(); document.getElementById('license_factory').value = data.license_factory || ''; document.getElementById('license_chemical_measurement').value = data.license_chemical_measurement || ''; document.getElementById('license_chemical_analysis').value = data.license_chemical_analysis || ''; document.getElementById('license_heat').value = data.license_heat || ''; document.getElementById('license_welfare_light').value = data.license_welfare_light || ''; document.getElementById('license_sound').value = data.license_sound || ''; renderSignatories(data.signatories); } });
-            document.getElementById('company-info-form').addEventListener('submit', async (e) => { e.preventDefault(); const data = { license_factory: document.getElementById('license_factory').value, license_chemical_measurement: document.getElementById('license_chemical_measurement').value, license_chemical_analysis: document.getElementById('license_chemical_analysis').value, license_heat: document.getElementById('license_heat').value, license_welfare_light: document.getElementById('license_welfare_light').value, license_sound: document.getElementById('license_sound').value }; await setDoc(companyDocRef, data, { merge: true }); showAlert('บันทึกข้อมูลบริษัทสำเร็จแล้ว'); });
+            document.getElementById('company-info-form').addEventListener('submit', async (e) => { e.preventDefault(); const data = { license_factory: document.getElementById('license_factory').value, license_chemical_measurement: document.getElementById('license_chemical_measurement').value, license_chemical_analysis: document.getElementById('license_chemical_analysis').value, license_heat: document.getElementById('license_heat').value, license_welfare_light: document.getElementById('license_welfare_light').value, license_sound: document.getElementById('license_sound').value }; await setDoc(companyDocRef, data, { merge: true }); showAlert('บันทึกข้อมูลบริษัทสำเร็จแล้ว', 'success'); });
             document.getElementById('addSignatoryBtn').addEventListener('click', () => { document.getElementById('signatoryForm').reset(); document.getElementById('signatoryId').value = ''; document.getElementById('signatoryModalLabel').textContent = 'เพิ่มผู้ลงนาม'; Modals.signatory.show(); });
-            document.getElementById('signatoryForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('signatoryId').value; const signatory = { id: id || `sig_${Date.now()}`, name: document.getElementById('signatoryName').value, title: document.getElementById('signatoryTitle').value }; const docSnap = await getDoc(companyDocRef); const signatories = docSnap.exists() && docSnap.data().signatories ? docSnap.data().signatories : []; if (id) { const index = signatories.findIndex(s => s.id === id); if (index > -1) signatories[index] = signatory; } else { signatories.push(signatory); } await setDoc(companyDocRef, { signatories }, { merge: true }); showAlert('บันทึกข้อมูลผู้ลงนามสำเร็จ'); Modals.signatory.hide(); });
+            document.getElementById('signatoryForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('signatoryId').value; const signatory = { id: id || `sig_${Date.now()}`, name: document.getElementById('signatoryName').value, title: document.getElementById('signatoryTitle').value }; const docSnap = await getDoc(companyDocRef); const signatories = docSnap.exists() && docSnap.data().signatories ? docSnap.data().signatories : []; if (id) { const index = signatories.findIndex(s => s.id === id); if (index > -1) signatories[index] = signatory; } else { signatories.push(signatory); } await setDoc(companyDocRef, { signatories }, { merge: true }); showAlert('บันทึกข้อมูลผู้ลงนามสำเร็จ', 'success'); Modals.signatory.hide(); });
             document.getElementById('signatories-table').addEventListener('click', async (e) => { const target = e.target.closest('button'); if (!target) return; const id = target.dataset.id; if (target.classList.contains('edit-btn')) { const docSnap = await getDoc(companyDocRef); const signatory = (docSnap.data().signatories || []).find(s => s.id === id); if (signatory) { document.getElementById('signatoryId').value = signatory.id; document.getElementById('signatoryName').value = signatory.name; document.getElementById('signatoryTitle').value = signatory.title; document.getElementById('signatoryModalLabel').textContent = 'แก้ไขผู้ลงนาม'; Modals.signatory.show(); } } else if (target.classList.contains('delete-btn')) { document.getElementById('confirmDeleteBtn').dataset.docPath = companyDocRef.path; document.getElementById('confirmDeleteBtn').dataset.signatoryId = id; Modals.confirmDelete.show(); } });
         }
         
@@ -294,7 +1243,7 @@
                 if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
                 document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
-            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`); }
+            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'danger'); }
             
             const branchesContainer = document.getElementById('branches-container');
             const addBranchInput = (branch = { location: '', address: '' }) => { const div = document.createElement('div'); div.className = 'input-group mb-2'; div.innerHTML = `<input type="text" class="form-control branch-location" placeholder="ชื่อสาขา/สถานที่" value="${branch.location}" required><input type="text" class="form-control branch-address" placeholder="ที่อยู่ (ถ้ามี)" value="${branch.address}"><button class="btn btn-outline-danger remove-branch-btn" type="button"><i class="fas fa-trash"></i></button>`; branchesContainer.appendChild(div); };
@@ -303,23 +1252,23 @@
             
             setupTab(db, { collectionName: 'customers', tableId: 'customers-table', modal: Modals.customer, formId: 'customerForm', addBtnId: 'addCustomerBtn', modalLabelId: 'customerModalLabel', renderFn: renderCustomers, 
                 populateFormFn: (data, form) => { branchesContainer.innerHTML = ''; if (data && data.branches) { data.branches.forEach(branch => addBranchInput(branch)); } else { addBranchInput(); } },
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .input-group').forEach(group => { const location = group.querySelector('.branch-location').value.trim(); const address = group.querySelector('.branch-address').value.trim(); if(location) branches.push({ location, address }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .input-group').forEach(group => { const location = group.querySelector('.branch-location').value.trim(); const address = group.querySelector('.branch-address').value.trim(); if(location) branches.push({ location, address }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'work_types', tableId: 'work-types-table', modal: Modals.workType, formId: 'workTypeForm', addBtnId: 'addWorkTypeBtn', modalLabelId: 'workTypeModalLabel', renderFn: renderWorkTypes,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/work_types`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); let data = {}; new FormData(form).forEach((value, key) => { if (form[key] && form[key].type === 'number') data[key] = value ? Number(value) : null; else data[key] = value; }); delete data['workTypeId']; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/work_types`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); let data = {}; new FormData(form).forEach((value, key) => { if (form[key] && form[key].type === 'number') data[key] = value ? Number(value) : null; else data[key] = value; }); delete data['workTypeId']; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'inspectors', tableId: 'inspectors-table', modal: Modals.inspector, formId: 'inspectorForm', addBtnId: 'addInspectorBtn', modalLabelId: 'inspectorModalLabel', renderFn: renderInspectors,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/inspectors`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { inspectorName: form.inspectorName.value, inspectorTitle: form.inspectorTitle.value, inspectorLicense: form.inspectorLicense.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/inspectors`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { inspectorName: form.inspectorName.value, inspectorTitle: form.inspectorTitle.value, inspectorLicense: form.inspectorLicense.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'instruments', tableId: 'instruments-table', modal: Modals.instrument, formId: 'instrumentForm', addBtnId: 'addInstrumentBtn', modalLabelId: 'instrumentModalLabel', renderFn: renderInstruments,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentAccuracy: form.instrumentAccuracy.value, instrumentLastCalDate: form.instrumentLastCalDate.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'running_numbers', tableId: 'running-numbers-table', modal: Modals.runningNumber, formId: 'runningNumberForm', addBtnId: 'addRunningNumberBtn', modalLabelId: 'runningNumberModalLabel', renderFn: renderRunningNumbers,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/running_numbers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { type: form.runningNumberType.value.toUpperCase(), description: form.runningNumberDescription.value, prefix: form.runningNumberPrefix.value.toUpperCase(), lastNumber: '000', lastPeriod: '' }; try { await setDoc(docRef, data); showAlert('บันทึกรหัสอ้างอิงสำเร็จ'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/running_numbers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { type: form.runningNumberType.value.toUpperCase(), description: form.runningNumberDescription.value, prefix: form.runningNumberPrefix.value.toUpperCase(), lastNumber: '000', lastPeriod: '' }; try { await setDoc(docRef, data); showAlert('บันทึกรหัสอ้างอิงสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
             
             setupCompanyInfo(db);
@@ -335,10 +1284,10 @@
                         const signatories = docSnap.exists() ? docSnap.data().signatories || [] : [];
                         const updatedSignatories = signatories.filter(s => s.id !== signatoryId);
                         await updateDoc(companyDocRef, { signatories: updatedSignatories });
-                        showAlert('ลบข้อมูลผู้ลงนามสำเร็จ');
+                        showAlert('ลบข้อมูลผู้ลงนามสำเร็จ', 'success');
                     } else if (docPath) {
                         await deleteDoc(doc(db, docPath));
-                        showAlert('ลบข้อมูลสำเร็จแล้ว');
+                        showAlert('ลบข้อมูลสำเร็จแล้ว', 'success');
                     }
                 } catch(err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
                 } finally { Modals.confirmDelete.hide(); delete button.dataset.docPath; delete button.dataset.signatoryId; }

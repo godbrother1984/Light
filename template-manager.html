@@ -1,8 +1,9 @@
 <!-- 
   path: /template-manager.html
-  version: 2.2 (Modernized UI - Fully Functional & Complete Code)
-  date: 2025-09-03
-  time: 11:28:00
+  version: 3.0 (Module System Migration + Modern Design + Toast Notifications)
+  date: 2025-09-05
+  time: 12:00:00
+  description: Migrated to module system, added modern button styling and toast notifications
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -14,37 +15,73 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Modular CSS -->
+    <link href="assets/css/main-styles.css" rel="stylesheet">
+    <link href="assets/css/sidebar.css" rel="stylesheet">
+    <link href="assets/css/components.css" rel="stylesheet">
+    
     <script src="https://cdn.tiny.cloud/1/89apconez9ynna1jgwbnp15ywm4fk8ob84ndx3rcl5ih7q69/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
     <style>
-        :root {
-            --primary-color: #0d47a1;
-            --secondary-color: #1976d2;
-            --background-color: #f4f7f9;
-            --sidebar-width: 260px;
-            --sidebar-mini-width: 80px;
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            --transition-speed: 0.3s;
-        }
-        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
-        #wrapper { display: flex; }
-        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
-        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
-        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
-        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
-        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
-        .list-group-item-action { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
-        .list-group-item i { font-size: 1.25rem; }
-        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
-        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
-        .list-group-item-action:hover { background-color: var(--secondary-color); color: #fff; }
-        .list-group-item-action.active { background-color: var(--secondary-color); color: #fff; font-weight: 700; }
+        /* Template-specific styling */
         .list-group#template-list .list-group-item-action { color: var(--primary-color); }
         .list-group#template-list .list-group-item-action:hover { background-color: #e9ecef; }
         .list-group#template-list .list-group-item-action.active { background-color: var(--primary-color); color: #fff; }
-        #page-content-wrapper { flex-grow: 1; }
-        .navbar { box-shadow: var(--card-shadow); }
-        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
+        
+        /* Enhanced Modal Title Contrast */
+        .modal-title {
+            color: #000000 !important;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-shadow: 0 0 1px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #ffffff, #f1f3f5) !important;
+            border-bottom: 3px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* TinyMCE Editor Fix */
+        .tox-tinymce {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .tox-editor-header {
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+        
+        .tox-edit-area {
+            border: none !important;
+        }
+        
+        .tox-edit-area iframe {
+            height: 500px !important;
+            min-height: 500px !important;
+        }
+        
+        /* Ensure editor container has proper height */
+        #template-editor {
+            min-height: 500px !important;
+            height: 500px !important;
+        }
+        
+        /* Backup textarea styling (in case TinyMCE fails to load) */
+        textarea#template-editor {
+            width: 100%;
+            height: 500px !important;
+            min-height: 500px !important;
+            resize: vertical;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -53,11 +90,33 @@
 
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
             <div class="list-group list-group-flush">
-                <a class="list-group-item list-group-item-action" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
-                <a class="list-group-item list-group-item-action" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
-                <a class="list-group-item list-group-item-action active" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
             </div>
         </div>
 
@@ -84,13 +143,12 @@
                  <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="h3 mb-0">ศูนย์จัดการ Template รายงาน</h1>
                 </div>
-                <div id="alert-placeholder"></div>
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-list me-2"></i>รายการ Templates</h5>
-                                <button class="btn btn-sm btn-primary" id="new-template-btn"><i class="fas fa-plus me-2"></i>สร้างใหม่</button>
+                                <button class="btn btn-sm btn-primary modern-btn" id="new-template-btn"><i class="fas fa-plus me-2"></i>สร้างใหม่</button>
                             </div>
                             <div class="list-group list-group-flush" id="template-list">
                                 <p class="text-center p-3 text-muted">Loading templates...</p>
@@ -109,8 +167,8 @@
                                     <textarea id="template-editor"></textarea>
                                 </div>
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-danger" id="delete-template-btn" disabled><i class="fas fa-trash-alt me-2"></i>ลบ</button>
-                                    <button class="btn btn-success" id="save-template-btn"><i class="fas fa-save me-2"></i>บันทึก</button>
+                                    <button class="btn btn-danger modern-btn" id="delete-template-btn" disabled><i class="fas fa-trash-alt me-2"></i>ลบ</button>
+                                    <button class="btn btn-success modern-btn" id="save-template-btn"><i class="fas fa-save me-2"></i>บันทึก</button>
                                 </div>
                             </div>
                         </div>
@@ -123,9 +181,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="firebase-config.js"></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Module imports
+        import { firebaseManager } from './assets/js/firebase-init.js';
+        import { showAlert } from './assets/js/ui-helpers.js';
 
         let activeEditor = null;
         let selectedTemplateId = null;
@@ -135,14 +193,6 @@
         const saveBtn = document.getElementById('save-template-btn');
         const deleteBtn = document.getElementById('delete-template-btn');
         const newBtn = document.getElementById('new-template-btn');
-        const alertPlaceholder = document.getElementById('alert-placeholder');
-
-        const showAlert = (message, type = 'success') => {
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-            alertPlaceholder.innerHTML = '';
-            alertPlaceholder.append(wrapper);
-        };
 
         const clearEditor = () => {
             selectedTemplateId = null;
@@ -153,88 +203,142 @@
             templateNameInput.focus();
         };
 
-        (async () => {
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', async () => {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
             
-            tinymce.init({
-                selector: '#template-editor',
-                height: 500,
-                plugins: 'code table lists image link fullscreen preview',
-                toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | fullscreen',
-                content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; }',
-                setup: editor => { activeEditor = editor; }
-            });
-
-            let finalFirebaseConfig;
-            try {
-                if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config);
-                else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig;
-            } catch(e) { console.error(e); }
-            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config', 'danger'); return; }
-
-            const app = initializeApp(finalFirebaseConfig);
-            const db = getFirestore(app);
-            const auth = getAuth(app);
+            // Wait a bit more to ensure all CSS is loaded
+            await new Promise(resolve => setTimeout(resolve, 100));
             
+            // Initialize TinyMCE with better error handling
             try {
-                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
+                await new Promise((resolve, reject) => {
+                    tinymce.init({
+                        selector: '#template-editor',
+                        height: 500,
+                        min_height: 500,
+                        resize: true,
+                        menubar: false,
+                        plugins: 'code table lists image link fullscreen preview wordcount',
+                        toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | indent outdent | bullist numlist | code | fullscreen | wordcount',
+                        content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; line-height: 1.6; margin: 0.5rem; }',
+                        branding: false,
+                        statusbar: true,
+                        elementpath: false,
+                        init_instance_callback: function(editor) {
+                            activeEditor = editor;
+                            console.log('TinyMCE initialized successfully');
+                            resolve(editor);
+                        },
+                        setup: function(editor) {
+                            editor.on('init', function() {
+                                console.log('TinyMCE editor ready');
+                            });
+                            
+                            editor.on('LoadContent', function() {
+                                console.log('TinyMCE content loaded');
+                            });
+                        }
+                    });
+                    
+                    // Timeout fallback
+                    setTimeout(() => {
+                        if (!activeEditor) {
+                            console.warn('TinyMCE initialization timeout');
+                            reject(new Error('TinyMCE initialization timeout'));
+                        }
+                    }, 10000);
+                });
+                console.log('TinyMCE initialization completed');
+            } catch (error) {
+                console.error('TinyMCE initialization failed:', error);
+                showAlert('Text editor มีปัญหา กรุณา refresh หน้าใหม่', 'warning');
                 
-                const templatesCollectionPath = `/artifacts/${appId}/public/data/report_templates`;
-                const templatesCollectionRef = collection(db, templatesCollectionPath);
+                // Fallback: Show basic textarea
+                const editor = document.getElementById('template-editor');
+                if (editor) {
+                    editor.style.display = 'block';
+                    editor.style.height = '500px';
+                    editor.classList.add('form-control');
+                }
+            }
 
-                onSnapshot(templatesCollectionRef, (snapshot) => {
-                    if (snapshot.empty) {
-                        templateListContainer.innerHTML = '<p class="text-center p-3 text-muted">ยังไม่มี Template</p>';
+            // Initialize Firebase first
+            if (!await firebaseManager.initialize()) {
+                showAlert('ไม่สามารถเชื่อมต่อ Firebase ได้', 'danger');
+                return;
+            }
+
+            try {
+                // Update user display
+                const currentUser = firebaseManager.getCurrentUser();
+                if (currentUser) {
+                    document.getElementById('user-display').textContent = `UID: ${currentUser.uid.substring(0, 8)}...`;
+                }
+                
+                // Load templates with real-time updates
+                firebaseManager.listenToCollection('report_templates', (templates) => {
+                    templateListContainer.innerHTML = '';
+                    
+                    if (templates.length === 0) {
+                        templateListContainer.innerHTML = '<p class="text-center p-3 text-muted">ยังไม่มี templates</p>';
                         return;
                     }
-                    templateListContainer.innerHTML = '';
-                    snapshot.docs.forEach(doc => {
-                        const template = doc.data();
-                        const item = document.createElement('a');
-                        item.href = '#';
-                        item.className = 'list-group-item list-group-item-action';
-                        item.textContent = template.name;
-                        item.dataset.id = doc.id;
-                        if(doc.id === selectedTemplateId) item.classList.add('active');
-                        templateListContainer.appendChild(item);
+                    
+                    templates.forEach(template => {
+                        const listItem = document.createElement('a');
+                        listItem.className = 'list-group-item list-group-item-action';
+                        listItem.dataset.templateId = template.id;
+                        listItem.innerHTML = `
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${template.name}</h6>
+                                <small>${new Date(template.createdAt).toLocaleDateString('th-TH')}</small>
+                            </div>
+                            <small class="text-muted">สร้างโดย: ${template.createdBy}</small>
+                        `;
+                        
+                        listItem.addEventListener('click', () => {
+                            selectedTemplateId = template.id;
+                            templateNameInput.value = template.name;
+                            if (activeEditor) activeEditor.setContent(template.content || '');
+                            deleteBtn.disabled = false;
+                            
+                            // Update active state
+                            document.querySelectorAll('#template-list .list-group-item-action').forEach(el => el.classList.remove('active'));
+                            listItem.classList.add('active');
+                        });
+                        
+                        templateListContainer.appendChild(listItem);
                     });
                 });
 
-                templateListContainer.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    if (e.target.classList.contains('list-group-item-action')) {
-                        selectedTemplateId = e.target.dataset.id;
-                        document.querySelectorAll('#template-list .list-group-item-action').forEach(el => el.classList.remove('active'));
-                        e.target.classList.add('active');
-
-                        const docRef = doc(db, templatesCollectionPath, selectedTemplateId);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            templateNameInput.value = data.name;
-                            activeEditor.setContent(data.content);
-                            deleteBtn.disabled = false;
-                        }
-                    }
-                });
 
                 newBtn.addEventListener('click', clearEditor);
 
                 saveBtn.addEventListener('click', async () => {
                     const name = templateNameInput.value.trim();
                     const content = activeEditor.getContent();
-                    if (!name) { showAlert('กรุณาใส่ชื่อ Template', 'warning'); return; }
-                    
-                    const data = { name, content, lastUpdated: serverTimestamp() };
+                    if (!name) { 
+                        showAlert('กรุณาใส่ชื่อ Template', 'warning'); 
+                        return; 
+                    }
                     
                     try {
                         if (selectedTemplateId) {
-                            await setDoc(doc(db, templatesCollectionPath, selectedTemplateId), data);
+                            await firebaseManager.updateDocument('report_templates', selectedTemplateId, {
+                                name,
+                                content,
+                                lastUpdated: new Date().toISOString()
+                            });
                         } else {
-                            const newDocRef = await addDoc(templatesCollectionRef, data);
-                            selectedTemplateId = newDocRef.id;
+                            const newTemplate = await firebaseManager.addDocument('report_templates', {
+                                name,
+                                content,
+                                createdAt: new Date().toISOString(),
+                                createdBy: firebaseManager.getCurrentUser()?.uid || 'anonymous',
+                                lastUpdated: new Date().toISOString()
+                            });
+                            selectedTemplateId = newTemplate.id;
                             deleteBtn.disabled = false;
                         }
                         showAlert(`Template "${name}" ได้รับการบันทึกแล้ว`, 'success');
@@ -247,7 +351,7 @@
                     if (!selectedTemplateId || !confirm(`คุณต้องการลบ Template "${templateNameInput.value}" ใช่หรือไม่?`)) return;
                     
                     try {
-                        await deleteDoc(doc(db, templatesCollectionPath, selectedTemplateId));
+                        await firebaseManager.deleteDocument('report_templates', selectedTemplateId);
                         showAlert(`Template "${templateNameInput.value}" ถูกลบแล้ว`);
                         clearEditor();
                     } catch (err) {
@@ -255,8 +359,11 @@
                     }
                 });
 
-            } catch (error) { showAlert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`, 'danger'); }
-        })();
+            } catch (error) { 
+                console.error('Error in template manager:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger'); 
+            }
+        });
     </script>
     <script>
         document.getElementById('sidebarToggle').addEventListener('click', () => {

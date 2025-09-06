@@ -1,9 +1,9 @@
 <!-- 
   path: /report-finalizer.html
-  version: 6.0 (Enhanced Tags System with TagProcessor Module)
-  date: 2025-09-04
-  time: 10:00:00
-  description: Added new advanced tags and separated tag processing into external module
+  version: 7.0 (Module System Migration + Modern Button Design + Toast Notifications)
+  date: 2025-09-05
+  time: 11:45:00
+  description: Migrated to module system, added modern button styling and toast notifications
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -16,6 +16,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
+    <!-- Modular CSS -->
+    <link href="assets/css/main-styles.css" rel="stylesheet">
+    <link href="assets/css/sidebar.css" rel="stylesheet">
+    <link href="assets/css/components.css" rel="stylesheet">
+    
     <!-- TinyMCE Rich Text Editor -->
     <script src="https://cdn.tiny.cloud/1/89apconez9ynna1jgwbnp15ywm4fk8ob84ndx3rcl5ih7q69/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <!-- PDF Generation Libraries -->
@@ -25,31 +30,21 @@
     <script src="tag-processor.js"></script>
 
     <style>
-        :root {
-            --primary-color: #0d47a1;
-            --secondary-color: #1976d2;
-            --background-color: #f4f7f9;
-            --sidebar-width: 260px;
-            --sidebar-mini-width: 80px;
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            --transition-speed: 0.3s;
-        }
-        body { font-family: 'Sarabun', sans-serif !important; background-color: var(--background-color); overflow-x: hidden; }
-        #wrapper { display: flex; }
-        #sidebar-wrapper { width: var(--sidebar-width); min-height: 100vh; background-color: var(--primary-color); transition: width var(--transition-speed) ease; }
-        #wrapper.sidebar-mini #sidebar-wrapper { width: var(--sidebar-mini-width); }
-        .sidebar-heading { padding: 1rem 1.25rem; font-size: 1.5rem; font-weight: 700; color: #fff; white-space: nowrap; }
-        .sidebar-heading .logo-text { display: inline; transition: opacity var(--transition-speed) ease; }
-        #wrapper.sidebar-mini .sidebar-heading .logo-text { opacity: 0; display: none; }
-        .list-group-item { border: none; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); background-color: transparent; transition: background-color var(--transition-speed) ease; white-space: nowrap; display: flex; align-items: center; }
-        .list-group-item i { font-size: 1.25rem; }
-        .list-group-item .menu-text { opacity: 1; transition: opacity 0.2s ease; }
-        #wrapper.sidebar-mini .list-group-item .menu-text { opacity: 0; display: none; }
-        .list-group-item:hover, .list-group-item.active { background-color: var(--secondary-color); color: #fff; }
-        #page-content-wrapper { flex-grow: 1; }
-        .navbar { box-shadow: var(--card-shadow); }
-        .card { box-shadow: var(--card-shadow); border: none; border-radius: .5rem; }
         .tox-tinymce { border-radius: .5rem !important; }
+        
+        /* Enhanced Modal Title Contrast */
+        .modal-title {
+            color: #000000 !important;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-shadow: 0 0 1px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #ffffff, #f1f3f5) !important;
+            border-bottom: 3px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
         
         .tag-button {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
@@ -117,11 +112,33 @@
 
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-            <div class="sidebar-heading"><i class="fas fa-lightbulb me-2"></i><span class="logo-text">Light Measuring</span></div>
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
             <div class="list-group list-group-flush">
-                <a class="list-group-item" href="main.html"><i class="fas fa-tasks fa-fw me-3"></i><span class="menu-text">รายการงานทั้งหมด</span></a>
-                <a class="list-group-item" href="master-data-manager.html"><i class="fas fa-database fa-fw me-3"></i><span class="menu-text">จัดการข้อมูลหลัก</span></a>
-                <a class="list-group-item" href="template-manager.html"><i class="fas fa-file-alt fa-fw me-3"></i><span class="menu-text">จัดการ Template</span></a>
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
             </div>
         </div>
 
@@ -148,13 +165,12 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="h3 mb-0">ตัวสร้างรายงาน PDF สำหรับ Job ID: <span id="job-id-display" class="text-primary">Loading...</span></h1>
                     <div class="d-flex gap-2">
-                        <a href="#" id="back-to-job-btn" class="btn btn-outline-secondary">
+                        <a href="#" id="back-to-job-btn" class="btn btn-outline-secondary modern-btn">
                             <i class="fas fa-arrow-left me-2"></i>กลับไปรายละเอียดงาน
                         </a>
                     </div>
                 </div>
                 
-                <div id="alert-placeholder"></div>
 
                 <div class="row">
                     <!-- Editor Column -->
@@ -166,7 +182,7 @@
                                     <select id="template-selector" class="form-select form-select-sm" style="width: auto;">
                                         <option value="">-- เลือก Template --</option>
                                     </select>
-                                    <button id="load-template-btn" class="btn btn-sm btn-outline-info">
+                                    <button id="load-template-btn" class="btn btn-sm btn-outline-info modern-btn">
                                         <i class="fas fa-download me-1"></i>โหลด
                                     </button>
                                 </div>
@@ -341,16 +357,16 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
-                                    <button id="preview-pdf-btn" class="btn btn-info">
+                                    <button id="preview-pdf-btn" class="btn btn-info modern-btn">
                                         <i class="fas fa-eye me-2"></i>ดูตัวอย่าง PDF
                                     </button>
-                                    <button id="save-content-btn" class="btn btn-secondary">
+                                    <button id="save-content-btn" class="btn btn-secondary modern-btn">
                                         <i class="fas fa-save me-2"></i>บันทึกเนื้อหาสำหรับงานนี้
                                     </button>
-                                    <button id="save-as-template-btn" class="btn btn-success">
+                                    <button id="save-as-template-btn" class="btn btn-success modern-btn">
                                         <i class="fas fa-file-export me-2"></i>บันทึกเป็น Template ใหม่
                                     </button>
-                                    <button id="generate-pdf-btn" class="btn btn-primary">
+                                    <button id="generate-pdf-btn" class="btn btn-primary modern-btn">
                                         <i class="fas fa-file-pdf me-2"></i>สร้างและดาวน์โหลด PDF
                                     </button>
                                 </div>
@@ -378,8 +394,8 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                                <button type="button" id="confirm-generate-pdf" class="btn btn-primary">
+                                <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">ปิด</button>
+                                <button type="button" id="confirm-generate-pdf" class="btn btn-primary modern-btn">
                                     <i class="fas fa-download me-2"></i>ดาวน์โหลด PDF
                                 </button>
                             </div>
@@ -780,7 +796,7 @@
                         const tag = button.dataset.tag;
                         if (activeEditor) {
                             activeEditor.insertContent(tag);
-                            showAlert(`แทรก ${tag} สำเร็จ`, 'info', 2000);
+                            showAlert(`แทรก ${tag} สำเร็จ`, 'info');
                         }
                     });
                 });

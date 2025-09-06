@@ -72,8 +72,13 @@ class TagProcessor {
             '{{CUSTOMER_NAME}}': jobData.customerName || '',
             '{{LOCATION}}': jobData.location || '',
             '{{ADDRESS}}': jobData.address || '',
+            '{{CONTACT_PERSON}}': jobData.contactPerson || '',
+            '{{CONTACT_PHONE}}': jobData.contactPhone || '',
             '{{DATE}}': jobData.date || '',
+            '{{TIME}}': jobData.time || '',
             '{{STATUS}}': jobData.status || '',
+            '{{RECOMMENDATIONS}}': jobData.recommendations || '',
+            '{{OBSERVATIONS}}': jobData.observations || '',
             '{{CURRENT_DATE}}': new Date().toLocaleDateString('th-TH'),
             '{{CURRENT_TIME}}': new Date().toLocaleTimeString('th-TH'),
             '{{THAI_DATE}}': new Date().toLocaleDateString('th-TH', {

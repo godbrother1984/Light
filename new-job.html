@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
   path: /new-job.html
-  version: 3.2.0 (Modern toast notifications)
+  version: 3.3.0 (Modern Button Design)
   date: 2025-09-05
-  time: 11:15:00
-  description: Replaced alert system with modern toast notifications, removed startup message
+  time: 22:20:00
+  description: Added modern button styling with gradients and animations for consistent UI
 -->
 <html lang="th">
 <head>
@@ -22,6 +22,71 @@
     <link rel="stylesheet" href="assets/css/main-styles.css">
     <link rel="stylesheet" href="assets/css/sidebar.css">
     <link rel="stylesheet" href="assets/css/components.css">
+    
+    <style>
+        /* Modern Button Styles */
+        .modern-btn {
+            position: relative;
+            background: linear-gradient(135deg, var(--bs-btn-bg), calc(var(--bs-btn-bg) + 10%)) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .modern-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .modern-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .modern-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .modern-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* Specific color enhancements */
+        .btn-primary.modern-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-primary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid #007bff !important;
+            color: #007bff !important;
+        }
+        
+        .btn-outline-secondary.modern-btn {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid #6c757d !important;
+            color: #6c757d !important;
+        }
+        
+        /* Icon spacing improvements */
+        .modern-btn i {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
     
@@ -62,7 +127,7 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
                 <div class="container-fluid">
-                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <button class="btn btn-outline-primary me-2 modern-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
                     <ul class="navbar-nav ms-auto d-flex flex-row">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -80,7 +145,7 @@
             <main class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="h3 mb-0" id="page-title">สร้างงานใหม่</h1>
-                    <a href="main.html" class="btn btn-outline-secondary" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
+                    <a href="main.html" class="btn btn-outline-secondary modern-btn" id="cancel-btn"><i class="fas fa-times me-2"></i>ยกเลิก</a>
                 </div>
                 
                 <!-- Alert Placeholder -->
@@ -186,7 +251,7 @@
                                     <i class="fas fa-info-circle me-1"></i>
                                     ฟิลด์ที่มี <span class="text-danger">*</span> จำเป็นต้องกรอก
                                 </small>
-                                <button type="submit" id="submit-btn" class="btn btn-primary">
+                                <button type="submit" id="submit-btn" class="btn btn-primary modern-btn">
                                     <i class="fas fa-save me-2"></i><span id="submit-text">บันทึกและสร้างงาน</span>
                                 </button>
                             </div>
