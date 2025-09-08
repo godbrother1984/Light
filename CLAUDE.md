@@ -36,11 +36,11 @@ The project uses a **module-based architecture** for performance and maintainabi
 - **✅ UI Standardization**: Complete UI/UX consistency achieved
 
 #### **Page Versions (Updated December 2024)**
-  - `main.html` (v6.0) - ✅ **UI Standardized** with action-btn system
+  - `main.html` (v6.1) - Modern Button Design
   - `new-job.html` (v3.2.0) - Modern toast notifications + Running numbers  
-  - `master-data-manager.html` (v7.5) - ✅ **Complete UI Overhaul** + Enhanced Remark System
-  - `job-details.html` (v10.0) - Auto-save + Bulk edit + LUX validation
-  - `report-finalizer.html` (v7.0) - Module system migration + Modern design
+  - `master-data-manager.html` (v7.3) - Enhanced Remark System - Standard Recommendations
+  - `job-details.html` (v10.7) - Enhanced Modal Title Contrast
+  - `report-finalizer.html` (v7.1) - Integrated Template Management + Enhanced UX
   - `template-manager.html` (v3.1) - ✅ **UI Standardized** + Redesigned architecture
   - `template-editor.html` (v1.1) - ✅ **New Universal Editor** for templates & reports
   - `branch-manager.html` (v1.2) - Enhanced UX with beautiful modals
@@ -366,11 +366,11 @@ All HTML/CSS/JS files include version headers:
 ```
 
 ### Current Versions
-- **main.html**: v6.0 (Module system + Enhanced navigation)
+- **main.html**: v6.1 (Modern Button Design)
 - **new-job.html**: v3.2.0 (Modern toast notifications + Running numbers)  
 - **master-data-manager.html**: v7.3 (Enhanced Remark System - Standard Recommendations)
-- **job-details.html**: v10.0 (Auto-save + Bulk edit + LUX validation + Search/Filter)
-- **report-finalizer.html**: v7.0 (Module system migration + Modern design)
+- **job-details.html**: v10.7 (Enhanced Modal Title Contrast)
+- **report-finalizer.html**: v7.1 (Integrated Template Management + Enhanced UX)
 - **template-manager.html**: v3.0 (Module system migration + Modern design)
 - **branch-manager.html**: v1.2 (Enhanced UX with beautiful modals)
 - **ui-helpers.js**: v1.1 (Modern toast notifications)

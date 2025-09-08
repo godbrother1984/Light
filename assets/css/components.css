@@ -66,6 +66,150 @@
 }
 
 /* ===== BUTTON COMPONENTS ===== */
+
+/* Modern Button Styles */
+.modern-btn {
+    position: relative;
+    background: linear-gradient(135deg, var(--bs-btn-bg), calc(var(--bs-btn-bg) + 10%)) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.modern-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modern-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.modern-btn:hover::before {
+    opacity: 1;
+}
+
+.modern-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Specific color enhancements */
+.btn-primary.modern-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    color: white !important;
+}
+
+.btn-success.modern-btn {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+    color: white !important;
+}
+
+.btn-secondary.modern-btn {
+    background: linear-gradient(135deg, #6c757d, #545b62) !important;
+    color: white !important;
+    border: 1px solid #6c757d !important;
+}
+
+.btn-outline-secondary.modern-btn {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #6c757d !important;
+    color: #495057 !important;
+    font-weight: 600;
+}
+
+.btn-outline-secondary.modern-btn:hover {
+    background: linear-gradient(135deg, #6c757d, #545b62) !important;
+    color: white !important;
+}
+
+.btn-outline-success.modern-btn {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #28a745 !important;
+    color: #1e7e34 !important;
+    font-weight: 600;
+}
+
+.btn-outline-success.modern-btn:hover {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+    color: white !important;
+}
+
+.btn-outline-danger.modern-btn {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #dc3545 !important;
+    color: #c82333 !important;
+    font-weight: 600;
+}
+
+.btn-outline-danger.modern-btn:hover {
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    color: white !important;
+}
+
+.btn-danger.modern-btn {
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-danger.modern-btn:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a) !important;
+    color: white !important;
+}
+
+.btn-outline-primary.modern-btn {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #007bff !important;
+    color: #0056b3 !important;
+    font-weight: 600;
+}
+
+.btn-outline-primary.modern-btn:hover {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    color: white !important;
+}
+
+.btn-info.modern-btn {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-info.modern-btn:hover {
+    background: linear-gradient(135deg, #138496, #0f6674) !important;
+    color: white !important;
+}
+
+.btn-outline-info.modern-btn {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #17a2b8 !important;
+    color: #138496 !important;
+    font-weight: 600;
+}
+
+.btn-outline-info.modern-btn:hover {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white !important;
+}
+
+/* Icon spacing improvements */
+.modern-btn i {
+    vertical-align: middle;
+}
 .btn {
     border-radius: var(--border-radius);
     font-weight: 500;

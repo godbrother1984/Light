@@ -32,7 +32,7 @@ export function showAlert(message, type = 'info', duration = 5000) {
     const toastId = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const toast = document.createElement('div');
     toast.id = toastId;
-    toast.className = `custom-toast toast-${type}`;
+    toast.className = `toast-notification toast-${type}`;
     
     const titleText = {
         success: 'สำเร็จ',
@@ -42,13 +42,12 @@ export function showAlert(message, type = 'info', duration = 5000) {
     }[type] || 'การแจ้งเตือน';
     
     toast.innerHTML = `
-        <div class="toast-header">
+        <div class="toast-content">
             <i class="fas fa-${getAlertIcon(type)} toast-icon"></i>
-            <strong class="me-auto">${titleText}</strong>
-            <button type="button" class="btn-close" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${message}
+            <div class="toast-message">${message}</div>
+            <button type="button" class="toast-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         ${duration > 0 ? `<div class="toast-progress"><div class="toast-progress-bar"></div></div>` : ''}
     `;
@@ -58,21 +57,26 @@ export function showAlert(message, type = 'info', duration = 5000) {
 
     // Show toast with animation
     setTimeout(() => {
-        toast.classList.add('show');
+        toast.classList.add('toast-show');
     }, 10);
 
     // Setup close button
-    const closeBtn = toast.querySelector('.btn-close');
+    const closeBtn = toast.querySelector('.toast-close');
     closeBtn.addEventListener('click', () => hideToast(toast));
 
     // Setup auto hide with progress bar
     if (duration > 0) {
         const progressBar = toast.querySelector('.toast-progress-bar');
         if (progressBar) {
-            progressBar.style.transition = `transform ${duration}ms linear`;
-            setTimeout(() => {
-                progressBar.style.transform = 'translateX(0)';
-            }, 50);
+            // Set color based on toast type
+            const progressColors = {
+                success: '#10b981',
+                warning: '#f59e0b',
+                danger: '#ef4444', 
+                info: '#3b82f6'
+            };
+            progressBar.style.backgroundColor = progressColors[type] || '#3b82f6';
+            progressBar.style.animation = `toast-progress ${duration}ms linear forwards`;
         }
         
         setTimeout(() => {
@@ -90,12 +94,13 @@ export function showAlert(message, type = 'info', duration = 5000) {
 function hideToast(toast) {
     if (!toast || !toast.parentNode) return;
     
-    toast.classList.add('hiding');
+    toast.classList.add('toast-hide');
+    toast.classList.remove('toast-show');
     setTimeout(() => {
         if (toast && toast.parentNode) {
             toast.parentNode.removeChild(toast);
         }
-    }, 300);
+    }, 400);
 }
 
 /**

@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="./assets/css/main-styles.css">
     <link rel="stylesheet" href="./assets/css/sidebar.css">
     <link rel="stylesheet" href="./assets/css/components.css">
+    <link rel="stylesheet" href="./assets/css/toast-notifications.css">
     
     <style>
         /* Branch Management Specific Styles */
@@ -697,16 +698,12 @@
     
     <!-- Modular JavaScript -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { firebaseManager } from './assets/js/firebase-init.js';
         import { showAlert, formatDate } from './assets/js/ui-helpers.js';
         
         // Firebase Configuration
         const firebaseConfig = window.firebaseConfig;
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        // Use firebaseManager for all Firebase operations
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
         
         // Global variables
@@ -743,33 +740,20 @@
             }
             
             try {
-                // Wait for Firebase Authentication
-                await new Promise((resolve, reject) => {
-                    onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                            resolve(user);
-                        } else {
-                            try {
-                                const userCredential = await signInAnonymously(auth);
-                                resolve(userCredential.user);
-                            } catch (authError) {
-                                console.error('Authentication failed:', authError);
-                                reject(authError);
-                            }
-                        }
-                    });
-                });
+                // Initialize Firebase using firebaseManager
+                if (!await firebaseManager.initialize()) {
+                    throw new Error('Firebase initialization failed');
+                }
                 
                 // Load customer data
-                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customers`, customerId);
-                const customerDoc = await getDoc(customerDocRef);
+                const customerData = await firebaseManager.getDocument('customers', customerId);
                 
-                if (!customerDoc.exists()) {
+                if (!customerData) {
                     showAlert('ไม่พบข้อมูลลูกค้านี้', 'danger');
                     return;
                 }
                 
-                currentCustomer = { id: customerDoc.id, ...customerDoc.data() };
+                currentCustomer = { id: customerId, ...customerData };
                 console.log('Loaded customer data:', currentCustomer);
                 
                 // Update UI
@@ -1703,10 +1687,7 @@
                 saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
                 
                 const branches = getFlattenedBranches();
-                const customersCollection = collection(db, `artifacts/${appId}/public/data/customers`);
-                const customerDocRef = doc(customersCollection, currentCustomer.id);
-                
-                await updateDoc(customerDocRef, { 
+                await firebaseManager.updateDocument('customers', currentCustomer.id, { 
                     branches: branches,
                     lastUpdated: new Date().toISOString()
                 });

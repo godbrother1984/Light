@@ -22,127 +22,7 @@
     <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
-        /* Modern Button Styles */
-        .modern-btn {
-            position: relative;
-            background: linear-gradient(135deg, var(--bs-btn-bg), calc(var(--bs-btn-bg) + 10%)) !important;
-            border: none !important;
-            border-radius: 8px !important;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            text-transform: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        
-        .modern-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        
-        .modern-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .modern-btn:hover::before {
-            opacity: 1;
-        }
-        
-        .modern-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        /* Specific color enhancements */
-        .btn-primary.modern-btn {
-            background: linear-gradient(135deg, #007bff, #0056b3) !important;
-            color: white !important;
-        }
-        
-        .btn-success.modern-btn {
-            background: linear-gradient(135deg, #28a745, #1e7e34) !important;
-            color: white !important;
-        }
-        
-        .btn-secondary.modern-btn {
-            background: linear-gradient(135deg, #6c757d, #545b62) !important;
-            color: white !important;
-            border: 1px solid #6c757d !important;
-        }
-        
-        .btn-outline-secondary.modern-btn {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
-            border: 2px solid #6c757d !important;
-            color: #495057 !important;
-            font-weight: 600;
-        }
-        
-        .btn-outline-secondary.modern-btn:hover {
-            background: linear-gradient(135deg, #6c757d, #545b62) !important;
-            color: white !important;
-        }
-        
-        .btn-outline-success.modern-btn {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
-            border: 2px solid #28a745 !important;
-            color: #1e7e34 !important;
-            font-weight: 600;
-        }
-        
-        .btn-outline-success.modern-btn:hover {
-            background: linear-gradient(135deg, #28a745, #1e7e34) !important;
-            color: white !important;
-        }
-        
-        .btn-outline-danger.modern-btn {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
-            border: 2px solid #dc3545 !important;
-            color: #c82333 !important;
-            font-weight: 600;
-        }
-        
-        .btn-outline-danger.modern-btn:hover {
-            background: linear-gradient(135deg, #dc3545, #c82333) !important;
-            color: white !important;
-        }
-        
-        /* Fix delete confirmation button text color */
-        .btn-danger.modern-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333) !important;
-            color: white !important;
-            border: none !important;
-        }
-        
-        .btn-danger.modern-btn:hover {
-            background: linear-gradient(135deg, #c82333, #a71e2a) !important;
-            color: white !important;
-        }
-        
-        .btn-outline-primary.modern-btn {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
-            border: 2px solid #007bff !important;
-            color: #0056b3 !important;
-            font-weight: 600;
-        }
-        
-        .btn-outline-primary.modern-btn:hover {
-            background: linear-gradient(135deg, #007bff, #0056b3) !important;
-            color: white !important;
-        }
-        
-        /* Icon spacing improvements */
-        .modern-btn i {
-            vertical-align: middle;
-        }
+        /* Modern Button Styles moved to components.css */
         
         /* Small button adjustments */
         .modern-btn.btn-sm {
@@ -609,14 +489,10 @@
     <!-- Load CSS for toast notifications -->
     <link rel="stylesheet" href="assets/css/toast-notifications.css">
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { firebaseManager } from './assets/js/firebase-init.js';
         import { showAlert } from './assets/js/ui-helpers.js';
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
-        let db;
 
         const Modals = {
             branchList: new bootstrap.Modal(document.getElementById('branchListModal')),
@@ -1464,14 +1340,12 @@
                 
                 if (remarkId) {
                     // Update existing
-                    const docRef = doc(db, `artifacts/${appId}/public/data/remarks`, remarkId);
-                    await updateDoc(docRef, remarkData);
+                    await firebaseManager.updateDocument('remarks', remarkId, remarkData);
                     showAlert('อัปเดตข้อเสนอแนะสำเร็จ', 'success');
                 } else {
                     // Add new
                     remarkData.createdAt = new Date().toISOString();
-                    const remarksCollection = collection(db, `artifacts/${appId}/public/data/remarks`);
-                    await setDoc(doc(remarksCollection), remarkData);
+                    await firebaseManager.addDocument('remarks', remarkData);
                     showAlert('เพิ่มข้อเสนอแนะสำเร็จ', 'success');
                 }
                 
@@ -1489,8 +1363,7 @@
             // Set up delete confirmation
             document.getElementById('confirmDeleteBtn').onclick = async () => {
                 try {
-                    const docRef = doc(db, `artifacts/${appId}/public/data/remarks`, remarkId);
-                    await deleteDoc(docRef);
+                    await firebaseManager.deleteDocument('remarks', remarkId);
                     showAlert('ลบข้อเสนอแนะสำเร็จ', 'success');
                     Modals.confirmDelete.hide();
                 } catch (error) {
@@ -1528,11 +1401,8 @@
                     console.log('Saving branches for customer ID:', customerId);
                     
                     // Use correct Firebase collection reference
-                    const customersCollection = collection(db, `artifacts/${appId}/public/data/customers`);
-                    const customerDocRef = doc(customersCollection, customerId);
-                    
                     // Update customer document with new branches
-                    await updateDoc(customerDocRef, { 
+                    await firebaseManager.updateDocument('customers', customerId, { 
                         branches: branches,
                         lastUpdated: new Date().toISOString()
                     });
@@ -1737,7 +1607,7 @@
             const seedBtn = document.getElementById('seedDataBtn');
             seedBtn.disabled = true;
             seedBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Seeding...`;
-            const batch = writeBatch(db);
+            // Use firebaseManager for batch operations
             const dataToSeed = {
                 customers: [ { id: 'BBL', name: 'ธนาคารกรุงเทพ จำกัด (มหาชน)', branches: [ { location: 'สาขาฉะเชิงเทรา', address: '191/74 ถ.มหาจักรพรรดิ์'}, { location: 'สาขาสีลม', address: '333 ถนนสีลม'}, { location: 'สาขาสำนักงานใหญ่พระราม 3', address: '333/3 ถนนพระราม 3'}, { location: 'สาขาเยาวราช', address: '182-192 ถนนเยาวราช'}, { location: 'สาขาสุขุมวิท 41', address: '1110/5-6 ถนนสุขุมวิท'}, { location: 'สาขาเซ็นทรัลพลาซา ชลบุรี', address: '55/90-91 หมู่ 1 ต.เสม็ด'} ] }, { id: 'SAMPLE', name: 'บริษัท ตัวอย่าง อุตสาหกรรม จำกัด', branches: [{ location: 'โรงงาน จ.ระยอง', address: 'ที่อยู่ตัวอย่าง จ.ระยอง' }] } ],
                 work_types: [ { id: 'DOCS', workTypeName: 'งานเอกสาร', stdSpotMin: 400, stdSpotMax: 500 }, { id: 'DOCS_COMP', workTypeName: 'งานเอกสาร-คอมพิวเตอร์', stdSpotMin: 400, stdSpotMax: 500, stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'SERVICE', workTypeName: 'พื้นที่บริการลูกค้า', stdAreaAvg: 300, stdAreaMin: 150 }, { id: 'PARKING', workTypeName: 'ลานจอดรถ', stdAreaAvg: 50, stdAreaMin: 25 }, { id: 'RESTROOM', workTypeName: 'ห้องน้ำ', stdAreaAvg: 100, stdAreaMin: 50 } ],
@@ -1746,17 +1616,30 @@
                 running_numbers: [ { id: 'JOB', type: 'JOB', description: 'รหัสงาน', prefix: 'JOB', lastNumber: '000', lastPeriod: '' }, { id: 'REPORT', type: 'REPORT', description: 'รหัสรายงาน', prefix: 'RPT', lastNumber: '000', lastPeriod: '' } ]
             };
             try {
+                // Use firebaseManager for seeding data
                 for (const [collectionName, items] of Object.entries(dataToSeed)) {
                     for (const item of items) {
-                        const docRef = doc(db, `/artifacts/${appId}/public/data/${collectionName}`, item.id);
-                        const docSnap = await getDoc(docRef);
-                        if (!docSnap.exists()) { const { id, ...data } = item; batch.set(docRef, data); }
+                        const existingDoc = await firebaseManager.getDocument(collectionName, item.id);
+                        if (!existingDoc) {
+                            const { id, ...data } = item;
+                            await firebaseManager.setDocument(collectionName, id, data);
+                        }
                     }
                 }
-                const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info`, 'main');
-                const companyDocSnap = await getDoc(companyDocRef);
-                if (!companyDocSnap.exists()) { batch.set(companyDocRef, { license_factory: 'ว-๓๒๙', license_chemical_measurement: '๐๒๐๑-๐๓-๒๕๖๕-๐๐๓๐', license_chemical_analysis: '๐๒๐๒-๐๓-๒๕๖๕-๐๐๒๑', license_heat: '๐๔๐๑-๐๓-๒๕๖๕-๐๐๔๑', license_welfare_light: '๐๔๐๒-๐๓-๒๕๖๕-๐๐๔๒', license_sound: '๐๔๐๓-๐๓-๒๕๖๕-๐๐๔๑', signatories: [{ id: `sig_${Date.now()}`, name: 'นางสาวสุกานดา คำก๋อง', title: 'ผู้ควบคุมห้องปฏิบัติการวิเคราะห์' }] }); }
-                await batch.commit();
+                
+                // Check and seed company info
+                const companyInfo = await firebaseManager.getDocument('company_info', 'main');
+                if (!companyInfo) {
+                    await firebaseManager.setDocument('company_info', 'main', {
+                        license_factory: 'ว-๓๒๙', 
+                        license_chemical_measurement: '๐๒๐๑-๐๓-๒๕๖๕-๐๐๓๐', 
+                        license_chemical_analysis: '๐๒๐๒-๐๓-๒๕๖๕-๐๐๒๑', 
+                        license_heat: '๐๔๐๑-๐๓-๒๕๖๕-๐๐๔๑', 
+                        license_welfare_light: '๐๔๐๒-๐๓-๒๕๖๕-๐๐๔๒', 
+                        license_sound: '๐๔๐๓-๐๓-๒๕๖๕-๐๐๔๑', 
+                        signatories: [{ id: `sig_${Date.now()}`, name: 'นางสาวสุกานดา คำก๋อง', title: 'ผู้ควบคุมห้องปฏิบัติการวิเคราะห์' }] 
+                    });
+                }
                 showAlert('เติมข้อมูลเริ่มต้นสำเร็จ!', 'success');
             } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } 
             finally { seedBtn.disabled = false; seedBtn.innerHTML = `<i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)`; }
@@ -2096,9 +1979,8 @@
                 document.getElementById('user-display').textContent = `UID: ${currentUser.uid.substring(0, 8)}...`;
             }
 
-            // Get Firebase instances for backward compatibility
-            const { db: firestoreDb } = firebaseManager.getInstances();
-            db = firestoreDb;
+            // Get Firebase instances for backward compatibility with setupTab function
+            const { db } = firebaseManager.getInstances();
             
             const branchesContainer = document.getElementById('branches-container');
             const addBranchInput = (branch = { location: '', address: '', contactPerson: '', contactPhone: '' }) => { 
@@ -2134,19 +2016,19 @@
             
             setupTab(db, { collectionName: 'customers', tableId: 'customers-table', modal: Modals.customer, formId: 'customerForm', addBtnId: 'addCustomerBtn', modalLabelId: 'customerModalLabel', renderFn: renderCustomers, 
                 populateFormFn: (data, form) => { branchesContainer.innerHTML = ''; if (data && data.branches) { data.branches.forEach(branch => addBranchInput(branch)); } else { addBranchInput(); } },
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/customers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const branches = []; form.querySelectorAll('#branches-container .card').forEach(card => { const location = card.querySelector('.branch-location').value.trim(); const address = card.querySelector('.branch-address').value.trim(); const contactPerson = card.querySelector('.branch-contact-person').value.trim(); const contactPhone = card.querySelector('.branch-contact-phone').value.trim(); if(location) branches.push({ location, address, contactPerson, contactPhone }); }); const data = { name: document.getElementById('customerName').value, branches }; try { await setDoc(docRef, data); showAlert('บันทึกข้อมูลลูกค้าสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const branches = []; form.querySelectorAll('#branches-container .card').forEach(card => { const location = card.querySelector('.branch-location').value.trim(); const address = card.querySelector('.branch-address').value.trim(); const contactPerson = card.querySelector('.branch-contact-person').value.trim(); const contactPhone = card.querySelector('.branch-contact-phone').value.trim(); if(location) branches.push({ location, address, contactPerson, contactPhone }); }); const data = { name: document.getElementById('customerName').value, branches }; try { if (id) { await firebaseManager.updateDocument('customers', id, data); } else { await firebaseManager.addDocument('customers', data); } showAlert('บันทึกข้อมูลลูกค้าสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'work_types', tableId: 'work-types-table', modal: Modals.workType, formId: 'workTypeForm', addBtnId: 'addWorkTypeBtn', modalLabelId: 'workTypeModalLabel', renderFn: renderWorkTypes,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/work_types`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); let data = {}; new FormData(form).forEach((value, key) => { if (form[key] && form[key].type === 'number') data[key] = value ? Number(value) : null; else data[key] = value; }); delete data['workTypeId']; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; let data = {}; new FormData(form).forEach((value, key) => { if (form[key] && form[key].type === 'number') data[key] = value ? Number(value) : null; else data[key] = value; }); delete data['workTypeId']; try { if (id) { await firebaseManager.updateDocument('work_types', id, data); } else { await firebaseManager.addDocument('work_types', data); } showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'inspectors', tableId: 'inspectors-table', modal: Modals.inspector, formId: 'inspectorForm', addBtnId: 'addInspectorBtn', modalLabelId: 'inspectorModalLabel', renderFn: renderInspectors,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/inspectors`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { inspectorName: form.inspectorName.value, inspectorTitle: form.inspectorTitle.value, inspectorLicense: form.inspectorLicense.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const data = { inspectorName: form.inspectorName.value, inspectorTitle: form.inspectorTitle.value, inspectorLicense: form.inspectorLicense.value }; try { if (id) { await firebaseManager.updateDocument('inspectors', id, data); } else { await firebaseManager.addDocument('inspectors', data); } showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { collectionName: 'instruments', tableId: 'instruments-table', modal: Modals.instrument, formId: 'instrumentForm', addBtnId: 'addInstrumentBtn', modalLabelId: 'instrumentModalLabel', renderFn: renderInstruments,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentAccuracy: form.instrumentAccuracy.value, instrumentLastCalDate: form.instrumentLastCalDate.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentAccuracy: form.instrumentAccuracy.value, instrumentLastCalDate: form.instrumentLastCalDate.value, instrumentCalDate: form.instrumentCalDate.value }; try { if (id) { await firebaseManager.updateDocument('instruments', id, data); } else { await firebaseManager.addDocument('instruments', data); } showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
             setupTab(db, { 
@@ -2200,16 +2082,16 @@
                 const button = e.target;
                 const docPath = button.dataset.docPath;
                 const signatoryId = button.dataset.signatoryId;
-                const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info/main`);
                 try {
                     if (signatoryId) {
-                        const docSnap = await getDoc(companyDocRef);
-                        const signatories = docSnap.exists() ? docSnap.data().signatories || [] : [];
+                        const company = await firebaseManager.getDocument('company_info', 'main');
+                        const signatories = company ? company.signatories || [] : [];
                         const updatedSignatories = signatories.filter(s => s.id !== signatoryId);
-                        await updateDoc(companyDocRef, { signatories: updatedSignatories });
+                        await firebaseManager.updateDocument('company_info', 'main', { signatories: updatedSignatories });
                         showAlert('ลบข้อมูลผู้ลงนามสำเร็จ', 'success');
                     } else if (docPath) {
-                        await deleteDoc(doc(db, docPath));
+                        const [collection, docId] = docPath.split('/');
+                        await firebaseManager.deleteDocument(collection, docId);
                         showAlert('ลบข้อมูลสำเร็จแล้ว', 'success');
                     }
                 } catch(err) { showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
