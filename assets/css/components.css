@@ -1,9 +1,9 @@
 /*
   path: /assets/css/components.css
-  version: 1.1 (Added job-details specific components)
-  date: 2025-09-05
-  time: 20:35:00
-  description: Cards, buttons, forms, modals, tables, and other UI components styling + job-details components
+  version: 1.2 (Added standardized action buttons and icons)
+  date: 2025-09-07
+  time: 17:30:00
+  description: Cards, buttons, forms, modals, tables, and other UI components styling + standardized action patterns
 */
 
 /* ===== CARD COMPONENTS ===== */
@@ -1079,3 +1079,230 @@
         font-size: 0.6rem;
     }
 }
+
+/* ===== STANDARDIZED ACTION BUTTONS & ICONS ===== */
+
+/* Standard Action Button Classes */
+.action-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius);
+    border: 1px solid;
+    text-decoration: none;
+    transition: all var(--transition-speed) ease;
+    cursor: pointer;
+    min-width: 36px;
+    min-height: 36px;
+}
+
+/* Action Button Sizes */
+.action-btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.action-btn-xs {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.65rem;
+    min-width: 28px;
+    min-height: 28px;
+}
+
+/* Standard Action Types with Consistent Colors and Icons */
+.action-edit {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.action-edit:hover {
+    background-color: #6c757d;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.25);
+}
+
+.action-delete {
+    background-color: #fff;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.action-delete:hover {
+    background-color: #dc3545;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.25);
+}
+
+.action-view {
+    background-color: #fff;
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+.action-view:hover {
+    background-color: #17a2b8;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(23, 162, 184, 0.25);
+}
+
+.action-add {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.action-add:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.25);
+}
+
+.action-save {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.action-save:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.25);
+}
+
+.action-download {
+    background-color: #fff;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.action-download:hover {
+    background-color: #007bff;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.25);
+}
+
+.action-cancel {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.action-cancel:hover {
+    background-color: #6c757d;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.25);
+}
+
+/* Icon Only Buttons for Tables */
+.action-btn-icon-only {
+    padding: 0.25rem;
+    min-width: 32px;
+    min-height: 32px;
+    justify-content: center;
+}
+
+.action-btn-icon-only i {
+    margin: 0 !important;
+}
+
+/* Action Button Groups */
+.action-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.action-btn-group .action-btn {
+    margin: 0;
+}
+
+/* Table Action Buttons Container */
+.table-actions {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    align-items: center;
+    min-width: 100px;
+}
+
+/* Standard Icon Assignments (Use these classes for consistency) */
+.icon-edit::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f044"; /* fa-edit */
+}
+
+.icon-delete::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f1f8"; /* fa-trash */
+}
+
+.icon-view::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f06e"; /* fa-eye */
+}
+
+.icon-add::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f067"; /* fa-plus */
+}
+
+.icon-save::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f0c7"; /* fa-save */
+}
+
+.icon-download::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f019"; /* fa-download */
+}
+
+/* Usage Examples:
+   
+   <!-- Standard Edit Button -->
+   <button class="action-btn action-edit action-btn-sm">
+       <i class="fas fa-edit me-1"></i>แก้ไข
+   </button>
+   
+   <!-- Icon Only Edit Button for Tables -->
+   <button class="action-btn action-edit action-btn-sm action-btn-icon-only" title="แก้ไข">
+       <i class="fas fa-edit"></i>
+   </button>
+   
+   <!-- Delete Button -->
+   <button class="action-btn action-delete action-btn-sm action-btn-icon-only" title="ลบ">
+       <i class="fas fa-trash"></i>
+   </button>
+   
+   <!-- Action Group -->
+   <div class="action-btn-group">
+       <button class="action-btn action-view action-btn-sm action-btn-icon-only" title="ดู">
+           <i class="fas fa-eye"></i>
+       </button>
+       <button class="action-btn action-edit action-btn-sm action-btn-icon-only" title="แก้ไข">
+           <i class="fas fa-edit"></i>
+       </button>
+       <button class="action-btn action-delete action-btn-sm action-btn-icon-only" title="ลบ">
+           <i class="fas fa-trash"></i>
+       </button>
+   </div>
+*/

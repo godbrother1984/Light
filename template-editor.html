@@ -1,0 +1,1313 @@
+<!-- 
+  path: /template-editor.html
+  version: 1.0 (Universal Template/Report Editor)
+  date: 2025-09-07
+  time: 16:00:00
+  description: Universal editor for both template editing and report generation
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Editor - Light Measurement System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Modular CSS -->
+    <link href="assets/css/main-styles.css" rel="stylesheet">
+    <link href="assets/css/sidebar.css" rel="stylesheet">
+    <link href="assets/css/components.css" rel="stylesheet">
+    
+    <script src="https://cdn.tiny.cloud/1/89apconez9ynna1jgwbnp15ywm4fk8ob84ndx3rcl5ih7q69/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <style>
+        /* Editor-specific styling */
+        body {
+            overflow: hidden;
+        }
+        
+        .mode-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1020;
+        }
+        
+        .editor-toolbar {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #dee2e6;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+        
+        .tox-tinymce {
+            border: 2px solid #dee2e6 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .tox-edit-area iframe {
+            height: calc(100vh - 280px) !important;
+            min-height: calc(100vh - 280px) !important;
+        }
+        
+        #template-editor {
+            min-height: calc(100vh - 280px) !important;
+            height: calc(100vh - 280px) !important;
+        }
+        
+        .tag-panel {
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .tags-scrollable {
+            max-height: calc(100vh - 380px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        
+        .settings-scrollable {
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* Settings panel styling */
+        .nav-tabs .nav-link {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .tab-content {
+            height: 100%;
+        }
+        
+        .tab-pane {
+            height: 100%;
+        }
+        
+        .tab-pane.active {
+            display: flex !important;
+        }
+        
+        .tag-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border: 1px solid #e9ecef;
+            border-radius: 0.375rem;
+            background: #f8f9fa;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .tag-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .preview-panel {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 0.5rem;
+            min-height: 400px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Mode Indicator -->
+    <div class="mode-indicator">
+        <span class="badge bg-primary fs-6" id="mode-display">Template Mode</span>
+    </div>
+
+    <div class="d-flex" id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="sidebar-brand-text logo-text">
+                    <div>Light Meter</div>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">System</small>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush">
+                <a href="main.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home fa-fw me-3"></i>
+                    <span class="menu-text">หน้าแรก</span>
+                </a>
+                <a href="new-job.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle fa-fw me-3"></i>
+                    <span class="menu-text">สร้างงานใหม่</span>
+                </a>
+                <a href="master-data-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-database fa-fw me-3"></i>
+                    <span class="menu-text">จัดการข้อมูลหลัก</span>
+                </a>
+                <a href="template-manager.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt fa-fw me-3"></i>
+                    <span class="menu-text">จัดการ Template</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary me-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="me-auto">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item" id="breadcrumb-home">
+                                <a href="#" id="back-link">กลับ</a>
+                            </li>
+                            <li class="breadcrumb-item active" id="breadcrumb-current">
+                                Template Editor
+                            </li>
+                        </ol>
+                    </nav>
+                    
+                    <ul class="navbar-nav ms-auto d-flex flex-row">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">User Profile</h6></li>
+                                <li><a class="dropdown-item" href="#"><span id="user-display">Connecting...</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4" style="height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+                <!-- Editor Toolbar -->
+                <div class="editor-toolbar">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-3">
+                                <h3 class="mb-0" id="editor-title">Template Editor</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="action-btn-group" id="action-buttons">
+                                <!-- Dynamic buttons based on mode -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row flex-grow-1" style="min-height: 0;">
+                    <!-- Main Editor -->
+                    <div class="col-lg-9" style="display: flex; flex-direction: column; min-height: 0;">
+                        <div class="card flex-grow-1" style="display: flex; flex-direction: column; min-height: 0;">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0" id="editor-card-title">
+                                    <i class="fas fa-edit me-2"></i>เนื้อหา Template
+                                </h5>
+                                <div class="d-flex gap-2" id="editor-actions">
+                                    <!-- Dynamic actions based on mode -->
+                                </div>
+                            </div>
+                            <div class="card-body p-0 flex-grow-1" style="min-height: 0;">
+                                <textarea id="template-editor"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Panel (Report Mode Only) -->
+                        <div class="card mt-3" id="preview-panel" style="display: none;">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-eye me-2"></i>ตัวอย่างรายงาน (แทนที่ข้อมูลแล้ว)
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="preview-panel" id="preview-content">
+                                    <!-- Preview content will be rendered here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags Panel -->
+                    <div class="col-lg-3" style="display: flex; flex-direction: column; min-height: 0;">
+                        <div class="card flex-grow-1" style="display: flex; flex-direction: column; min-height: 0;">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tags me-2"></i>Tags ที่ใช้ได้
+                                </h5>
+                            </div>
+                            <div class="card-body p-0 flex-grow-1" style="min-height: 0; display: flex; flex-direction: column;">
+                                <!-- Tabs Navigation -->
+                                <ul class="nav nav-tabs" id="rightPanelTabs" role="tablist" style="flex-shrink: 0;">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="tags-tab" data-bs-toggle="tab" data-bs-target="#tags-panel" type="button" role="tab">
+                                            <i class="fas fa-tags me-1"></i>Tags
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-panel" type="button" role="tab">
+                                            <i class="fas fa-cog me-1"></i>ตั้งค่า
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Tab Content -->
+                                <div class="tab-content flex-grow-1" id="rightPanelContent" style="min-height: 0; display: flex;">
+                                    <!-- Tags Tab -->
+                                    <div class="tab-pane fade show active" id="tags-panel" role="tabpanel" style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                                        <div class="p-2 tags-scrollable">
+                                            <div id="tags-container">
+                                                <!-- Tags will be populated here -->
+                                            </div>
+                                        </div>
+                                        <div class="p-2 border-top bg-light flex-shrink-0">
+                                            <h6 class="text-muted mb-1">ตัวอย่าง:</h6>
+                                            <small class="text-muted d-block">{{JOB_ID}} → JOB-2568-09-001</small>
+                                            <small class="text-muted d-block">{{CUSTOMER_NAME}} → ธนาคารกรุงเทพ</small>
+                                            <small class="text-muted d-block">{{DATE}} → 15 พฤศจิกายน 2567</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Settings Tab -->
+                                    <div class="tab-pane fade" id="settings-panel" role="tabpanel" style="flex: 1; display: none;">
+                                        <div class="p-3 settings-scrollable">
+                                            <!-- Page Settings -->
+                                            <div class="mb-4">
+                                                <h6 class="fw-bold mb-3"><i class="fas fa-file-alt me-2"></i>การตั้งค่าหน้ากระดาษ</h6>
+                                                <div class="row g-2">
+                                                    <div class="col-6">
+                                                        <label class="form-label small">ขนาดกระดาษ</label>
+                                                        <select class="form-select form-select-sm" id="paperSize">
+                                                            <option value="A4" selected>A4 (210×297 mm)</option>
+                                                            <option value="A3">A3 (297×420 mm)</option>
+                                                            <option value="Letter">Letter (8.5×11 in)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label small">การวางกระดาษ</label>
+                                                        <select class="form-select form-select-sm" id="orientation">
+                                                            <option value="portrait" selected>แนวตั้ง (Portrait)</option>
+                                                            <option value="landscape">แนวนอน (Landscape)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-2 mt-2">
+                                                    <div class="col-3">
+                                                        <label class="form-label small">บน (mm)</label>
+                                                        <input type="number" class="form-control form-control-sm" id="marginTop" value="15" min="0" max="50">
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <label class="form-label small">ล่าง (mm)</label>
+                                                        <input type="number" class="form-control form-control-sm" id="marginBottom" value="15" min="0" max="50">
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <label class="form-label small">ซ้าย (mm)</label>
+                                                        <input type="number" class="form-control form-control-sm" id="marginLeft" value="15" min="0" max="50">
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <label class="form-label small">ขวา (mm)</label>
+                                                        <input type="number" class="form-control form-control-sm" id="marginRight" value="15" min="0" max="50">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Header Settings -->
+                                            <div class="mb-4">
+                                                <h6 class="fw-bold mb-3"><i class="fas fa-header me-2"></i>Header</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="enableHeader">
+                                                    <label class="form-check-label" for="enableHeader">เปิดใช้งาน Header</label>
+                                                </div>
+                                                <div id="headerSettings" style="display: none;">
+                                                    <div class="mb-2">
+                                                        <label class="form-label small">เนื้อหา Header</label>
+                                                        <input type="text" class="form-control form-control-sm" id="headerText" placeholder="เช่น ชื่อบริษัท, โลโก้">
+                                                    </div>
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ตำแหน่ง</label>
+                                                            <select class="form-select form-select-sm" id="headerAlign">
+                                                                <option value="left">ซ้าย</option>
+                                                                <option value="center" selected>กลาง</option>
+                                                                <option value="right">ขวา</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ขนาดตัวอักษร</label>
+                                                            <select class="form-select form-select-sm" id="headerFontSize">
+                                                                <option value="10">10px</option>
+                                                                <option value="12" selected>12px</option>
+                                                                <option value="14">14px</option>
+                                                                <option value="16">16px</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Footer Settings -->
+                                            <div class="mb-4">
+                                                <h6 class="fw-bold mb-3"><i class="fas fa-footer me-2"></i>Footer</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="enableFooter" checked>
+                                                    <label class="form-check-label" for="enableFooter">เปิดใช้งาน Footer</label>
+                                                </div>
+                                                <div id="footerSettings">
+                                                    <div class="mb-2">
+                                                        <label class="form-label small">เนื้อหา Footer</label>
+                                                        <input type="text" class="form-control form-control-sm" id="footerText" value="หน้า {page} จาก {total}" placeholder="เช่น หน้า {page} จาก {total}">
+                                                    </div>
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ตำแหน่ง</label>
+                                                            <select class="form-select form-select-sm" id="footerAlign">
+                                                                <option value="left">ซ้าย</option>
+                                                                <option value="center" selected>กลาง</option>
+                                                                <option value="right">ขวา</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ขนาดตัวอักษร</label>
+                                                            <select class="form-select form-select-sm" id="footerFontSize">
+                                                                <option value="8">8px</option>
+                                                                <option value="10" selected>10px</option>
+                                                                <option value="12">12px</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Watermark Settings -->
+                                            <div class="mb-4">
+                                                <h6 class="fw-bold mb-3"><i class="fas fa-tint me-2"></i>Watermark</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="enableWatermark">
+                                                    <label class="form-check-label" for="enableWatermark">เปิดใช้งาน Watermark</label>
+                                                </div>
+                                                <div id="watermarkSettings" style="display: none;">
+                                                    <div class="mb-2">
+                                                        <label class="form-label small">ข้อความ Watermark</label>
+                                                        <input type="text" class="form-control form-control-sm" id="watermarkText" placeholder="เช่น DRAFT, CONFIDENTIAL">
+                                                    </div>
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ความโปร่งใส</label>
+                                                            <select class="form-select form-select-sm" id="watermarkOpacity">
+                                                                <option value="0.1">10%</option>
+                                                                <option value="0.2" selected>20%</option>
+                                                                <option value="0.3">30%</option>
+                                                                <option value="0.5">50%</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small">ขนาดตัวอักษร</label>
+                                                            <select class="form-select form-select-sm" id="watermarkSize">
+                                                                <option value="24">24px</option>
+                                                                <option value="36">36px</option>
+                                                                <option value="48" selected>48px</option>
+                                                                <option value="60">60px</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row g-2 mt-2">
+                                                        <div class="col-6">
+                                                            <label class="form-label small">สี</label>
+                                                            <input type="color" class="form-control form-control-sm form-control-color" id="watermarkColor" value="#cccccc">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small">มุมหมุน</label>
+                                                            <select class="form-select form-select-sm" id="watermarkRotation">
+                                                                <option value="0">0°</option>
+                                                                <option value="45" selected>45°</option>
+                                                                <option value="90">90°</option>
+                                                                <option value="-45">-45°</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Action Buttons -->
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-primary btn-sm" id="applySettings">
+                                                    <i class="fas fa-check me-2"></i>นำไปใช้
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm" id="resetSettings">
+                                                    <i class="fas fa-undo me-2"></i>รีเซ็ตเป็นค่าเริ่มต้น
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        // Module imports
+        import { firebaseManager } from './assets/js/firebase-init.js';
+        import { showAlert } from './assets/js/ui-helpers.js';
+
+        // Global variables
+        let activeEditor = null;
+        let currentMode = 'template'; // 'template' or 'report'
+        let templateId = null;
+        let jobId = null;
+        let jobData = null;
+        let isLoadingTemplate = false; // Prevent duplicate loading
+        
+        // Available tags
+        const availableTags = [
+            { tag: '{{JOB_ID}}', description: 'รหัสงาน' },
+            { tag: '{{CUSTOMER_NAME}}', description: 'ชื่อลูกค้า/โครงการ' },
+            { tag: '{{ADDRESS}}', description: 'ที่อยู่โครงการ' },
+            { tag: '{{DATE}}', description: 'วันที่ตรวจวัด' },
+            { tag: '{{REPORT_DATE}}', description: 'วันที่รายงานผล' },
+            { tag: '{{LICENSE_NUMBER}}', description: 'เลขที่ใบอนุญาต' },
+            { tag: '{{INSTRUMENT_NAME}}', description: 'ชื่อเครื่องมือตรวจวัด' },
+            { tag: '{{INSTRUMENT_SERIAL}}', description: 'Serial Number เครื่องมือ' },
+            { tag: '{{INSTRUMENT_STANDARD}}', description: 'มาตรฐานเครื่องมือ' },
+            { tag: '{{CALIBRATION_DATE}}', description: 'วันที่สอบเทียบ' },
+            { tag: '{{REPORT_LOT_NO}}', description: 'Report Lot Number' },
+            { tag: '{{TEST_REPORT_NO}}', description: 'Test Report Number' },
+            { tag: '{{RESULTS_TABLE_ROWS}}', description: 'ตารางผลการตรวจวัด' },
+            { tag: '{{REMARK_JOB}}', description: 'หมายเหตุผลตรวจ' },
+            { tag: '{{INSPECTOR_NAME}}', description: 'ชื่อผู้ตรวจวัด' },
+            { tag: '{{APPROVER_NAME}}', description: 'ชื่อผู้อนุมัติ' }
+        ];
+
+        // Parse URL parameters
+        const parseUrlParams = () => {
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode') || 'template';
+            templateId = params.get('templateId');
+            jobId = params.get('jobId');
+            
+            console.log('URL Parameters:', {
+                fullUrl: window.location.href,
+                search: window.location.search,
+                mode,
+                templateId,
+                jobId
+            });
+            
+            return { mode, templateId, jobId };
+        };
+
+        // Initialize editor mode
+        const initializeMode = (mode) => {
+            currentMode = mode;
+            const modeDisplay = document.getElementById('mode-display');
+            const editorTitle = document.getElementById('editor-title');
+            const breadcrumbCurrent = document.getElementById('breadcrumb-current');
+            const backLink = document.getElementById('back-link');
+            const previewPanel = document.getElementById('preview-panel');
+
+            if (mode === 'template') {
+                modeDisplay.textContent = 'Template Mode';
+                modeDisplay.className = 'badge bg-primary fs-6';
+                editorTitle.textContent = 'Template Editor';
+                breadcrumbCurrent.textContent = 'Template Editor';
+                backLink.textContent = 'Template Manager';
+                backLink.href = 'template-manager.html';
+                previewPanel.style.display = 'none';
+                
+                setupTemplateMode();
+            } else if (mode === 'report') {
+                modeDisplay.textContent = 'Report Mode';
+                modeDisplay.className = 'badge bg-success fs-6';
+                editorTitle.textContent = 'Report Editor';
+                breadcrumbCurrent.textContent = 'Report Editor';
+                backLink.textContent = 'Report Finalizer';
+                backLink.href = `report-finalizer.html${jobId ? '?jobId=' + jobId : ''}`;
+                previewPanel.style.display = 'block';
+                
+                setupReportMode();
+            }
+        };
+
+        // Setup Template Mode
+        const setupTemplateMode = () => {
+            const actionButtons = document.getElementById('action-buttons');
+            actionButtons.innerHTML = `
+                <button class="action-btn action-save action-btn-sm" id="save-template-btn">
+                    <i class="fas fa-save me-1"></i>บันทึก
+                </button>
+                <button class="action-btn action-delete action-btn-sm" id="delete-template-btn" ${!templateId ? 'disabled' : ''}>
+                    <i class="fas fa-trash me-1"></i>ลบ
+                </button>
+            `;
+
+            // Template content will be loaded in main initialization
+            console.log('📋 Template setup - content loading deferred to main init');
+
+            setupTemplateEvents();
+        };
+
+        // Setup Report Mode  
+        const setupReportMode = () => {
+            const actionButtons = document.getElementById('action-buttons');
+            actionButtons.innerHTML = `
+                <button class="action-btn action-view action-btn-sm" id="refresh-preview-btn">
+                    <i class="fas fa-sync me-1"></i>อัปเดต
+                </button>
+                <button class="action-btn action-save action-btn-sm" id="save-report-btn">
+                    <i class="fas fa-save me-1"></i>บันทึก
+                </button>
+                <button class="action-btn action-download action-btn-sm" id="generate-pdf-btn">
+                    <i class="fas fa-file-pdf me-1"></i>PDF
+                </button>
+            `;
+
+            // Load job data and templates
+            if (jobId) {
+                loadJobData();
+                loadTemplateSelector();
+            }
+
+            setupReportEvents();
+        };
+
+        // Render tags panel
+        const renderTagsPanel = () => {
+            const container = document.getElementById('tags-container');
+            container.innerHTML = availableTags.map(item => `
+                <div class="tag-item" data-tag="${item.tag}">
+                    <code>${item.tag}</code>
+                    <br><small class="text-muted">${item.description}</small>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.tag-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const tag = item.dataset.tag;
+                    if (activeEditor) {
+                        activeEditor.insertContent(tag);
+                        showAlert(`แทรก ${tag} สำเร็จ`, 'success');
+                    }
+                });
+            });
+        };
+
+        // Initialize TinyMCE with better error handling
+        const initializeTinyMCE = async () => {
+            console.log('🚀 Initializing TinyMCE editor...');
+            
+            try {
+                // Check if TinyMCE is available
+                if (typeof tinymce === 'undefined') {
+                    throw new Error('TinyMCE library not loaded');
+                }
+                
+                // Clear any existing instances
+                if (activeEditor) {
+                    console.log('🧹 Cleaning up existing TinyMCE instance');
+                    tinymce.remove('#template-editor');
+                    activeEditor = null;
+                }
+                
+                await new Promise((resolve, reject) => {
+                    const timeoutId = setTimeout(() => {
+                        console.log('⏰ TinyMCE initialization timeout after 15 seconds');
+                        reject(new Error('TinyMCE initialization timeout after 15 seconds'));
+                    }, 15000); // Increased timeout
+                    
+                    tinymce.init({
+                        selector: '#template-editor',
+                        height: 600,
+                        min_height: 600,
+                        resize: true,
+                        menubar: false,
+                        plugins: 'code table lists image link fullscreen preview wordcount paste',
+                        toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | indent outdent | bullist numlist | code table | fullscreen preview | wordcount',
+                        content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; line-height: 1.6; margin: 1rem; color: #333; }',
+                        branding: false,
+                        statusbar: true,
+                        elementpath: false,
+                        paste_as_text: false,
+                        paste_retain_style_properties: 'color font-size font-family text-align',
+                        
+                        init_instance_callback: function(editor) {
+                            console.log('✅ TinyMCE init_instance_callback triggered');
+                            clearTimeout(timeoutId);
+                            activeEditor = editor;
+                            
+                            // Add editor event listeners
+                            editor.on('init', function() {
+                                console.log('✅ TinyMCE editor fully initialized and ready');
+                                // Remove duplicate alert - will show when content loads
+                            });
+                            
+                            editor.on('change', function() {
+                                console.log('📝 Editor content changed');
+                            });
+                            
+                            editor.on('focus', function() {
+                                console.log('👁️ Editor focused');
+                            });
+                            
+                            console.log('✅ TinyMCE initialization completed successfully');
+                            resolve(editor);
+                        },
+                        
+                        setup: function(editor) {
+                            console.log('🔧 TinyMCE setup callback');
+                            editor.on('init', function() {
+                                console.log('📋 TinyMCE setup completed');
+                            });
+                        }
+                    });
+                });
+                
+                console.log('✅ TinyMCE Promise resolved successfully');
+                
+            } catch (error) {
+                console.error('❌ TinyMCE initialization failed:', error);
+                showAlert('Text Editor มีปัญหา กำลังเปลี่ยนเป็น Textarea...', 'warning', 4000);
+                
+                // Enhanced fallback to textarea
+                await initializeFallbackEditor();
+            }
+        };
+        
+        // Initialize fallback textarea editor
+        const initializeFallbackEditor = async () => {
+            console.log('🔄 Initializing fallback textarea editor');
+            
+            const editorContainer = document.getElementById('template-editor');
+            if (!editorContainer) {
+                console.error('❌ Editor container not found');
+                return;
+            }
+            
+            // Convert to textarea if it isn't already
+            if (editorContainer.tagName !== 'TEXTAREA') {
+                const textarea = document.createElement('textarea');
+                textarea.id = 'template-editor';
+                textarea.value = editorContainer.innerHTML || '';
+                editorContainer.parentNode.replaceChild(textarea, editorContainer);
+            }
+            
+            const textarea = document.getElementById('template-editor');
+            textarea.style.display = 'block';
+            textarea.style.height = 'calc(100vh - 280px)';
+            textarea.style.width = '100%';
+            textarea.style.resize = 'none';
+            textarea.classList.add('form-control');
+            textarea.style.fontFamily = '"Sarabun", sans-serif';
+            textarea.style.fontSize = '14px';
+            textarea.style.lineHeight = '1.5';
+            
+            // Create enhanced textarea wrapper with basic formatting
+            activeEditor = {
+                getContent: () => {
+                    const content = textarea.value;
+                    // Convert basic markdown-like formatting to HTML
+                    return content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br>');
+                },
+                
+                setContent: (content) => { 
+                    // Convert HTML to plain text for textarea
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = content;
+                    textarea.value = tempDiv.textContent || tempDiv.innerText || '';
+                },
+                
+                insertContent: (content) => {
+                    const cursorPos = textarea.selectionStart;
+                    const textBefore = textarea.value.substring(0, cursorPos);
+                    const textAfter = textarea.value.substring(textarea.selectionEnd);
+                    textarea.value = textBefore + content + textAfter;
+                    
+                    // Move cursor after inserted content
+                    const newPos = cursorPos + content.length;
+                    textarea.setSelectionRange(newPos, newPos);
+                    textarea.focus();
+                }
+            };
+            
+            console.log('✅ Fallback textarea editor initialized');
+            // Alert will be shown when content loads
+        };
+
+        // Load template content from Firebase
+        const loadTemplateContent = async () => {
+            console.log('🔍 loadTemplateContent called with templateId:', templateId);
+            
+            if (!templateId) {
+                console.log('❌ No templateId provided, skipping load');
+                return;
+            }
+            
+            if (isLoadingTemplate) {
+                console.log('⚠️ Template loading already in progress, skipping duplicate call');
+                return;
+            }
+            
+            isLoadingTemplate = true;
+            
+            try {
+                showAlert('กำลังโหลด Template...', 'info', 2000);
+                console.log('🔍 Attempting to load template from Firebase:', templateId);
+                
+                const templateDoc = await firebaseManager.getDocument('report_templates', templateId);
+                console.log('📋 Firebase response:', templateDoc);
+                
+                if (!templateDoc) {
+                    console.log('❌ Template not found in Firebase');
+                    showAlert('ไม่พบ Template ที่ต้องการ', 'warning');
+                    
+                    // For testing - create a sample template if not found
+                    const sampleContent = `
+                        <h1>รายงานการตรวจวัดความสว่าง</h1>
+                        <p><strong>รหัสงาน:</strong> {{JOB_ID}}</p>
+                        <p><strong>ลูกค้า:</strong> {{CUSTOMER_NAME}}</p>
+                        <p><strong>ที่อยู่:</strong> {{ADDRESS}}</p>
+                        <p><strong>วันที่ตรวจวัด:</strong> {{DATE}}</p>
+                        
+                        <h3>ตารางผลการตรวจวัด</h3>
+                        {{RESULTS_TABLE_ROWS}}
+                        
+                        <h3>หมายเหตุ</h3>
+                        {{REMARK_JOB}}
+                        
+                        <p><strong>ผู้ตรวจวัด:</strong> {{INSPECTOR_NAME}}</p>
+                    `;
+                    
+                    console.log('🔧 Using sample template content for testing');
+                    if (activeEditor) {
+                        activeEditor.setContent(sampleContent);
+                    } else {
+                        const textarea = document.getElementById('template-editor');
+                        if (textarea) textarea.value = sampleContent;
+                    }
+                    
+                    const editorTitle = document.getElementById('editor-title');
+                    const editorCardTitle = document.getElementById('editor-card-title');
+                    editorTitle.textContent = 'Template Editor - สร้าง Template ใหม่';
+                    editorCardTitle.innerHTML = '<i class="fas fa-plus me-2"></i>สร้าง Template ใหม่';
+                    
+                    return;
+                }
+                
+                console.log('📋 Template data structure:', {
+                    hasName: !!templateDoc.name,
+                    hasContent: !!templateDoc.content,
+                    hasData: !!templateDoc.data,
+                    fullData: templateDoc
+                });
+                
+                // Extract template data - handle different Firebase response formats
+                let templateName = templateDoc.name;
+                let templateContent = templateDoc.content;
+                
+                // If data is nested in .data property (Firestore document format)
+                if (templateDoc.data && typeof templateDoc.data === 'function') {
+                    const data = templateDoc.data();
+                    templateName = data.name;
+                    templateContent = data.content;
+                } else if (templateDoc.data && typeof templateDoc.data === 'object') {
+                    templateName = templateDoc.data.name;
+                    templateContent = templateDoc.data.content;
+                }
+                
+                templateName = templateName || 'ไม่มีชื่อ';
+                templateContent = templateContent || '';
+                
+                console.log('📝 Extracted template name:', templateName);
+                console.log('📝 Extracted template content length:', templateContent.length);
+                console.log('📝 First 100 chars of content:', templateContent.substring(0, 100));
+                
+                // Update UI with template name
+                const editorTitle = document.getElementById('editor-title');
+                const editorCardTitle = document.getElementById('editor-card-title');
+                editorTitle.textContent = `แก้ไข Template: ${templateName}`;
+                editorCardTitle.innerHTML = `<i class="fas fa-edit me-2"></i>แก้ไข: ${templateName}`;
+                
+                // Set content in editor with multiple attempts
+                const setEditorContent = () => {
+                    console.log('✏️ Setting content in editor, activeEditor exists:', !!activeEditor);
+                    if (activeEditor && typeof activeEditor.setContent === 'function') {
+                        console.log('✅ Using TinyMCE editor');
+                        activeEditor.setContent(templateContent);
+                        return true;
+                    } else {
+                        console.log('🔄 Using textarea fallback');
+                        const textarea = document.getElementById('template-editor');
+                        if (textarea) {
+                            textarea.value = templateContent;
+                            console.log('✅ Textarea content set, length:', textarea.value.length);
+                            return true;
+                        } else {
+                            console.error('❌ Textarea element not found');
+                            return false;
+                        }
+                    }
+                };
+                
+                // Try to set content immediately
+                if (!setEditorContent()) {
+                    // If failed, try again after a delay
+                    console.log('🔄 Retrying content set after delay...');
+                    setTimeout(() => {
+                        setEditorContent();
+                    }, 500);
+                }
+                
+                console.log('✅ Template content loaded successfully');
+                // Alert will be shown by main initialization
+                
+            } catch (error) {
+                console.error('❌ Error loading template:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                
+                // Fallback for testing
+                console.log('🔧 Loading fallback content for debugging');
+                const fallbackContent = '<h1>Template Test</h1><p>ทดสอบโหลด Template</p><p>{{JOB_ID}} - {{CUSTOMER_NAME}}</p>';
+                if (activeEditor) {
+                    activeEditor.setContent(fallbackContent);
+                } else {
+                    const textarea = document.getElementById('template-editor');
+                    if (textarea) textarea.value = fallbackContent;
+                }
+            } finally {
+                isLoadingTemplate = false;
+            }
+        };
+
+        const loadJobData = async () => {
+            if (!jobId) return;
+            
+            try {
+                const job = await firebaseManager.getDocument('jobs', jobId);
+                if (job) {
+                    jobData = job;
+                    console.log('Job data loaded:', jobData);
+                }
+            } catch (error) {
+                console.error('Error loading job data:', error);
+                showAlert(`เกิดข้อผิดพลาดในการโหลดข้อมูลงาน: ${error.message}`, 'danger');
+            }
+        };
+
+        const loadTemplateSelector = async () => {
+            // Reserved for future Report Mode implementation
+            console.log('Template selector loading - reserved for Report Mode');
+        };
+
+        const setupTemplateEvents = () => {
+            // Save template button
+            const saveBtn = document.getElementById('save-template-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', async () => {
+                    await saveTemplate();
+                });
+            }
+            
+            // Delete template button
+            const deleteBtn = document.getElementById('delete-template-btn');
+            if (deleteBtn && templateId) {
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm('คุณต้องการลบ Template นี้ใช่หรือไม่?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้')) {
+                        try {
+                            await firebaseManager.deleteDocument('report_templates', templateId);
+                            showAlert('ลบ Template สำเร็จ', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'template-manager.html';
+                            }, 1000);
+                        } catch (error) {
+                            showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                        }
+                    }
+                });
+            }
+        };
+
+        const setupReportEvents = () => {
+            // Reserved for future Report Mode implementation
+            console.log('Report events setup - reserved for Report Mode');
+        };
+        
+        // Save template function with enhanced debugging
+        const saveTemplate = async () => {
+            console.log('💾 Starting save template process...');
+            console.log('💾 Current templateId:', templateId);
+            console.log('💾 ActiveEditor exists:', !!activeEditor);
+            
+            try {
+                showAlert('กำลังบันทึก...', 'info', 2000);
+                
+                let content = '';
+                
+                if (activeEditor) {
+                    content = activeEditor.getContent();
+                    console.log('💾 Got content from TinyMCE, length:', content.length);
+                } else {
+                    const textarea = document.getElementById('template-editor');
+                    content = textarea ? textarea.value : '';
+                    console.log('💾 Got content from textarea, length:', content.length);
+                }
+                
+                console.log('💾 Content preview (first 200 chars):', content.substring(0, 200));
+                
+                if (!content.trim()) {
+                    console.log('❌ No content to save');
+                    showAlert('กรุณาเพิ่มเนื้อหา Template', 'warning');
+                    return;
+                }
+                
+                const currentTime = new Date().toISOString();
+                const templateData = {
+                    content: content,
+                    lastUpdated: currentTime,
+                    contentLength: content.length,
+                    lastEditor: 'Template Editor v1.0'
+                };
+                
+                if (templateId) {
+                    // Update existing template
+                    console.log('💾 Updating existing template with ID:', templateId);
+                    console.log('💾 Template data:', templateData);
+                    
+                    await firebaseManager.updateDocument('report_templates', templateId, templateData);
+                    console.log('✅ Template updated successfully');
+                    showAlert('อัปเดต Template สำเร็จ', 'success', 3000);
+                    
+                } else {
+                    // Create new template - need name
+                    console.log('💾 Creating new template...');
+                    
+                    const templateName = prompt('กรุณาตั้งชื่อ Template:', `Template สร้างเมื่อ ${new Date().toLocaleDateString('th-TH')}`);
+                    if (!templateName || !templateName.trim()) {
+                        console.log('❌ No template name provided');
+                        showAlert('กรุณาตั้งชื่อ Template', 'warning');
+                        return;
+                    }
+                    
+                    templateData.name = templateName.trim();
+                    templateData.createdAt = currentTime;
+                    templateData.createdBy = 'Template Editor';
+                    templateData.status = 'active';
+                    templateData.version = '1.0';
+                    
+                    console.log('💾 New template data:', templateData);
+                    
+                    const newId = await firebaseManager.addDocument('report_templates', templateData);
+                    templateId = newId;
+                    
+                    console.log('✅ New template created with ID:', newId);
+                    
+                    // Update URL and UI
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.set('templateId', templateId);
+                    history.replaceState(null, '', newUrl);
+                    
+                    const deleteBtn = document.getElementById('delete-template-btn');
+                    if (deleteBtn) {
+                        deleteBtn.disabled = false;
+                    }
+                    
+                    // Update page title
+                    const editorTitle = document.getElementById('editor-title');
+                    const editorCardTitle = document.getElementById('editor-card-title');
+                    editorTitle.textContent = `แก้ไข Template: ${templateName}`;
+                    editorCardTitle.innerHTML = `<i class="fas fa-edit me-2"></i>แก้ไข: ${templateName}`;
+                    
+                    showAlert(`สร้าง Template "${templateName}" สำเร็จ`, 'success', 3000);
+                }
+                
+                console.log('✅ Save template process completed successfully');
+                
+            } catch (error) {
+                console.error('❌ Error saving template:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    templateId: templateId
+                });
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger', 5000);
+            }
+        };
+        
+        // Load template for report mode
+        const loadReportTemplate = async (selectedTemplateId) => {
+            try {
+                const templateDoc = await firebaseManager.getDocument('report_templates', selectedTemplateId);
+                if (templateDoc && activeEditor) {
+                    activeEditor.setContent(templateDoc.content || '');
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error('Error loading report template:', error);
+            }
+        };
+        
+        // Update preview (placeholder)
+        const updatePreview = () => {
+            const previewContent = document.getElementById('preview-content');
+            if (previewContent && activeEditor) {
+                previewContent.innerHTML = '<p class="text-muted"><i class="fas fa-info-circle me-2"></i>Preview functionality จะเพิ่มในเวอร์ชันถัดไป</p>';
+            }
+        };
+
+        // Main initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Firebase
+            if (!await firebaseManager.initialize()) {
+                showAlert('ไม่สามารถเชื่อมต่อ Firebase ได้', 'danger');
+                return;
+            }
+
+            // Update user display
+            const currentUser = firebaseManager.getCurrentUser();
+            if (currentUser) {
+                document.getElementById('user-display').textContent = `UID: ${currentUser.uid.substring(0, 8)}...`;
+            }
+
+            // Parse URL and initialize mode
+            const { mode } = parseUrlParams();
+            console.log('Initializing mode:', mode);
+            initializeMode(mode);
+
+            // Initialize TinyMCE
+            await initializeTinyMCE();
+
+            // Render tags panel
+            renderTagsPanel();
+            
+            // Load content based on mode after editor is ready
+            // Wait for editor to be fully initialized before loading content
+            const waitForEditor = () => {
+                return new Promise((resolve) => {
+                    const checkEditor = () => {
+                        if (activeEditor) {
+                            console.log('✅ Editor is ready, loading content...');
+                            resolve();
+                        } else {
+                            console.log('⏳ Waiting for editor to be ready...');
+                            setTimeout(checkEditor, 200);
+                        }
+                    };
+                    checkEditor();
+                });
+            };
+            
+            // Load content after editor is confirmed ready
+            setTimeout(async () => {
+                await waitForEditor();
+                
+                if (currentMode === 'template' && templateId) {
+                    console.log('🔍 Loading template content for ID:', templateId);
+                    await loadTemplateContent();
+                } else if (currentMode === 'template' && !templateId) {
+                    console.log('📝 New template mode - setting sample content');
+                    const sampleContent = `<h1>รายงานการตรวจวัดความสว่าง</h1>
+<p><strong>รหัสงาน:</strong> {{JOB_ID}}</p>
+<p><strong>ลูกค้า:</strong> {{CUSTOMER_NAME}}</p>
+<p><strong>ที่อยู่:</strong> {{ADDRESS}}</p>
+
+<h3>ตารางผลการตรวจวัด</h3>
+{{RESULTS_TABLE_ROWS}}
+
+<h3>หมายเหตุ</h3>
+{{REMARK_JOB}}`;
+                    
+                    if (activeEditor) {
+                        activeEditor.setContent(sampleContent);
+                        // Alert will be shown by main initialization
+                    }
+                } else if (currentMode === 'report' && jobId) {
+                    console.log('📊 Loading report data for job ID:', jobId);
+                    await loadJobData();
+                    await loadTemplateSelector();
+                }
+            }, 500); // Reduced delay since we now wait for editor
+
+            // Setup settings panel
+            setupSettingsPanel();
+
+            // Show final success alert after everything is loaded
+            setTimeout(() => {
+                showAlert('Template Editor พร้อมใช้งาน', 'success', 2000);
+            }, 1500);
+
+            console.log('Template Editor initialized successfully');
+        });
+
+        // Setup settings panel functionality
+        const setupSettingsPanel = () => {
+            // Setup tab switching
+            const tabButtons = document.querySelectorAll('#rightPanelTabs button[data-bs-toggle="tab"]');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active from all buttons and panels
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                        pane.style.display = 'none';
+                    });
+                    
+                    // Add active to clicked button
+                    button.classList.add('active');
+                    
+                    // Show target panel
+                    const targetId = button.getAttribute('data-bs-target');
+                    const targetPanel = document.querySelector(targetId);
+                    if (targetPanel) {
+                        targetPanel.classList.add('show', 'active');
+                        // Settings panel needs different display style
+                        if (targetId === '#settings-panel') {
+                            targetPanel.style.display = 'block';
+                        } else {
+                            targetPanel.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+
+            // Header toggle
+            const enableHeader = document.getElementById('enableHeader');
+            const headerSettings = document.getElementById('headerSettings');
+            enableHeader.addEventListener('change', (e) => {
+                headerSettings.style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            // Footer toggle
+            const enableFooter = document.getElementById('enableFooter');
+            const footerSettings = document.getElementById('footerSettings');
+            enableFooter.addEventListener('change', (e) => {
+                footerSettings.style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            // Watermark toggle
+            const enableWatermark = document.getElementById('enableWatermark');
+            const watermarkSettings = document.getElementById('watermarkSettings');
+            enableWatermark.addEventListener('change', (e) => {
+                watermarkSettings.style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            // Apply settings button
+            const applySettings = document.getElementById('applySettings');
+            applySettings.addEventListener('click', () => {
+                applyPrintSettings();
+            });
+
+            // Reset settings button
+            const resetSettings = document.getElementById('resetSettings');
+            resetSettings.addEventListener('click', () => {
+                resetPrintSettings();
+            });
+        };
+
+        // Apply print settings
+        const applyPrintSettings = () => {
+            const settings = {
+                paperSize: document.getElementById('paperSize').value,
+                orientation: document.getElementById('orientation').value,
+                margins: {
+                    top: document.getElementById('marginTop').value,
+                    bottom: document.getElementById('marginBottom').value,
+                    left: document.getElementById('marginLeft').value,
+                    right: document.getElementById('marginRight').value
+                },
+                header: {
+                    enabled: document.getElementById('enableHeader').checked,
+                    text: document.getElementById('headerText').value,
+                    align: document.getElementById('headerAlign').value,
+                    fontSize: document.getElementById('headerFontSize').value
+                },
+                footer: {
+                    enabled: document.getElementById('enableFooter').checked,
+                    text: document.getElementById('footerText').value,
+                    align: document.getElementById('footerAlign').value,
+                    fontSize: document.getElementById('footerFontSize').value
+                },
+                watermark: {
+                    enabled: document.getElementById('enableWatermark').checked,
+                    text: document.getElementById('watermarkText').value,
+                    opacity: document.getElementById('watermarkOpacity').value,
+                    size: document.getElementById('watermarkSize').value,
+                    color: document.getElementById('watermarkColor').value,
+                    rotation: document.getElementById('watermarkRotation').value
+                }
+            };
+
+            // Store in localStorage for use in PDF generation
+            localStorage.setItem('templatePrintSettings', JSON.stringify(settings));
+            
+            showAlert('บันทึกการตั้งค่าเรียบร้อย', 'success', 2000);
+            console.log('Print settings applied:', settings);
+        };
+
+        // Reset print settings
+        const resetPrintSettings = () => {
+            // Reset to defaults
+            document.getElementById('paperSize').value = 'A4';
+            document.getElementById('orientation').value = 'portrait';
+            document.getElementById('marginTop').value = '15';
+            document.getElementById('marginBottom').value = '15';
+            document.getElementById('marginLeft').value = '15';
+            document.getElementById('marginRight').value = '15';
+            
+            document.getElementById('enableHeader').checked = false;
+            document.getElementById('headerSettings').style.display = 'none';
+            document.getElementById('headerText').value = '';
+            document.getElementById('headerAlign').value = 'center';
+            document.getElementById('headerFontSize').value = '12';
+            
+            document.getElementById('enableFooter').checked = true;
+            document.getElementById('footerSettings').style.display = 'block';
+            document.getElementById('footerText').value = 'หน้า {page} จาก {total}';
+            document.getElementById('footerAlign').value = 'center';
+            document.getElementById('footerFontSize').value = '10';
+            
+            document.getElementById('enableWatermark').checked = false;
+            document.getElementById('watermarkSettings').style.display = 'none';
+            document.getElementById('watermarkText').value = '';
+            document.getElementById('watermarkOpacity').value = '0.2';
+            document.getElementById('watermarkSize').value = '48';
+            document.getElementById('watermarkColor').value = '#cccccc';
+            document.getElementById('watermarkRotation').value = '45';
+            
+            localStorage.removeItem('templatePrintSettings');
+            showAlert('รีเซ็ตการตั้งค่าเรียบร้อย', 'info', 2000);
+        };
+
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('sidebar-mini');
+        });
+    </script>
+</body>
+</html>

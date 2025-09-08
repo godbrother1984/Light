@@ -1,9 +1,9 @@
 <!-- 
   path: /report-finalizer.html
-  version: 7.0 (Module System Migration + Modern Button Design + Toast Notifications)
-  date: 2025-09-05
-  time: 11:45:00
-  description: Migrated to module system, added modern button styling and toast notifications
+  version: 7.1 (Integrated Template Management + Enhanced UX)
+  date: 2025-09-07
+  time: 15:30:00
+  description: Added full template management capability within report finalizer for easier system maintenance
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -184,6 +184,12 @@
                                     </select>
                                     <button id="load-template-btn" class="btn btn-sm btn-outline-info modern-btn">
                                         <i class="fas fa-download me-1"></i>โหลด
+                                    </button>
+                                    <button id="manage-templates-btn" class="btn btn-sm btn-outline-primary modern-btn">
+                                        <i class="fas fa-cog me-1"></i>จัดการ
+                                    </button>
+                                    <button id="save-as-template-btn" class="btn btn-sm btn-outline-success modern-btn">
+                                        <i class="fas fa-save me-1"></i>บันทึกเป็น Template
                                     </button>
                                 </div>
                             </div>
@@ -411,7 +417,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { showAlert } from './assets/js/ui-helpers.js';
         
         const { jsPDF } = window.jspdf;
         let activeEditor = null;
@@ -420,16 +427,8 @@
         let currentJobId = null;
         let tagProcessor = null;
         
-        const alertPlaceholder = document.getElementById('alert-placeholder');
         const jobIdDisplay = document.getElementById('job-id-display');
         const templateSelector = document.getElementById('template-selector');
-        
-        const showAlert = (message, type = 'info') => {
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-            alertPlaceholder.innerHTML = '';
-            alertPlaceholder.append(wrapper);
-        };
         
         const fileToBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -688,21 +687,22 @@
                 }
                 
                 // Load templates
-                const templatesCollectionPath = `/artifacts/${appId}/public/data/report_templates`;
-                onSnapshot(collection(db, templatesCollectionPath), (snapshot) => {
+                firebaseManager.listenToCollection('report_templates', (templates) => {
                     const currentVal = templateSelector.value;
                     templateSelector.innerHTML = '<option value="">-- เลือก Template --</option>';
                     savedTemplates = [];
                     
-                    if (snapshot.empty) {
+                    if (!templates || !Array.isArray(templates) || templates.length === 0) {
                         return;
                     }
                     
-                    snapshot.forEach(doc => {
-                        savedTemplates.push({ id: doc.id, ...doc.data() });
+                    // templates is already an array of objects with id and data
+                    savedTemplates = templates;
+                    
+                    templates.forEach(template => {
                         const option = document.createElement('option');
-                        option.value = doc.id;
-                        option.textContent = doc.data().name;
+                        option.value = template.id;
+                        option.textContent = template.name || 'ไม่มีชื่อ';
                         templateSelector.appendChild(option);
                     });
                     
@@ -769,6 +769,216 @@
                     showAlert("บันทึกเนื้อหาสำหรับงานนี้สำเร็จ", "success");
                 });
                 
+                // Get user name from Firebase or fallback to UID
+                const getCurrentUserName = async () => {
+                    const currentUser = auth.currentUser;
+                    if (!currentUser) return 'ไม่ทราบ';
+                    
+                    try {
+                        // Try to get user profile from Firestore
+                        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                        if (userDoc.exists() && userDoc.data().name) {
+                            return userDoc.data().name;
+                        }
+                        
+                        // Fallback to email or UID
+                        if (currentUser.email) {
+                            return currentUser.email.split('@')[0];
+                        }
+                        
+                        return `User ${currentUser.uid.substring(0, 8)}`;
+                    } catch (error) {
+                        console.warn('Could not get user name:', error);
+                        return `User ${currentUser.uid.substring(0, 8)}`;
+                    }
+                };
+
+                // Template Management Modal
+                document.getElementById('manage-templates-btn').addEventListener('click', async () => {
+                    const modalHtml = `
+                        <div class="modal fade" id="templateManageModal" tabindex="-1" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">จัดการ Templates</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <h6>รายการ Templates</h6>
+                                                <div id="template-manage-list" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                                                    <div class="text-center p-3">กำลังโหลด...</div>
+                                                </div>
+                                                <button class="btn btn-success btn-sm mt-2 w-100" id="new-template-manage-btn">
+                                                    <i class="fas fa-plus me-1"></i>สร้าง Template ใหม่
+                                                </button>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">ชื่อ Template <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="template-manage-name" placeholder="ตั้งชื่อ Template">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">เนื้อหา Template</label>
+                                                    <textarea id="template-manage-content" class="form-control" rows="15" style="font-family: monospace;"></textarea>
+                                                </div>
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <button class="btn btn-danger" id="delete-template-manage-btn" disabled>
+                                                        <i class="fas fa-trash me-1"></i>ลบ
+                                                    </button>
+                                                    <button class="btn btn-success" id="save-template-manage-btn">
+                                                        <i class="fas fa-save me-1"></i>บันทึก
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Add modal to body
+                    const modalContainer = document.createElement('div');
+                    modalContainer.innerHTML = modalHtml;
+                    document.body.appendChild(modalContainer);
+
+                    const modal = new bootstrap.Modal(document.getElementById('templateManageModal'));
+                    modal.show();
+
+                    // Template management variables
+                    let selectedTemplateId = null;
+                    const templateList = document.getElementById('template-manage-list');
+                    const templateNameInput = document.getElementById('template-manage-name');
+                    const templateContentArea = document.getElementById('template-manage-content');
+                    const saveBtn = document.getElementById('save-template-manage-btn');
+                    const deleteBtn = document.getElementById('delete-template-manage-btn');
+                    const newBtn = document.getElementById('new-template-manage-btn');
+
+                    // Clear form
+                    const clearForm = () => {
+                        selectedTemplateId = null;
+                        templateNameInput.value = '';
+                        templateContentArea.value = '';
+                        deleteBtn.disabled = true;
+                        templateList.querySelectorAll('.list-group-item').forEach(item => 
+                            item.classList.remove('active'));
+                    };
+
+                    // Load templates
+                    const loadTemplates = () => {
+                        firebaseManager.listenToCollection('report_templates', (templates) => {
+                            templateList.innerHTML = '';
+                            
+                            if (!templates || !Array.isArray(templates) || templates.length === 0) {
+                                templateList.innerHTML = '<div class="text-center p-3 text-muted">ยังไม่มี Templates</div>';
+                                return;
+                            }
+                            
+                            templates.forEach(template => {
+                                const item = document.createElement('div');
+                                item.className = 'list-group-item list-group-item-action';
+                                item.style.cursor = 'pointer';
+                                
+                                // Safe data handling
+                                const templateName = template.name || 'ไม่มีชื่อ';
+                                const createdBy = template.createdBy || 'ไม่ทราบ';
+                                let formattedDate = 'ไม่ทราบวันที่';
+                                try {
+                                    const dateObj = new Date(template.createdAt || template.lastUpdated || new Date());
+                                    if (!isNaN(dateObj.getTime())) {
+                                        formattedDate = dateObj.toLocaleDateString('th-TH');
+                                    }
+                                } catch (e) {}
+                                
+                                item.innerHTML = `
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">${templateName}</h6>
+                                        <small>${formattedDate}</small>
+                                    </div>
+                                    <small class="text-muted">สร้างโดย: ${createdBy}</small>
+                                `;
+                                
+                                item.addEventListener('click', () => {
+                                    selectedTemplateId = template.id;
+                                    templateNameInput.value = template.name || '';
+                                    templateContentArea.value = template.content || '';
+                                    deleteBtn.disabled = false;
+                                    
+                                    templateList.querySelectorAll('.list-group-item').forEach(i => 
+                                        i.classList.remove('active'));
+                                    item.classList.add('active');
+                                });
+                                
+                                templateList.appendChild(item);
+                            });
+                        });
+                    };
+
+                    // Event handlers
+                    newBtn.addEventListener('click', clearForm);
+                    
+                    saveBtn.addEventListener('click', async () => {
+                        const name = templateNameInput.value.trim();
+                        const content = templateContentArea.value;
+                        
+                        if (!name) {
+                            showAlert('กรุณาใส่ชื่อ Template', 'warning');
+                            templateNameInput.focus();
+                            return;
+                        }
+                        
+                        try {
+                            const templatesRef = collection(db, `/artifacts/${appId}/public/data/report_templates`);
+                            
+                            if (selectedTemplateId) {
+                                // Update existing
+                                await setDoc(doc(templatesRef, selectedTemplateId), {
+                                    name,
+                                    content,
+                                    lastUpdated: new Date().toISOString()
+                                }, { merge: true });
+                                showAlert(`อัปเดต Template "${name}" สำเร็จ`, 'success');
+                            } else {
+                                // Create new
+                                await addDoc(templatesRef, {
+                                    name,
+                                    content,
+                                    createdAt: new Date().toISOString(),
+                                    createdBy: await getCurrentUserName(),
+                                    lastUpdated: new Date().toISOString()
+                                });
+                                showAlert(`สร้าง Template "${name}" สำเร็จ`, 'success');
+                            }
+                        } catch (error) {
+                            showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                        }
+                    });
+                    
+                    deleteBtn.addEventListener('click', async () => {
+                        if (!selectedTemplateId || !confirm(`คุณต้องการลบ Template "${templateNameInput.value}" ใช่หรือไม่?`)) return;
+                        
+                        try {
+                            const templatesRef = collection(db, `/artifacts/${appId}/public/data/report_templates`);
+                            await deleteDoc(doc(templatesRef, selectedTemplateId));
+                            showAlert(`ลบ Template "${templateNameInput.value}" สำเร็จ`);
+                            clearForm();
+                        } catch (error) {
+                            showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                        }
+                    });
+
+                    // Initialize
+                    loadTemplates();
+
+                    // Clean up on modal hide
+                    document.getElementById('templateManageModal').addEventListener('hidden.bs.modal', () => {
+                        setTimeout(() => modalContainer.remove(), 100);
+                    });
+                });
+
+                // Save current content as template
                 document.getElementById('save-as-template-btn').addEventListener('click', async () => {
                     const name = prompt("กรุณาตั้งชื่อ Template ใหม่:");
                     if (name && name.trim() !== '') {
@@ -777,7 +987,8 @@
                             name: name.trim(),
                             content: activeEditor.getContent(),
                             createdAt: new Date().toISOString(),
-                            createdBy: auth.currentUser.uid
+                            createdBy: await getCurrentUserName(),
+                            lastUpdated: new Date().toISOString()
                         });
                         showAlert(`บันทึกเป็น Template ใหม่ชื่อ "${name}" สำเร็จ`, "success");
                     }

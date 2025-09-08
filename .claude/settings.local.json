@@ -6,7 +6,10 @@
       "Bash(sed:*)",
       "Bash(node:*)",
       "Bash(curl:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(start http://localhost:8000/template-manager.html)",
+      "Bash(start http://localhost:8000/template-editor.html?mode=template)",
+      "Bash(start http://localhost:8000/master-data-manager.html)"
     ],
     "deny": [],
     "ask": []

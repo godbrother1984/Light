@@ -71,6 +71,18 @@ class TagProcessor {
 
     // Basic job information tags
     getBasicTags(jobData, jobId) {
+        // Format Thai date
+        const formatThaiDate = (dateStr) => {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 
+                          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear() + 543; // Buddhist year
+            return `${day} ${month} ${year}`;
+        };
+
         return {
             '{{JOB_ID}}': jobId,
             '{{CUSTOMER_NAME}}': jobData.customerName || '',
@@ -78,7 +90,7 @@ class TagProcessor {
             '{{ADDRESS}}': jobData.address || '',
             '{{CONTACT_PERSON}}': jobData.contactPerson || '',
             '{{CONTACT_PHONE}}': jobData.contactPhone || '',
-            '{{DATE}}': jobData.date || '',
+            '{{DATE}}': formatThaiDate(jobData.date),
             '{{TIME}}': jobData.time || '',
             '{{STATUS}}': jobData.status || '',
             '{{RECOMMENDATIONS}}': jobData.recommendations || '',
@@ -90,7 +102,12 @@ class TagProcessor {
                 month: 'long',
                 day: 'numeric',
                 era: 'short'
-            })
+            }),
+            // New tags for Test Report format
+            '{{REPORT_DATE}}': formatThaiDate(new Date().toISOString()),
+            '{{LICENSE_NUMBER}}': '๐๔๐๒-๐๓-๒๕๖๕-๐๐๔๒', // Can be updated from company data
+            '{{REPORT_LOT_NO}}': `RL-TK${new Date().getFullYear() + 543 - 2500}${(new Date().getMonth() + 1).toString().padStart(2, '0')}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+            '{{TEST_REPORT_NO}}': `TL.RA-${Math.floor(Math.random() * 200) + 1}-${Math.floor(Math.random() * 50) + 1}/${(new Date().getFullYear() + 543).toString().slice(-2)}`
         };
     }
 
@@ -224,9 +241,29 @@ class TagProcessor {
         
         if (jobData.results && jobData.results.length > 0) {
             tags['{{MEASUREMENT_DETAILS_TABLE}}'] = this.generateDetailedTable(jobData.results);
+            tags['{{RESULTS_TABLE_ROWS}}'] = this.generateTestReportRows(jobData.results);
         } else {
             tags['{{MEASUREMENT_DETAILS_TABLE}}'] = '<p class="text-center">ไม่มีรายละเอียดการตรวจวัด</p>';
+            tags['{{RESULTS_TABLE_ROWS}}'] = '<tr><td colspan="6" class="text-center">ไม่มีข้อมูลการตรวจวัด</td></tr>';
         }
+        
+        // Instrument tags
+        if (jobData.instruments && jobData.instruments.length > 0) {
+            const instrument = jobData.instruments[0]; // Use first instrument
+            tags['{{INSTRUMENT_NAME}}'] = instrument.name || 'Lux Meter Digicon Model : LX-73';
+            tags['{{INSTRUMENT_SERIAL}}'] = instrument.serial || 'T.034939';
+            tags['{{INSTRUMENT_STANDARD}}'] = instrument.standard || 'C.I.E.photopic';
+            tags['{{CALIBRATION_DATE}}'] = instrument.calibrationDate || '1 กุมภาพันธ์ 2567';
+        } else {
+            tags['{{INSTRUMENT_NAME}}'] = 'Lux Meter Digicon Model : LX-73';
+            tags['{{INSTRUMENT_SERIAL}}'] = 'T.034939';
+            tags['{{INSTRUMENT_STANDARD}}'] = 'C.I.E.photopic';
+            tags['{{CALIBRATION_DATE}}'] = '1 กุมภาพันธ์ 2567';
+        }
+        
+        // Inspector and Approver names
+        tags['{{INSPECTOR_NAME}}'] = jobData.inspectors && jobData.inspectors[0] ? jobData.inspectors[0] : '';
+        tags['{{APPROVER_NAME}}'] = jobData.reportCreator || '';
 
         return tags;
     }
@@ -439,6 +476,51 @@ class TagProcessor {
         `;
         
         return tags;
+    }
+
+    // Generate table rows for Test Report format
+    generateTestReportRows(results) {
+        if (!results || results.length === 0) {
+            return '<tr><td colspan="6" class="text-center">ไม่มีข้อมูลการตรวจวัด</td></tr>';
+        }
+
+        let rowsHtml = '';
+        results.forEach((result, index) => {
+            const resultValue = result.measurementType === 'spot' 
+                ? (result.spotValue || '-')
+                : `${result.areaAvgValue || '-'}`;
+            
+            // Format standard value
+            let standardValue = '';
+            if (result.standard) {
+                // Check if it's a range (e.g., "400-500") or single value
+                if (result.standard.includes('-')) {
+                    standardValue = result.standard;
+                } else {
+                    standardValue = result.standard;
+                }
+            } else if (result.workType) {
+                // Default standards based on work type
+                if (result.workType.includes('เอกสาร') || result.workType.includes('คอมพิวเตอร์')) {
+                    standardValue = '400-500';
+                } else {
+                    standardValue = '300-400';
+                }
+            }
+            
+            rowsHtml += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="text-left">${result.layout || `Lay Out จุดที่ ${index + 1}`}</td>
+                    <td class="text-left">${result.area || ''}</td>
+                    <td class="text-left">${result.workType || ''}</td>
+                    <td>${resultValue}</td>
+                    <td>${standardValue}</td>
+                </tr>
+            `;
+        });
+
+        return rowsHtml;
     }
 }
 

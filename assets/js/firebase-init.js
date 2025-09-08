@@ -345,7 +345,14 @@ export class FirebaseManager {
                 collectionRef = query(collectionRef, where(options.where.field, options.where.operator, options.where.value));
             }
             
-            return onSnapshot(collectionRef, callback, (error) => {
+            return onSnapshot(collectionRef, (snapshot) => {
+                // Convert QuerySnapshot to array of documents
+                const documents = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                callback(documents);
+            }, (error) => {
                 console.error('Firestore listener error:', error);
                 this.showError(`เกิดข้อผิดพลาดในการติดตามข้อมูล: ${error.message}`);
             });

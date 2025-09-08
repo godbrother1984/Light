@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST REPORT - Light Measurement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #000;
+        }
+        
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            margin: 0 auto;
+            background: white;
+        }
+        
+        @media print {
+            .page {
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                page-break-after: always;
+            }
+        }
+        
+        /* Header Styles */
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .report-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        
+        /* Project Information */
+        .project-info {
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 5px;
+            align-items: flex-start;
+        }
+        
+        .info-label {
+            min-width: 150px;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            flex: 1;
+            padding-left: 10px;
+        }
+        
+        .info-separator {
+            margin: 0 10px;
+            font-weight: 600;
+        }
+        
+        /* Instrument Information */
+        .instrument-info {
+            margin-bottom: 20px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        
+        /* Results Table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .results-table th,
+        .results-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .results-table thead th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .results-table tbody td {
+            font-size: 13px;
+        }
+        
+        .results-table .text-left {
+            text-align: left;
+            padding-left: 8px;
+        }
+        
+        .results-table .col-no {
+            width: 8%;
+        }
+        
+        .results-table .col-layout {
+            width: 20%;
+        }
+        
+        .results-table .col-area {
+            width: 25%;
+        }
+        
+        .results-table .col-work {
+            width: 22%;
+        }
+        
+        .results-table .col-result {
+            width: 12%;
+        }
+        
+        .results-table .col-standard {
+            width: 13%;
+        }
+        
+        /* Two-row header for result columns */
+        .header-group {
+            font-size: 12px;
+        }
+        
+        /* Notes Section */
+        .notes-section {
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .note-title {
+            font-weight: 600;
+            display: inline;
+        }
+        
+        .note-content {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+        
+        /* Footer */
+        .report-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            width: 45%;
+            text-align: center;
+            padding-top: 60px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            padding-top: 5px;
+        }
+        
+        .signature-name {
+            font-weight: 600;
+        }
+        
+        .signature-title {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        /* Page break control */
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <div class="report-header">
+            <h1 class="report-title">TEST REPORT</h1>
+        </div>
+        
+        <!-- Project Information -->
+        <div class="project-info">
+            <div class="info-row">
+                <span class="info-label">ชื่อโครงการ</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{CUSTOMER_NAME}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ที่อยู่โครงการ</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{ADDRESS}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">วันที่ตรวจวัด</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{DATE}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">วันที่รายงานผล</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{REPORT_DATE}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ใบอนุญาตเลขที่</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{LICENSE_NUMBER}}</span>
+            </div>
+        </div>
+        
+        <!-- Instrument Information -->
+        <div class="instrument-info">
+            <div class="info-row">
+                <span class="info-label">ชนิดตัวอย่าง</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">ความเข้มแสง (Light Level)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">เครื่องมือตรวจวัด</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{INSTRUMENT_NAME}} Serial No. : {{INSTRUMENT_SERIAL}} มาตรฐานเครื่อง : {{INSTRUMENT_STANDARD}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">วันที่สอบเทียบความถูกต้อง</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{CALIBRATION_DATE}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Report Lot No.</span>
+                <span class="info-separator">:</span>
+                <span class="info-value">{{REPORT_LOT_NO}}</span>
+                <span style="margin-left: 50px;">Test Report No : {{TEST_REPORT_NO}}</span>
+            </div>
+        </div>
+        
+        <!-- Results Table -->
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="col-no">ลำดับ</th>
+                    <th rowspan="2" class="col-layout">Lay Out</th>
+                    <th rowspan="2" class="col-area">พื้นที่ตรวจวัด</th>
+                    <th rowspan="2" class="col-work">ลักษณะงาน</th>
+                    <th colspan="2" class="header-group">ผลการตรวจวัด (LUX)</th>
+                </tr>
+                <tr>
+                    <th class="col-result">(แบบจุด)</th>
+                    <th class="col-standard">ค่ามาตรฐาน<sup>(1)</sup><br>(LUX)<br>(แบบจุด)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{RESULTS_TABLE_ROWS}}
+            </tbody>
+        </table>
+        
+        <!-- Notes Section -->
+        <div class="notes-section">
+            <div>
+                <span class="note-title">หมายเหตุ :</span> <sup>(1)</sup> ประกาศกรมสวัสดิการและคุ้มครองแรงงาน เรื่องมาตรฐานความเข้มของแสงสว่าง
+            </div>
+            <div class="note-content">
+                - กรณีที่ผลแสงสว่างมีค่าต่ำกว่าเกณฑ์ที่มาตรฐานกำหนด ให้ถือว่าไม่ผ่านเกณฑ์<br>
+                - กรณีที่ผลแสงสว่างมีค่าอยู่ในช่วงที่มาตรฐานกำหนด หรือสูงกว่า (เกิน) ให้ถือว่าผ่านเกณฑ์
+            </div>
+            <div style="margin-top: 10px;">
+                <span class="note-title">หมายเหตุผลตรวจ :</span> {{REMARK_JOB}}
+            </div>
+        </div>
+        
+        <!-- Footer with Signatures -->
+        <div class="report-footer">
+            <div class="signature-box">
+                <div class="signature-line">
+                    <div class="signature-name">{{INSPECTOR_NAME}}</div>
+                    <div class="signature-title">ผู้ตรวจวัด</div>
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">
+                    <div class="signature-name">{{APPROVER_NAME}}</div>
+                    <div class="signature-title">ผู้อนุมัติ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

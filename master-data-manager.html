@@ -493,14 +493,14 @@
                             <div class="p-3 border-bottom bg-white">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0"><i class="fas fa-edit me-2"></i>รายละเอียดสาขา</h6>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-success modern-btn" id="add-region-btn">
+                                    <div class="action-btn-group">
+                                        <button class="action-btn action-add action-btn-sm" id="add-region-btn">
                                             <i class="fas fa-plus me-1"></i>เพิ่มภูมิภาค
                                         </button>
-                                        <button class="btn btn-info modern-btn" id="import-branches-btn">
+                                        <button class="action-btn action-view action-btn-sm" id="import-branches-btn">
                                             <i class="fas fa-file-excel me-1"></i>นำเข้า Excel
                                         </button>
-                                        <button class="btn btn-outline-secondary modern-btn" id="export-branches-btn">
+                                        <button class="action-btn action-download action-btn-sm" id="export-branches-btn">
                                             <i class="fas fa-download me-1"></i>ส่งออก
                                         </button>
                                     </div>
@@ -611,7 +611,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { firebaseManager } from './assets/js/firebase-init.js';
         import { showAlert } from './assets/js/ui-helpers.js';
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
@@ -1317,12 +1318,8 @@
 
         // Remarks Management Functions
         function loadRemarks() {
-            const remarksCollection = collection(db, `artifacts/${appId}/public/data/remarks`);
-            onSnapshot(remarksCollection, (snapshot) => {
-                remarksData = [];
-                snapshot.forEach((doc) => {
-                    remarksData.push({ id: doc.id, ...doc.data() });
-                });
+            firebaseManager.listenToCollection('remarks', (remarks) => {
+                remarksData = Array.isArray(remarks) ? remarks : [];
                 renderRemarksTable();
             });
         }
@@ -1389,12 +1386,14 @@
                         <td>${priorityLabels[remark.priority] || ''}</td>
                         <td>${statusLabels[remark.status] || statusLabels['ACTIVE']}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary modern-btn me-1 edit-remark-btn" data-id="${remark.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger modern-btn delete-remark-btn" data-id="${remark.id}" data-text="${remark.text?.substring(0, 50)}...">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="action-btn-group">
+                                <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-remark-btn" data-id="${remark.id}" title="แก้ไข">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-remark-btn" data-id="${remark.id}" data-text="${remark.text?.substring(0, 50)}..." title="ลบ">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1763,26 +1762,192 @@
             finally { seedBtn.disabled = false; seedBtn.innerHTML = `<i class="fas fa-seedling me-2"></i>เติมข้อมูลเริ่มต้น (Seed Data)`; }
         }
 
-        const renderCustomers = (docs) => { const tableBody = document.getElementById('customers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const branchCount = d.branches ? d.branches.length : 0; const branchDisplay = branchCount > 0 ? `<div class="d-flex align-items-center gap-2"><a href="#" class="branch-details-link" data-id="${doc.id}">${branchCount} สาขา</a><button class="btn btn-xs btn-outline-primary modern-btn manage-branches-btn" data-id="${doc.id}" title="จัดการสาขาขั้นสูง"><i class="fas fa-sitemap"></i></button></div>` : 'ไม่มีสาขา'; return `<tr><td>${d.name || ''}</td><td>${branchDisplay}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderWorkTypes = (docs) => { const tableBody = document.getElementById('work-types-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.workTypeName || ''}</td><td class="text-center">${d.stdSpotMin || '-'}</td><td class="text-center">${d.stdSpotMax || '-'}</td><td class="text-center">${d.stdAreaAvg || '-'}</td><td class="text-center">${d.stdAreaMin || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderInspectors = (docs) => { const tableBody = document.getElementById('inspectors-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.inspectorName || ''}</td><td>${d.inspectorTitle || ''}</td><td>${d.inspectorLicense || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderInstruments = (docs) => { const tableBody = document.getElementById('instruments-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); return `<tr><td>${d.instrumentName || ''}</td><td>${d.instrumentSerial || ''}</td><td>${d.instrumentAccuracy || '-'}</td><td>${d.instrumentLastCalDate || '-'}</td><td>${d.instrumentCalDate || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
-        const renderSignatories = (signatories = []) => { const tableBody = document.getElementById('signatories-table'); if (signatories.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>'; return; } tableBody.innerHTML = signatories.map((s) => `<tr><td>${s.name}</td><td>${s.title}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary edit-btn table-action-btn" data-id="${s.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger delete-btn table-action-btn" data-id="${s.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`).join(''); };
-        const renderRunningNumbers = (docs) => { const tableBody = document.getElementById('running-numbers-table'); if (docs.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="text-center">ยังไม่มีข้อมูล</td></tr>`; return; } tableBody.innerHTML = docs.map(doc => { const d = doc.data(); const formatDisplay = d.prefix ? `${d.prefix}-YYYY-MM-XXX` : 'YYYY-MM-XXX'; const lastNumber = d.lastNumber || '000'; const lastPeriod = d.lastPeriod || 'ยังไม่มี'; return `<tr><td>${d.type || ''}<br><small class="text-muted">${d.description || ''}</small></td><td>${formatDisplay}</td><td>${lastNumber}</td><td>${lastPeriod}</td><td class="text-center"><button class="btn btn-sm btn-outline-secondary modern-btn edit-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-sm btn-outline-danger modern-btn delete-btn table-action-btn" data-id="${doc.id}"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join(''); };
+        const renderCustomers = (docs) => { 
+            const tableBody = document.getElementById('customers-table'); 
+            if (docs.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>`; 
+                return; 
+            } 
+            tableBody.innerHTML = docs.map(doc => { 
+                const d = doc.data(); 
+                const branchCount = d.branches ? d.branches.length : 0; 
+                const branchDisplay = branchCount > 0 ? 
+                    `<div class="d-flex align-items-center gap-2">
+                        <a href="#" class="branch-details-link" data-id="${doc.id}">${branchCount} สาขา</a>
+                        <button class="action-btn action-view action-btn-xs action-btn-icon-only manage-branches-btn" data-id="${doc.id}" title="จัดการสาขาขั้นสูง">
+                            <i class="fas fa-sitemap"></i>
+                        </button>
+                    </div>` : 'ไม่มีสาขา'; 
+                return `<tr>
+                    <td>${d.name || ''}</td>
+                    <td>${branchDisplay}</td>
+                    <td class="text-center">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${doc.id}" title="แก้ไข">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${doc.id}" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`; 
+            }).join(''); 
+        };
+        const renderWorkTypes = (docs) => { 
+            const tableBody = document.getElementById('work-types-table'); 
+            if (docs.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; 
+                return; 
+            } 
+            tableBody.innerHTML = docs.map(doc => { 
+                const d = doc.data(); 
+                return `<tr>
+                    <td>${d.workTypeName || ''}</td>
+                    <td class="text-center">${d.stdSpotMin || '-'}</td>
+                    <td class="text-center">${d.stdSpotMax || '-'}</td>
+                    <td class="text-center">${d.stdAreaAvg || '-'}</td>
+                    <td class="text-center">${d.stdAreaMin || '-'}</td>
+                    <td class="text-center">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${doc.id}" title="แก้ไข">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${doc.id}" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`; 
+            }).join(''); 
+        };
+        const renderInspectors = (docs) => { 
+            const tableBody = document.getElementById('inspectors-table'); 
+            if (docs.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center">ยังไม่มีข้อมูล</td></tr>`; 
+                return; 
+            } 
+            tableBody.innerHTML = docs.map(doc => { 
+                const d = doc.data(); 
+                return `<tr>
+                    <td>${d.inspectorName || ''}</td>
+                    <td>${d.inspectorTitle || ''}</td>
+                    <td>${d.inspectorLicense || '-'}</td>
+                    <td class="text-center">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${doc.id}" title="แก้ไข">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${doc.id}" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`; 
+            }).join(''); 
+        };
+        const renderInstruments = (docs) => { 
+            const tableBody = document.getElementById('instruments-table'); 
+            if (docs.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center">ยังไม่มีข้อมูล</td></tr>`; 
+                return; 
+            } 
+            tableBody.innerHTML = docs.map(doc => { 
+                const d = doc.data(); 
+                return `<tr>
+                    <td>${d.instrumentName || ''}</td>
+                    <td>${d.instrumentSerial || ''}</td>
+                    <td>${d.instrumentAccuracy || '-'}</td>
+                    <td>${d.instrumentLastCalDate || '-'}</td>
+                    <td>${d.instrumentCalDate || '-'}</td>
+                    <td class="text-center">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${doc.id}" title="แก้ไข">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${doc.id}" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`; 
+            }).join(''); 
+        };
+        const renderSignatories = (signatories = []) => { 
+            console.log('👥 renderSignatories called with:', signatories);
+            const tableBody = document.getElementById('signatories-table'); 
+            if (signatories.length === 0) { 
+                console.log('❌ No signatories to render');
+                tableBody.innerHTML = '<tr><td colspan="3" class="text-center">ยังไม่มีข้อมูล</td></tr>'; 
+                return; 
+            } 
+            tableBody.innerHTML = signatories.map((s) => {
+                console.log('👤 Rendering signatory:', { id: s.id, name: s.name, title: s.title });
+                return `<tr>
+                <td>${s.name}</td>
+                <td>${s.title}</td>
+                <td class="text-center">
+                    <div class="action-btn-group">
+                        <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${s.id}" title="แก้ไข">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${s.id}" title="ลบ">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+            }).join(''); 
+            console.log('✅ Rendered signatories table with', signatories.length, 'entries');
+        };
+        const renderRunningNumbers = (docs) => { 
+            const tableBody = document.getElementById('running-numbers-table'); 
+            if (docs.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center">ยังไม่มีข้อมูล</td></tr>`; 
+                return; 
+            } 
+            tableBody.innerHTML = docs.map(doc => { 
+                const d = doc.data(); 
+                const formatDisplay = d.prefix ? `${d.prefix}-YYYY-MM-XXX` : 'YYYY-MM-XXX'; 
+                const lastNumber = d.lastNumber || '000'; 
+                const lastPeriod = d.lastPeriod || 'ยังไม่มี'; 
+                return `<tr>
+                    <td>${d.type || ''}<br><small class="text-muted">${d.description || ''}</small></td>
+                    <td>${formatDisplay}</td>
+                    <td>${lastNumber}</td>
+                    <td>${lastPeriod}</td>
+                    <td class="text-center">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-edit action-btn-sm action-btn-icon-only edit-btn" data-id="${doc.id}" title="แก้ไข">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-btn" data-id="${doc.id}" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`; 
+            }).join(''); 
+        };
 
         function setupTab(db, { collectionName, tableId, modal, formId, addBtnId, modalLabelId, renderFn, populateFormFn, onFormSubmit }) {
-            const collectionRef = collection(db, `/artifacts/${appId}/public/data/${collectionName}`);
-            onSnapshot(collectionRef, (snapshot) => renderFn(snapshot.docs));
+            firebaseManager.listenToCollection(collectionName, (data) => {
+                // Convert firebase-init array format to the expected docs format with data() method
+                const docs = Array.isArray(data) ? data.map(item => ({
+                    id: item.id,
+                    data: () => item // Wrap item as data() method
+                })) : [];
+                renderFn(docs);
+            });
             document.getElementById(addBtnId).addEventListener('click', () => { const form = document.getElementById(formId); form.reset(); form.querySelector('input[type=hidden]').value = ''; if (populateFormFn) populateFormFn(null, form); document.getElementById(modalLabelId).textContent = `เพิ่มข้อมูลใหม่`; modal.show(); });
             document.getElementById(tableId).addEventListener('click', async (e) => {
                 const target = e.target.closest('button, a');
                 if (!target) return;
                 const docId = target.dataset.id;
-                const docRef = doc(db, `/artifacts/${appId}/public/data/${collectionName}`, docId);
-                if (target.classList.contains('edit-btn')) {
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
+                if (target.classList.contains('edit-btn') || target.classList.contains('action-edit')) {
+                    const docData = await firebaseManager.getDocument(collectionName, docId);
+                    if (docData) {
+                        const data = docData.data || docData;
                         const form = document.getElementById(formId);
                         form.reset();
                         form.querySelector('input[type=hidden]').value = docId;
@@ -1791,14 +1956,14 @@
                         document.getElementById(modalLabelId).textContent = `แก้ไขข้อมูล`;
                         modal.show();
                     }
-                } else if (target.classList.contains('delete-btn')) {
-                    document.getElementById('confirmDeleteBtn').dataset.docPath = docRef.path;
+                } else if (target.classList.contains('delete-btn') || target.classList.contains('action-delete')) {
+                    document.getElementById('confirmDeleteBtn').dataset.docPath = `${collectionName}/${docId}`;
                     Modals.confirmDelete.show();
                 } else if (target.classList.contains('branch-details-link')) {
                     e.preventDefault();
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
+                    const docData = await firebaseManager.getDocument(collectionName, docId);
+                    if (docData) {
+                        const data = docData.data || docData;
                         document.getElementById('branchListModalLabel').textContent = `สาขาทั้งหมดของ: ${data.name}`;
                         const body = document.getElementById('branchListModalBody');
                         if (data.branches && data.branches.length > 0) {
@@ -1818,28 +1983,122 @@
         }
 
         function setupCompanyInfo(db) {
-            const companyDocRef = doc(db, `/artifacts/${appId}/public/data/company_info/main`);
-            onSnapshot(companyDocRef, (docSnap) => { if(docSnap.exists()) { const data = docSnap.data(); document.getElementById('license_factory').value = data.license_factory || ''; document.getElementById('license_chemical_measurement').value = data.license_chemical_measurement || ''; document.getElementById('license_chemical_analysis').value = data.license_chemical_analysis || ''; document.getElementById('license_heat').value = data.license_heat || ''; document.getElementById('license_welfare_light').value = data.license_welfare_light || ''; document.getElementById('license_sound').value = data.license_sound || ''; renderSignatories(data.signatories); } });
-            document.getElementById('company-info-form').addEventListener('submit', async (e) => { e.preventDefault(); const data = { license_factory: document.getElementById('license_factory').value, license_chemical_measurement: document.getElementById('license_chemical_measurement').value, license_chemical_analysis: document.getElementById('license_chemical_analysis').value, license_heat: document.getElementById('license_heat').value, license_welfare_light: document.getElementById('license_welfare_light').value, license_sound: document.getElementById('license_sound').value }; await setDoc(companyDocRef, data, { merge: true }); showAlert('บันทึกข้อมูลบริษัทสำเร็จแล้ว', 'success'); });
+            // Load company info once and setup auto-refresh
+            const loadCompanyData = async () => {
+                try {
+                    const companyDoc = await firebaseManager.getDocument('company_info', 'main');
+                    if (companyDoc) {
+                        const data = companyDoc.data || companyDoc;
+                        console.log('🏢 Company data loaded in loadCompanyData:', data);
+                        console.log('👥 Signatories from loadCompanyData:', data.signatories);
+                        document.getElementById('license_factory').value = data.license_factory || '';
+                        document.getElementById('license_chemical_measurement').value = data.license_chemical_measurement || '';
+                        document.getElementById('license_chemical_analysis').value = data.license_chemical_analysis || '';
+                        document.getElementById('license_heat').value = data.license_heat || '';
+                        document.getElementById('license_welfare_light').value = data.license_welfare_light || '';
+                        document.getElementById('license_sound').value = data.license_sound || '';
+                        renderSignatories(data.signatories);
+                    }
+                } catch (error) {
+                    console.error('Error loading company info:', error);
+                }
+            };
+            loadCompanyData();
+            document.getElementById('company-info-form').addEventListener('submit', async (e) => { 
+                e.preventDefault(); 
+                const data = { 
+                    license_factory: document.getElementById('license_factory').value, 
+                    license_chemical_measurement: document.getElementById('license_chemical_measurement').value, 
+                    license_chemical_analysis: document.getElementById('license_chemical_analysis').value, 
+                    license_heat: document.getElementById('license_heat').value, 
+                    license_welfare_light: document.getElementById('license_welfare_light').value, 
+                    license_sound: document.getElementById('license_sound').value 
+                }; 
+                await firebaseManager.updateDocument('company_info', 'main', data); 
+                showAlert('บันทึกข้อมูลบริษัทสำเร็จแล้ว', 'success'); 
+            });
             document.getElementById('addSignatoryBtn').addEventListener('click', () => { document.getElementById('signatoryForm').reset(); document.getElementById('signatoryId').value = ''; document.getElementById('signatoryModalLabel').textContent = 'เพิ่มผู้ลงนาม'; Modals.signatory.show(); });
-            document.getElementById('signatoryForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('signatoryId').value; const signatory = { id: id || `sig_${Date.now()}`, name: document.getElementById('signatoryName').value, title: document.getElementById('signatoryTitle').value }; const docSnap = await getDoc(companyDocRef); const signatories = docSnap.exists() && docSnap.data().signatories ? docSnap.data().signatories : []; if (id) { const index = signatories.findIndex(s => s.id === id); if (index > -1) signatories[index] = signatory; } else { signatories.push(signatory); } await setDoc(companyDocRef, { signatories }, { merge: true }); showAlert('บันทึกข้อมูลผู้ลงนามสำเร็จ', 'success'); Modals.signatory.hide(); });
-            document.getElementById('signatories-table').addEventListener('click', async (e) => { const target = e.target.closest('button'); if (!target) return; const id = target.dataset.id; if (target.classList.contains('edit-btn')) { const docSnap = await getDoc(companyDocRef); const signatory = (docSnap.data().signatories || []).find(s => s.id === id); if (signatory) { document.getElementById('signatoryId').value = signatory.id; document.getElementById('signatoryName').value = signatory.name; document.getElementById('signatoryTitle').value = signatory.title; document.getElementById('signatoryModalLabel').textContent = 'แก้ไขผู้ลงนาม'; Modals.signatory.show(); } } else if (target.classList.contains('delete-btn')) { document.getElementById('confirmDeleteBtn').dataset.docPath = companyDocRef.path; document.getElementById('confirmDeleteBtn').dataset.signatoryId = id; Modals.confirmDelete.show(); } });
+            document.getElementById('signatoryForm').addEventListener('submit', async (e) => { 
+                e.preventDefault(); 
+                const id = document.getElementById('signatoryId').value; 
+                const signatory = { 
+                    id: id || `sig_${Date.now()}`, 
+                    name: document.getElementById('signatoryName').value, 
+                    title: document.getElementById('signatoryTitle').value 
+                }; 
+                
+                const companyData = await firebaseManager.getDocument('company_info', 'main'); 
+                const signatories = companyData?.signatories || []; 
+                
+                if (id) { 
+                    const index = signatories.findIndex(s => s.id === id); 
+                    if (index > -1) signatories[index] = signatory; 
+                } else { 
+                    signatories.push(signatory); 
+                } 
+                
+                await firebaseManager.updateDocument('company_info', 'main', { signatories }); 
+                showAlert('บันทึกข้อมูลผู้ลงนามสำเร็จ', 'success'); 
+                Modals.signatory.hide(); 
+            });
+            document.getElementById('signatories-table').addEventListener('click', async (e) => { 
+                const target = e.target.closest('button'); 
+                if (!target) return; 
+                const id = target.dataset.id; 
+                
+                if (target.classList.contains('action-edit') || target.classList.contains('edit-btn')) { 
+                    console.log('🔍 Edit signatory clicked, ID:', id);
+                    try {
+                        const companyData = await firebaseManager.getDocument('company_info', 'main'); 
+                        console.log('📋 Company data loaded:', companyData);
+                        
+                        // Handle different data structures
+                        const data = companyData?.data || companyData;
+                        const signatories = data?.signatories || [];
+                        console.log('👥 Available signatories:', signatories);
+                        console.log('🔍 Looking for signatory with ID:', id);
+                        
+                        const signatory = signatories.find(s => s.id === id); 
+                        console.log('👤 Found signatory:', signatory);
+                        if (signatory) { 
+                            document.getElementById('signatoryId').value = signatory.id; 
+                            document.getElementById('signatoryName').value = signatory.name; 
+                            document.getElementById('signatoryTitle').value = signatory.title; 
+                            document.getElementById('signatoryModalLabel').textContent = 'แก้ไขผู้ลงนาม'; 
+                            console.log('🚀 Opening signatory modal...');
+                            Modals.signatory.show(); 
+                        } else {
+                            console.log('❌ Signatory not found');
+                            showAlert('ไม่พบข้อมูลผู้ลงนาม', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error loading signatory:', error);
+                        showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+                    }
+                } else if (target.classList.contains('action-delete') || target.classList.contains('delete-btn')) { 
+                    document.getElementById('confirmDeleteBtn').dataset.docPath = 'company_info/main'; 
+                    document.getElementById('confirmDeleteBtn').dataset.signatoryId = id; 
+                    Modals.confirmDelete.show(); 
+                } 
+            });
         }
         
         async function main() {
-            let finalFirebaseConfig;
-            try { if (typeof __firebase_config !== 'undefined') finalFirebaseConfig = JSON.parse(__firebase_config); else if (window.firebaseConfig && window.firebaseConfig.projectId) finalFirebaseConfig = window.firebaseConfig; } catch(e) { console.error(e); }
-            if (!finalFirebaseConfig) { showAlert('ไม่พบ Firebase Config', 'danger'); return; }
+            // Initialize Firebase using firebase-init.js
+            if (!await firebaseManager.initialize()) {
+                showAlert('ไม่สามารถเชื่อมต่อ Firebase ได้', 'danger');
+                return;
+            }
 
-            const app = initializeApp(finalFirebaseConfig);
-            db = getFirestore(app);
-            const auth = getAuth(app);
+            // Update user display
+            const currentUser = firebaseManager.getCurrentUser();
+            if (currentUser) {
+                document.getElementById('user-display').textContent = `UID: ${currentUser.uid.substring(0, 8)}...`;
+            }
 
-            try {
-                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-                document.getElementById('user-display').textContent = `UID: ${auth.currentUser.uid.substring(0, 8)}...`;
-            } catch (error) { showAlert(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'danger'); }
+            // Get Firebase instances for backward compatibility
+            const { db: firestoreDb } = firebaseManager.getInstances();
+            db = firestoreDb;
             
             const branchesContainer = document.getElementById('branches-container');
             const addBranchInput = (branch = { location: '', address: '', contactPerson: '', contactPhone: '' }) => { 
@@ -1890,8 +2149,49 @@
                 onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/instruments`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { instrumentName: form.instrumentName.value, instrumentSerial: form.instrumentSerial.value, instrumentAccuracy: form.instrumentAccuracy.value, instrumentLastCalDate: form.instrumentLastCalDate.value, instrumentCalDate: form.instrumentCalDate.value }; try { await setDoc(docRef, data); showAlert('บันทึกสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
             });
 
-            setupTab(db, { collectionName: 'running_numbers', tableId: 'running-numbers-table', modal: Modals.runningNumber, formId: 'runningNumberForm', addBtnId: 'addRunningNumberBtn', modalLabelId: 'runningNumberModalLabel', renderFn: renderRunningNumbers,
-                onFormSubmit: async (e, db, modal) => { e.preventDefault(); const form = e.target; const id = form.querySelector('input[type=hidden]').value; const collectionRef = collection(db, `/artifacts/${appId}/public/data/running_numbers`); const docRef = id ? doc(collectionRef, id) : doc(collectionRef); const data = { type: form.runningNumberType.value.toUpperCase(), description: form.runningNumberDescription.value, prefix: form.runningNumberPrefix.value.toUpperCase(), lastNumber: '000', lastPeriod: '' }; try { await setDoc(docRef, data); showAlert('บันทึกรหัสอ้างอิงสำเร็จ', 'success'); modal.hide(); } catch (err) { showAlert(`ผิดพลาด: ${err.message}`, 'danger'); } }
+            setupTab(db, { 
+                collectionName: 'running_numbers', 
+                tableId: 'running-numbers-table', 
+                modal: Modals.runningNumber, 
+                formId: 'runningNumberForm', 
+                addBtnId: 'addRunningNumberBtn', 
+                modalLabelId: 'runningNumberModalLabel', 
+                renderFn: renderRunningNumbers,
+                populateFormFn: (data, form) => {
+                    if (data) {
+                        form.runningNumberType.value = data.type || '';
+                        form.runningNumberDescription.value = data.description || '';
+                        form.runningNumberPrefix.value = data.prefix || '';
+                    }
+                },
+                onFormSubmit: async (e, db, modal) => { 
+                    e.preventDefault(); 
+                    const form = e.target; 
+                    const id = form.querySelector('input[type=hidden]').value; 
+                    const data = { 
+                        type: form.runningNumberType.value.toUpperCase(), 
+                        description: form.runningNumberDescription.value, 
+                        prefix: form.runningNumberPrefix.value.toUpperCase(), 
+                        lastNumber: id ? undefined : '000',  // Keep existing lastNumber when editing
+                        lastPeriod: id ? undefined : ''      // Keep existing lastPeriod when editing
+                    }; 
+                    
+                    try { 
+                        if (id) {
+                            // Remove undefined values before updating
+                            Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+                            await firebaseManager.updateDocument('running_numbers', id, data);
+                        } else {
+                            data.lastNumber = '000';
+                            data.lastPeriod = '';
+                            await firebaseManager.addDocument('running_numbers', data);
+                        }
+                        showAlert('บันทึกรหัสอ้างอิงสำเร็จ', 'success'); 
+                        modal.hide(); 
+                    } catch (err) { 
+                        showAlert(`ผิดพลาด: ${err.message}`, 'danger'); 
+                    } 
+                }
             });
             
             setupCompanyInfo(db);

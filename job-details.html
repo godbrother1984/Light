@@ -588,7 +588,7 @@
         let autoSaveTimer = null;
         let isDataChanged = false;
 
-        import { firebaseManager, onSnapshot, addDoc } from './assets/js/firebase-init.js?v=1.1';
+        import { firebaseManager, addDoc } from './assets/js/firebase-init.js?v=1.1';
         import { showAlert, formatDate, showLoading, hideLoading } from './assets/js/ui-helpers.js?v=1.1';
 
         // Global variables - will be initialized after DOM loads
@@ -975,12 +975,8 @@
                 document.getElementById('generate-report-btn').href = `report-finalizer.html?id=${jobId}`;
                 
                 // Load work types
-                const workTypesRef = firebaseManager.getCollection('work_types');
-                onSnapshot(workTypesRef, (snapshot) => {
-                    workTypes = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
+                firebaseManager.listenToCollection('work_types', (types) => {
+                    workTypes = Array.isArray(types) ? types : [];
                     
                     // Populate dropdowns
                     const defaultWorkTypeSelect = document.getElementById('default-work-type');
@@ -1048,18 +1044,18 @@
                 }
                 
                 // Load templates
-                const templatesRef = firebaseManager.getCollection('measurement_templates');
-                onSnapshot(templatesRef, (snapshot) => {
+                firebaseManager.listenToCollection('measurement_templates', (templates) => {
                     const templateSelector = document.getElementById('template-selector');
                     templateSelector.innerHTML = '<option value="">-- เลือก Template --</option>';
                     
-                    snapshot.docs.forEach(doc => {
-                        const template = doc.data();
-                        const option = document.createElement('option');
-                        option.value = doc.id;
-                        option.textContent = template.name;
-                        templateSelector.appendChild(option);
-                    });
+                    if (Array.isArray(templates)) {
+                        templates.forEach(template => {
+                            const option = document.createElement('option');
+                            option.value = template.id;
+                            option.textContent = template.name || 'ไม่มีชื่อ';
+                            templateSelector.appendChild(option);
+                        });
+                    }
                 });
                 
                 // Event listeners

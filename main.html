@@ -407,14 +407,14 @@
                             </div>
                         </div>
                         <div class="col-md-2 text-end">
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-primary btn-sm modern-btn" onclick="event.stopPropagation(); editJob('${job.id}')" title="แก้ไข">
+                            <div class="action-btn-group">
+                                <button class="action-btn action-edit action-btn-sm action-btn-icon-only" onclick="event.stopPropagation(); editJob('${job.id}')" title="แก้ไข">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-outline-success btn-sm modern-btn" onclick="event.stopPropagation(); generateReport('${job.id}')" title="สร้างรายงาน">
+                                <button class="action-btn action-download action-btn-sm action-btn-icon-only" onclick="event.stopPropagation(); generateReport('${job.id}')" title="สร้างรายงาน">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm modern-btn" onclick="event.stopPropagation(); deleteJob('${job.id}')" title="ลบ">
+                                <button class="action-btn action-delete action-btn-sm action-btn-icon-only" onclick="event.stopPropagation(); deleteJob('${job.id}')" title="ลบ">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -510,18 +510,12 @@
 
                 const unsubscribe = firebaseManager.listenToCollection(
                     'jobs',
-                    (snapshot) => {
-                        console.log(`📦 Received ${snapshot.size} jobs from Firebase`);
-                        updateDebugInfo(`รับข้อมูล ${snapshot.size} งาน`);
+                    (jobs) => {
+                        console.log(`📦 Received ${jobs?.length || 0} jobs from Firebase`);
+                        updateDebugInfo(`รับข้อมูล ${jobs?.length || 0} งาน`);
                         
-                        allJobs = [];
-                        snapshot.forEach((doc) => {
-                            const jobData = doc.data();
-                            allJobs.push({
-                                id: doc.id,
-                                ...jobData
-                            });
-                        });
+                        // firebase-init.js now returns array directly
+                        allJobs = Array.isArray(jobs) ? jobs : [];
                         
                         allJobs.sort((a, b) => {
                             const dateA = safeTimestampToDate(a.createdAt) || new Date(0);

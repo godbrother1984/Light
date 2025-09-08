@@ -1,9 +1,9 @@
 <!-- 
   path: /template-manager.html
-  version: 3.0 (Module System Migration + Modern Design + Toast Notifications)
-  date: 2025-09-05
-  time: 12:00:00
-  description: Migrated to module system, added modern button styling and toast notifications
+  version: 4.0 (Template Management Hub - Navigation Based)
+  date: 2025-09-07
+  time: 17:00:00
+  description: Redesigned as template management hub with navigation to template editor
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -20,69 +20,6 @@
     <link href="assets/css/main-styles.css" rel="stylesheet">
     <link href="assets/css/sidebar.css" rel="stylesheet">
     <link href="assets/css/components.css" rel="stylesheet">
-    
-    <script src="https://cdn.tiny.cloud/1/89apconez9ynna1jgwbnp15ywm4fk8ob84ndx3rcl5ih7q69/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
-    <style>
-        /* Template-specific styling */
-        .list-group#template-list .list-group-item-action { color: var(--primary-color); }
-        .list-group#template-list .list-group-item-action:hover { background-color: #e9ecef; }
-        .list-group#template-list .list-group-item-action.active { background-color: var(--primary-color); color: #fff; }
-        
-        /* Enhanced Modal Title Contrast */
-        .modal-title {
-            color: #000000 !important;
-            font-weight: 700;
-            font-size: 1.125rem;
-            text-shadow: 0 0 1px rgba(0,0,0,0.5);
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, #ffffff, #f1f3f5) !important;
-            border-bottom: 3px solid #dee2e6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        /* TinyMCE Editor Fix */
-        .tox-tinymce {
-            border: 1px solid #dee2e6 !important;
-            border-radius: 0.375rem !important;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        .tox-editor-header {
-            border-bottom: 1px solid #dee2e6 !important;
-        }
-        
-        .tox-edit-area {
-            border: none !important;
-        }
-        
-        .tox-edit-area iframe {
-            height: 500px !important;
-            min-height: 500px !important;
-        }
-        
-        /* Ensure editor container has proper height */
-        #template-editor {
-            min-height: 500px !important;
-            height: 500px !important;
-        }
-        
-        /* Backup textarea styling (in case TinyMCE fails to load) */
-        textarea#template-editor {
-            width: 100%;
-            height: 500px !important;
-            min-height: 500px !important;
-            resize: vertical;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            padding: 0.75rem;
-            font-family: 'Sarabun', sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-    </style>
 </head>
 <body>
     
@@ -144,31 +81,41 @@
                     <h1 class="h3 mb-0">ศูนย์จัดการ Template รายงาน</h1>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>รายการ Templates</h5>
-                                <button class="btn btn-sm btn-primary modern-btn" id="new-template-btn"><i class="fas fa-plus me-2"></i>สร้างใหม่</button>
+                                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>รายการ Templates มาตรฐาน</h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-success modern-btn" id="load-standard-templates-btn">
+                                        <i class="fas fa-file-import me-2"></i>โหลด Template มาตรฐาน
+                                    </button>
+                                    <button class="btn btn-primary modern-btn" id="new-template-btn">
+                                        <i class="fas fa-plus me-2"></i>สร้าง Template ใหม่
+                                    </button>
+                                    <button class="btn btn-info modern-btn" id="reload-templates-btn">
+                                        <i class="fas fa-sync me-2"></i>โหลดใหม่
+                                    </button>
+                                </div>
                             </div>
-                            <div class="list-group list-group-flush" id="template-list">
-                                <p class="text-center p-3 text-muted">Loading templates...</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <div class="card">
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="template-name" class="form-label fw-bold">ชื่อ Template</label>
-                                    <input type="text" class="form-control" id="template-name" placeholder="ตั้งชื่อ Template">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">เนื้อหา Template</label>
-                                    <textarea id="template-editor"></textarea>
-                                </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-danger modern-btn" id="delete-template-btn" disabled><i class="fas fa-trash-alt me-2"></i>ลบ</button>
-                                    <button class="btn btn-success modern-btn" id="save-template-btn"><i class="fas fa-save me-2"></i>บันทึก</button>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 40%;">ชื่อ Template</th>
+                                                <th style="width: 20%;">วันที่สร้าง</th>
+                                                <th style="width: 20%;">สร้างโดย</th>
+                                                <th style="width: 20%;" class="text-center">การจัดการ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="template-list">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-4">
+                                                    <i class="fas fa-spinner fa-spin me-2"></i>กำลังโหลด Templates...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -185,85 +132,199 @@
         import { firebaseManager } from './assets/js/firebase-init.js';
         import { showAlert } from './assets/js/ui-helpers.js';
 
-        let activeEditor = null;
-        let selectedTemplateId = null;
-
         const templateListContainer = document.getElementById('template-list');
-        const templateNameInput = document.getElementById('template-name');
-        const saveBtn = document.getElementById('save-template-btn');
-        const deleteBtn = document.getElementById('delete-template-btn');
         const newBtn = document.getElementById('new-template-btn');
+        const loadStandardBtn = document.getElementById('load-standard-templates-btn');
+        const reloadBtn = document.getElementById('reload-templates-btn');
 
-        const clearEditor = () => {
-            selectedTemplateId = null;
-            templateNameInput.value = '';
-            if (activeEditor) activeEditor.setContent('');
-            deleteBtn.disabled = true;
-            document.querySelectorAll('#template-list .list-group-item-action').forEach(el => el.classList.remove('active'));
-            templateNameInput.focus();
+        // Get user name from Firebase or fallback to UID
+        const getCurrentUserName = async () => {
+            const currentUser = firebaseManager.getCurrentUser();
+            if (!currentUser) return 'ไม่ทราบ';
+            
+            try {
+                // Try to get user profile from Firestore
+                const userDoc = await firebaseManager.getDocument('users', currentUser.uid);
+                if (userDoc && userDoc.name) {
+                    return userDoc.name;
+                }
+                
+                // Fallback to email or UID
+                if (currentUser.email) {
+                    return currentUser.email.split('@')[0];
+                }
+                
+                return `User ${currentUser.uid.substring(0, 8)}`;
+            } catch (error) {
+                console.warn('Could not get user name:', error);
+                return `User ${currentUser.uid.substring(0, 8)}`;
+            }
         };
 
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'light-measuring-app';
+        // Render template table
+        const renderTemplateTable = (templates) => {
+            console.log('renderTemplateTable called with:', templates);
             
-            // Wait a bit more to ensure all CSS is loaded
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Handle case where templates might not be an array
+            const templateArray = Array.isArray(templates) ? templates : [];
+            console.log('templateArray:', templateArray);
+            console.log('templateArray.length:', templateArray.length);
             
-            // Initialize TinyMCE with better error handling
-            try {
-                await new Promise((resolve, reject) => {
-                    tinymce.init({
-                        selector: '#template-editor',
-                        height: 500,
-                        min_height: 500,
-                        resize: true,
-                        menubar: false,
-                        plugins: 'code table lists image link fullscreen preview wordcount',
-                        toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | indent outdent | bullist numlist | code | fullscreen | wordcount',
-                        content_style: 'body { font-family: "Sarabun", sans-serif; font-size: 16px; line-height: 1.6; margin: 0.5rem; }',
-                        branding: false,
-                        statusbar: true,
-                        elementpath: false,
-                        init_instance_callback: function(editor) {
-                            activeEditor = editor;
-                            console.log('TinyMCE initialized successfully');
-                            resolve(editor);
-                        },
-                        setup: function(editor) {
-                            editor.on('init', function() {
-                                console.log('TinyMCE editor ready');
-                            });
-                            
-                            editor.on('LoadContent', function() {
-                                console.log('TinyMCE content loaded');
-                            });
-                        }
-                    });
-                    
-                    // Timeout fallback
-                    setTimeout(() => {
-                        if (!activeEditor) {
-                            console.warn('TinyMCE initialization timeout');
-                            reject(new Error('TinyMCE initialization timeout'));
-                        }
-                    }, 10000);
-                });
-                console.log('TinyMCE initialization completed');
-            } catch (error) {
-                console.error('TinyMCE initialization failed:', error);
-                showAlert('Text editor มีปัญหา กรุณา refresh หน้าใหม่', 'warning');
-                
-                // Fallback: Show basic textarea
-                const editor = document.getElementById('template-editor');
-                if (editor) {
-                    editor.style.display = 'block';
-                    editor.style.height = '500px';
-                    editor.classList.add('form-control');
-                }
+            if (templateArray.length === 0) {
+                templateListContainer.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox me-2"></i>ยังไม่มี Templates มาตรฐาน
+                        </td>
+                    </tr>
+                `;
+                return;
             }
 
-            // Initialize Firebase first
+            templateListContainer.innerHTML = templateArray.map(template => {
+                const templateName = template.name || 'ไม่มีชื่อ';
+                const createdBy = template.createdBy || 'ไม่ทราบ';
+                let formattedDate = 'ไม่ทราบวันที่';
+                
+                try {
+                    const dateObj = new Date(template.createdAt || template.lastUpdated || new Date());
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toLocaleDateString('th-TH');
+                    }
+                } catch (e) {}
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold">${templateName}</span>
+                                <small class="text-muted">ID: ${template.id}</small>
+                            </div>
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td>${createdBy}</td>
+                        <td class="text-center">
+                            <div class="action-btn-group">
+                                <button class="action-btn action-edit action-btn-sm action-btn-icon-only" data-id="${template.id}" title="แก้ไข">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn action-view action-btn-sm action-btn-icon-only copy-template-btn" data-id="${template.id}" title="คัดลอก">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="action-btn action-delete action-btn-sm action-btn-icon-only delete-template-btn" data-id="${template.id}" data-name="${templateName}" title="ลบ">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Add event listeners
+            document.querySelectorAll('.action-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const templateId = e.currentTarget.dataset.id;
+                    window.location.href = `template-editor.html?mode=template&templateId=${templateId}`;
+                });
+            });
+
+            document.querySelectorAll('.copy-template-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const templateId = e.currentTarget.dataset.id;
+                    copyTemplate(templateId);
+                });
+            });
+
+            document.querySelectorAll('.delete-template-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const templateId = e.currentTarget.dataset.id;
+                    const templateName = e.currentTarget.dataset.name;
+                    deleteTemplate(templateId, templateName);
+                });
+            });
+        };
+
+        // Copy template
+        const copyTemplate = async (templateId) => {
+            try {
+                const template = await firebaseManager.getDocument('report_templates', templateId);
+                if (!template) {
+                    showAlert('ไม่พบ Template ที่ต้องการคัดลอก', 'warning');
+                    return;
+                }
+
+                const newName = prompt(`กรุณาตั้งชื่อ Template ใหม่:`, `${template.name} (Copy)`);
+                if (!newName || !newName.trim()) return;
+
+                await firebaseManager.addDocument('report_templates', {
+                    name: newName.trim(),
+                    content: template.content,
+                    createdAt: new Date().toISOString(),
+                    createdBy: await getCurrentUserName(),
+                    lastUpdated: new Date().toISOString()
+                });
+
+                showAlert(`คัดลอก Template "${newName}" สำเร็จ`, 'success');
+            } catch (error) {
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        };
+
+        // Delete template
+        const deleteTemplate = async (templateId, templateName) => {
+            if (!confirm(`คุณต้องการลบ Template "${templateName}" ใช่หรือไม่?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) {
+                return;
+            }
+
+            try {
+                await firebaseManager.deleteDocument('report_templates', templateId);
+                showAlert(`ลบ Template "${templateName}" สำเร็จ`, 'success');
+            } catch (error) {
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        };
+
+        // Load standard templates
+        const loadStandardTemplate = async (templateFile, templateName) => {
+            try {
+                const response = await fetch(`templates/${templateFile}`);
+                if (!response.ok) {
+                    throw new Error('ไม่สามารถโหลด template ได้');
+                }
+                const templateContent = await response.text();
+                
+                // Check if template already exists
+                try {
+                    const existingTemplates = await firebaseManager.getDocuments('report_templates');
+                    const templateArray = Array.isArray(existingTemplates) ? existingTemplates : [];
+                    const exists = templateArray.some(t => t.name === templateName);
+                    
+                    if (exists && !confirm(`Template "${templateName}" มีอยู่แล้ว คุณต้องการเขียนทับหรือไม่?`)) {
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Could not check existing templates:', e);
+                }
+                
+                await firebaseManager.addDocument('report_templates', {
+                    name: templateName,
+                    content: templateContent,
+                    createdAt: new Date().toISOString(),
+                    createdBy: await getCurrentUserName(),
+                    lastUpdated: new Date().toISOString(),
+                    isStandard: true
+                });
+                
+                showAlert(`โหลด Template "${templateName}" สำเร็จ`, 'success');
+            } catch (error) {
+                console.error('Error loading template:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Firebase
             if (!await firebaseManager.initialize()) {
                 showAlert('ไม่สามารถเชื่อมต่อ Firebase ได้', 'danger');
                 return;
@@ -277,85 +338,57 @@
                 }
                 
                 // Load templates with real-time updates
-                firebaseManager.listenToCollection('report_templates', (templates) => {
-                    templateListContainer.innerHTML = '';
-                    
-                    if (templates.length === 0) {
-                        templateListContainer.innerHTML = '<p class="text-center p-3 text-muted">ยังไม่มี templates</p>';
-                        return;
-                    }
-                    
-                    templates.forEach(template => {
-                        const listItem = document.createElement('a');
-                        listItem.className = 'list-group-item list-group-item-action';
-                        listItem.dataset.templateId = template.id;
-                        listItem.innerHTML = `
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${template.name}</h6>
-                                <small>${new Date(template.createdAt).toLocaleDateString('th-TH')}</small>
-                            </div>
-                            <small class="text-muted">สร้างโดย: ${template.createdBy}</small>
-                        `;
-                        
-                        listItem.addEventListener('click', () => {
-                            selectedTemplateId = template.id;
-                            templateNameInput.value = template.name;
-                            if (activeEditor) activeEditor.setContent(template.content || '');
-                            deleteBtn.disabled = false;
-                            
-                            // Update active state
-                            document.querySelectorAll('#template-list .list-group-item-action').forEach(el => el.classList.remove('active'));
-                            listItem.classList.add('active');
-                        });
-                        
-                        templateListContainer.appendChild(listItem);
+                try {
+                    firebaseManager.listenToCollection('report_templates', (templates) => {
+                        console.log('Templates loaded:', templates);
+                        console.log('Templates type:', typeof templates);
+                        console.log('Templates length:', templates?.length);
+                        console.log('Is array:', Array.isArray(templates));
+                        renderTemplateTable(templates);
                     });
+                } catch (error) {
+                    console.error('Listen error:', error);
+                    showAlert('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+                }
+
+                // Create new template
+                newBtn.addEventListener('click', () => {
+                    window.location.href = 'template-editor.html?mode=template';
                 });
 
-
-                newBtn.addEventListener('click', clearEditor);
-
-                saveBtn.addEventListener('click', async () => {
-                    const name = templateNameInput.value.trim();
-                    const content = activeEditor.getContent();
-                    if (!name) { 
-                        showAlert('กรุณาใส่ชื่อ Template', 'warning'); 
-                        return; 
-                    }
-                    
-                    try {
-                        if (selectedTemplateId) {
-                            await firebaseManager.updateDocument('report_templates', selectedTemplateId, {
-                                name,
-                                content,
-                                lastUpdated: new Date().toISOString()
-                            });
-                        } else {
-                            const newTemplate = await firebaseManager.addDocument('report_templates', {
-                                name,
-                                content,
-                                createdAt: new Date().toISOString(),
-                                createdBy: firebaseManager.getCurrentUser()?.uid || 'anonymous',
-                                lastUpdated: new Date().toISOString()
-                            });
-                            selectedTemplateId = newTemplate.id;
-                            deleteBtn.disabled = false;
+                // Load Standard Templates
+                loadStandardBtn.addEventListener('click', async () => {
+                    const standardTemplates = [
+                        {
+                            name: 'TEST REPORT - รายงานผลการตรวจวัดแสง',
+                            filename: 'test-report-template.html'
                         }
-                        showAlert(`Template "${name}" ได้รับการบันทึกแล้ว`, 'success');
-                    } catch (err) {
-                        showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
+                    ];
+
+                    if (standardTemplates.length === 1) {
+                        // If only one template, load directly
+                        await loadStandardTemplate(
+                            standardTemplates[0].filename, 
+                            standardTemplates[0].name
+                        );
+                    } else {
+                        // Show selection modal for multiple templates
+                        // Implementation here if needed
                     }
                 });
 
-                deleteBtn.addEventListener('click', async () => {
-                    if (!selectedTemplateId || !confirm(`คุณต้องการลบ Template "${templateNameInput.value}" ใช่หรือไม่?`)) return;
-                    
+                // Manual reload templates
+                reloadBtn.addEventListener('click', async () => {
+                    console.log('Manual reload clicked');
                     try {
-                        await firebaseManager.deleteDocument('report_templates', selectedTemplateId);
-                        showAlert(`Template "${templateNameInput.value}" ถูกลบแล้ว`);
-                        clearEditor();
-                    } catch (err) {
-                        showAlert(`เกิดข้อผิดพลาด: ${err.message}`, 'danger');
+                        showAlert('กำลังโหลดข้อมูลใหม่...', 'info');
+                        const templates = await firebaseManager.getDocuments('report_templates');
+                        console.log('Manual reload result:', templates);
+                        renderTemplateTable(templates);
+                        showAlert(`โหลดข้อมูลสำเร็จ พบ ${templates.length} รายการ`, 'success');
+                    } catch (error) {
+                        console.error('Manual reload error:', error);
+                        showAlert('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
                     }
                 });
 
@@ -364,12 +397,11 @@
                 showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger'); 
             }
         });
-    </script>
-    <script>
+
+        // Sidebar toggle
         document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.getElementById('wrapper').classList.toggle('sidebar-mini');
         });
     </script>
 </body>
 </html>
-
