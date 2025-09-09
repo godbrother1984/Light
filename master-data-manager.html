@@ -354,6 +354,13 @@
                         <!-- Left Panel: Hierarchical Tree -->
                         <div class="col-md-4 border-end bg-light">
                             <div class="p-3 border-bottom bg-white">
+                                <!-- Customer Selection -->
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted mb-1">เลือกลูกค้า:</label>
+                                    <select class="form-select form-select-sm" id="branch-customer-select">
+                                        <option value="">กำลังโหลด...</option>
+                                    </select>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="mb-0"><i class="fas fa-tree me-2"></i>โครงสร้างสาขา</h6>
                                     <span class="badge bg-primary" id="total-branches-count">0 สาขา</span>
@@ -577,6 +584,18 @@
                 }
                 
                 return 'อื่นๆ'; // Default
+            }
+
+            // Load customer data by ID
+            loadCustomer(customerId, customersData) {
+                if (!customersData) return;
+                
+                const customer = customersData.find(c => c.id === customerId);
+                if (customer) {
+                    this.renderBranchTree(customer);
+                } else {
+                    console.warn(`Customer with ID ${customerId} not found`);
+                }
             }
 
             // Render hierarchical tree
@@ -1186,6 +1205,24 @@
                 }
                 searchInfo.textContent = searchResults;
                 searchInfo.style.display = 'block';
+            }
+            
+            // Add province to region
+            addProvince(regionName) {
+                const provinceName = prompt(`เพิ่มจังหวัดใหม่ในภูมิภาค ${regionName}:`);
+                if (!provinceName || !provinceName.trim()) return;
+                
+                if (!this.branchData[regionName]) {
+                    this.branchData[regionName] = {};
+                }
+                
+                if (!this.branchData[regionName][provinceName.trim()]) {
+                    this.branchData[regionName][provinceName.trim()] = [];
+                    this.renderBranchTree(this.currentCustomer);
+                    showAlert(`เพิ่มจังหวัด "${provinceName}" สำเร็จ`, 'success');
+                } else {
+                    showAlert(`จังหวัด "${provinceName}" มีอยู่แล้วในภูมิภาคนี้`, 'warning');
+                }
             }
         }
 
@@ -2077,6 +2114,40 @@
             });
             
             setupCompanyInfo(db);
+            
+            // เพิ่ม Firebase listener สำหรับ Branch Management tab
+            firebaseManager.listenToCollection('customers', (customersData) => {
+                // อัพเดตข้อมูลลูกค้าใน Branch Management
+                const branchCustomerSelect = document.getElementById('branch-customer-select');
+                if (branchCustomerSelect) {
+                    branchCustomerSelect.innerHTML = '<option value="">เลือกลูกค้า</option>';
+                    customersData.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer.id;
+                        option.textContent = customer.name;
+                        branchCustomerSelect.appendChild(option);
+                    });
+                    
+                    // ถ้ามีลูกค้าอยู่แล้ว ให้เลือกลูกค้าแรก
+                    if (customersData.length > 0 && !branchCustomerSelect.value) {
+                        branchCustomerSelect.value = customersData[0].id;
+                        branchManager.loadCustomer(customersData[0].id, customersData);
+                    }
+                }
+                
+                // เก็บข้อมูลลูกค้าไว้ใน branchManager
+                if (typeof branchManager !== 'undefined') {
+                    branchManager.customersData = customersData;
+                }
+            });
+            
+            // เพิ่ม event listener สำหรับ dropdown เลือกลูกค้า
+            document.getElementById('branch-customer-select')?.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    branchManager.loadCustomer(e.target.value, branchManager.customersData);
+                }
+            });
+            
             document.getElementById('seedDataBtn').addEventListener('click', seedInitialData);
             document.getElementById('confirmDeleteBtn').addEventListener('click', async (e) => {
                 const button = e.target;
