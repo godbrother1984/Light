@@ -143,6 +143,170 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 
 ## UI/UX Standards & Design Guidelines (NEW in v8.0)
 
+### 🎨 Complete UI Design Standards
+
+#### **Design Philosophy & Principles**
+- **Professional First**: Clean, elegant, business-appropriate interface
+- **Thai-Centric**: Optimized for Thai language and cultural context
+- **Accessibility**: WCAG 2.1 AA compliance for inclusive design
+- **Consistency**: Unified design language across all components
+- **Performance**: Optimized for fast loading and smooth interactions
+- **Mobile-First**: Responsive design for all device types
+
+#### **Color System & Palette**
+```css
+/* Primary Brand Colors */
+:root {
+  --primary-blue: #007bff;      /* Main brand, links, primary actions */
+  --primary-dark: #0056b3;      /* Hover states, emphasis */
+  --secondary-gray: #6c757d;    /* Secondary text, borders */
+  --light-gray: #f8f9fa;       /* Backgrounds, subtle sections */
+  
+  /* Semantic Colors */
+  --success-green: #28a745;     /* Success states, save actions */
+  --warning-orange: #ffc107;    /* Warnings, pending states */
+  --danger-red: #dc3545;        /* Errors, delete actions */
+  --info-teal: #17a2b8;         /* Information, view actions */
+  
+  /* Neutral Palette */
+  --white: #ffffff;
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --gray-900: #212529;
+  --black: #000000;
+}
+```
+
+#### **Typography System**
+```css
+/* Font Stack */
+:root {
+  --font-primary: 'Sarabun', 'Segoe UI', 'Roboto', sans-serif;
+  --font-monospace: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+/* Typography Scale */
+.text-xs { font-size: 0.75rem; line-height: 1.5; }    /* 12px */
+.text-sm { font-size: 0.875rem; line-height: 1.5; }   /* 14px */
+.text-base { font-size: 1rem; line-height: 1.5; }     /* 16px - Base */
+.text-lg { font-size: 1.125rem; line-height: 1.4; }   /* 18px */
+.text-xl { font-size: 1.25rem; line-height: 1.4; }    /* 20px */
+.text-2xl { font-size: 1.5rem; line-height: 1.3; }    /* 24px */
+.text-3xl { font-size: 1.875rem; line-height: 1.3; }  /* 30px */
+.text-4xl { font-size: 2.25rem; line-height: 1.2; }   /* 36px */
+
+/* Font Weights */
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+```
+
+#### **Spacing System (8px Base Grid)**
+```css
+/* Spacing Scale - 8px base unit */
+:root {
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+}
+
+/* Usage Examples */
+.p-2 { padding: var(--space-2); }
+.m-4 { margin: var(--space-4); }
+.gap-3 { gap: var(--space-3); }
+```
+
+#### **Border Radius & Shadows**
+```css
+:root {
+  /* Border Radius */
+  --radius-sm: 0.25rem;   /* 4px - Small elements */
+  --radius: 0.375rem;     /* 6px - Default */
+  --radius-md: 0.5rem;    /* 8px - Cards, modals */
+  --radius-lg: 0.75rem;   /* 12px - Large cards */
+  --radius-xl: 1rem;      /* 16px - Hero sections */
+  --radius-full: 9999px;  /* Pills, badges */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+}
+```
+
+#### **Animation & Transitions**
+```css
+:root {
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-bounce: 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Standard Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+```
+
+#### **Layout System & Grid**
+```css
+/* Container Sizes */
+.container-sm { max-width: 576px; }
+.container-md { max-width: 768px; }
+.container-lg { max-width: 992px; }
+.container-xl { max-width: 1200px; }
+.container-2xl { max-width: 1400px; }
+
+/* Grid System */
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+
+/* Flexbox Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+```
+
 ### Standardized Action Button System
 
 #### **CSS Classes (components.css v1.2)**
@@ -214,6 +378,433 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 </div>
 ```
 
+#### **Component Design Standards**
+
+### 📱 **Card Components**
+```css
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  transition: var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card-header {
+  padding: var(--space-4) var(--space-6);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.card-body {
+  padding: var(--space-6);
+}
+
+.card-footer {
+  padding: var(--space-4) var(--space-6);
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+}
+```
+
+### 📋 **Form Design Standards**
+```css
+/* Form Layout */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--gray-900);
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  transition: var(--transition-base);
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Validation States */
+.form-control.is-invalid {
+  border-color: var(--danger-red);
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+.form-control.is-valid {
+  border-color: var(--success-green);
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  color: var(--danger-red);
+}
+
+.valid-feedback {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  color: var(--success-green);
+}
+```
+
+### 📊 **Table Design Standards**
+```css
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table th {
+  background: var(--gray-50);
+  padding: var(--space-4);
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+  text-align: left;
+}
+
+.table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Responsive Wrapper */
+.table-responsive {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Empty Table State */
+.table-empty {
+  padding: var(--space-12);
+  text-align: center;
+  color: var(--gray-500);
+}
+
+.table-empty-icon {
+  font-size: 3rem;
+  color: var(--gray-300);
+  margin-bottom: var(--space-4);
+}
+```
+
+### 🎭 **Modal Design Standards**
+```css
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+  max-width: 500px;
+  margin: var(--space-12) auto;
+}
+
+.modal-content {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: none;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: var(--space-6);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.modal-body {
+  padding: var(--space-6);
+}
+
+.modal-footer {
+  padding: var(--space-4) var(--space-6);
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* Modal Animations */
+.modal.fade .modal-dialog {
+  transform: translateY(-50px);
+  transition: var(--transition-slow);
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0);
+}
+```
+
+### 🔔 **Toast Notification Standards**
+```css
+.toast-container {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: 1055;
+  max-width: 350px;
+}
+
+.toast {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--primary-blue);
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+  animation: slideUp var(--transition-slow);
+}
+
+.toast.toast-success { border-left-color: var(--success-green); }
+.toast.toast-warning { border-left-color: var(--warning-orange); }
+.toast.toast-danger { border-left-color: var(--danger-red); }
+.toast.toast-info { border-left-color: var(--info-teal); }
+
+.toast-header {
+  padding: var(--space-3) var(--space-4);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toast-body {
+  padding: var(--space-4);
+  color: var(--gray-700);
+}
+
+.toast-progress {
+  height: 3px;
+  background: var(--gray-200);
+  overflow: hidden;
+}
+
+.toast-progress-bar {
+  height: 100%;
+  background: var(--primary-blue);
+  transition: width linear;
+}
+```
+
+### 🎯 **Badge & Status Indicators**
+```css
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25em 0.6em;
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--radius-full);
+}
+
+.badge-primary { background: var(--primary-blue); color: var(--white); }
+.badge-success { background: var(--success-green); color: var(--white); }
+.badge-warning { background: var(--warning-orange); color: var(--gray-800); }
+.badge-danger { background: var(--danger-red); color: var(--white); }
+.badge-info { background: var(--info-teal); color: var(--white); }
+.badge-light { background: var(--gray-100); color: var(--gray-800); }
+.badge-dark { background: var(--gray-800); color: var(--white); }
+
+/* Status Dots */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--space-2);
+}
+
+.status-active { background: var(--success-green); }
+.status-inactive { background: var(--gray-400); }
+.status-pending { background: var(--warning-orange); }
+.status-error { background: var(--danger-red); }
+```
+
+### 📱 **Responsive Design Breakpoints**
+```css
+/* Mobile First Breakpoints */
+:root {
+  --breakpoint-sm: 576px;   /* Small devices (landscape phones) */
+  --breakpoint-md: 768px;   /* Medium devices (tablets) */
+  --breakpoint-lg: 992px;   /* Large devices (desktops) */
+  --breakpoint-xl: 1200px;  /* Extra large devices */
+  --breakpoint-2xl: 1400px; /* Extra extra large devices */
+}
+
+/* Media Query Mixins Usage */
+@media (max-width: 767px) {
+  .mobile-hidden { display: none; }
+  .mobile-full-width { width: 100%; }
+  .mobile-stack { flex-direction: column; }
+}
+
+@media (min-width: 768px) {
+  .desktop-only { display: block; }
+}
+
+/* Responsive Typography */
+@media (max-width: 767px) {
+  .text-responsive-lg { font-size: 1.25rem; }
+  .text-responsive-xl { font-size: 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .text-responsive-lg { font-size: 1.5rem; }
+  .text-responsive-xl { font-size: 2rem; }
+}
+```
+
+### ♿ **Accessibility Standards**
+```css
+/* Focus Indicators */
+:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--space-4);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  background: var(--gray-800);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-blue: #0066cc;
+    --gray-300: #999999;
+    --gray-600: #333333;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### 🌐 **Thai Language Optimizations**
+```css
+/* Thai Font Optimization */
+body {
+  font-family: 'Sarabun', 'Noto Sans Thai', 'Thonburi', sans-serif;
+  line-height: 1.6; /* Increased for Thai readability */
+  font-feature-settings: "liga" 1; /* Enable ligatures */
+}
+
+/* Thai Text Spacing */
+.thai-text {
+  word-spacing: 0.1em;
+  letter-spacing: 0.02em;
+}
+
+/* Thai Number Formatting */
+.thai-number {
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "tnum" 1; /* Tabular numbers */
+}
+
+/* Thai Date Display */
+.thai-date {
+  white-space: nowrap;
+  font-variant-numeric: lining-nums;
+}
+
+/* Buddhist Era Support */
+.buddhist-year::after {
+  content: " พ.ศ.";
+  color: var(--gray-600);
+  font-size: 0.9em;
+}
+```
+
 ### UI Consistency Rules
 
 #### **1. Action Button Placement**
@@ -239,6 +830,310 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 - **Error Messages**: Below field with `invalid-feedback` class
 - **Success States**: Green borders with `is-valid` class
 - **Real-time**: Validate on input/blur events
+
+#### **5. Loading States & Indicators**
+```html
+<!-- Page Loading -->
+<div class="loading-spinner">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">กำลังโหลด...</span>
+  </div>
+</div>
+
+<!-- Button Loading State -->
+<button class="action-btn action-save" disabled>
+  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+  กำลังบันทึก...
+</button>
+
+<!-- Content Skeleton -->
+<div class="skeleton">
+  <div class="skeleton-line"></div>
+  <div class="skeleton-line short"></div>
+  <div class="skeleton-line"></div>
+</div>
+```
+
+#### **6. Error States & Empty States**
+```html
+<!-- Error State -->
+<div class="error-state">
+  <i class="fas fa-exclamation-triangle error-icon"></i>
+  <h3>เกิดข้อผิดพลาด</h3>
+  <p>ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง</p>
+  <button class="action-btn action-primary">ลองใหม่</button>
+</div>
+
+<!-- Empty State -->
+<div class="empty-state">
+  <i class="fas fa-inbox empty-icon"></i>
+  <h3>ไม่มีข้อมูล</h3>
+  <p>ยังไม่มีรายการในส่วนนี้</p>
+  <button class="action-btn action-add">เพิ่มรายการแรก</button>
+</div>
+```
+
+### 📋 **Implementation Usage Patterns**
+
+#### **HTML Structure Standards**
+```html
+<!-- Page Layout Template -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ชื่อหน้า - ระบบวัดแสง</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <link href="./assets/css/main-styles.css" rel="stylesheet">
+  <link href="./assets/css/components.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
+  
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navigation content -->
+  </nav>
+  
+  <!-- Main Content -->
+  <main id="main-content" class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-2xl font-semibold">ชื่อหน้า</h1>
+      <div class="action-btn-group">
+        <!-- Page actions -->
+      </div>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="card">
+      <div class="card-body">
+        <!-- Content here -->
+      </div>
+    </div>
+  </main>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="./assets/js/firebase-init.js"></script>
+  <script type="module" src="./assets/js/ui-helpers.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
+```
+
+#### **CSS Class Naming Conventions**
+```css
+/* BEM-like naming with utility classes */
+.component-name { }              /* Block */
+.component-name__element { }     /* Element */
+.component-name--modifier { }    /* Modifier */
+
+/* Utility Classes */
+.u-text-center { text-align: center; }
+.u-margin-bottom-large { margin-bottom: var(--space-8); }
+.u-visually-hidden { /* Screen reader only */ }
+
+/* State Classes */
+.is-active { }
+.is-disabled { }
+.is-loading { }
+.is-error { }
+
+/* JavaScript Hooks */
+.js-trigger { }                  /* JavaScript behavior triggers */
+.js-target { }                   /* JavaScript manipulation targets */
+```
+
+#### **JavaScript Standards**
+```javascript
+// Event Delegation Pattern
+document.addEventListener('click', (e) => {
+  const target = e.target;
+  
+  // Action Button Handling
+  if (target.matches('.action-edit') || target.closest('.action-edit')) {
+    handleEdit(target);
+  } else if (target.matches('.action-delete') || target.closest('.action-delete')) {
+    handleDelete(target);
+  }
+});
+
+// Loading State Management
+const showLoadingState = (element) => {
+  element.disabled = true;
+  element.innerHTML = `
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    กำลังโหลด...
+  `;
+};
+
+const hideLoadingState = (element, originalText) => {
+  element.disabled = false;
+  element.innerHTML = originalText;
+};
+
+// Error Handling Pattern
+const handleApiError = (error, context = '') => {
+  console.error(`Error in ${context}:`, error);
+  showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+  
+  // Track error for debugging
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'exception', {
+      description: `${context}: ${error.message}`,
+      fatal: false
+    });
+  }
+};
+```
+
+#### **Form Validation Implementation**
+```javascript
+// Form Validation Class
+class FormValidator {
+  constructor(form) {
+    this.form = form;
+    this.rules = new Map();
+    this.setupEventListeners();
+  }
+  
+  addRule(fieldName, validationFn, errorMessage) {
+    this.rules.set(fieldName, { validationFn, errorMessage });
+  }
+  
+  validateField(field) {
+    const rule = this.rules.get(field.name);
+    if (!rule) return true;
+    
+    const isValid = rule.validationFn(field.value);
+    this.setFieldState(field, isValid, rule.errorMessage);
+    return isValid;
+  }
+  
+  setFieldState(field, isValid, errorMessage) {
+    field.classList.remove('is-valid', 'is-invalid');
+    field.classList.add(isValid ? 'is-valid' : 'is-invalid');
+    
+    const feedback = field.nextElementSibling;
+    if (feedback && feedback.classList.contains('invalid-feedback')) {
+      feedback.textContent = isValid ? '' : errorMessage;
+    }
+  }
+  
+  validateAll() {
+    let isFormValid = true;
+    const fields = this.form.querySelectorAll('[name]');
+    
+    fields.forEach(field => {
+      if (!this.validateField(field)) {
+        isFormValid = false;
+        if (isFormValid) field.focus(); // Focus first invalid field
+      }
+    });
+    
+    return isFormValid;
+  }
+}
+
+// Usage Example
+const validator = new FormValidator(document.getElementById('myForm'));
+validator.addRule('email', (value) => /\S+@\S+\.\S+/.test(value), 'กรุณากรอกอีเมลที่ถูกต้อง');
+validator.addRule('phone', (value) => /^[0-9]{10}$/.test(value), 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก');
+```
+
+### 🎯 **Quality Assurance Checklist**
+
+#### **Before Deployment Checklist**
+- [ ] **Responsive Design**: Test on mobile, tablet, desktop
+- [ ] **Cross-Browser**: Test on Chrome, Firefox, Safari, Edge
+- [ ] **Accessibility**: Keyboard navigation, screen reader compatibility
+- [ ] **Performance**: Page load time < 2 seconds
+- [ ] **Thai Language**: Proper font rendering, text spacing
+- [ ] **Error Handling**: All error states properly displayed
+- [ ] **Loading States**: Appropriate loading indicators
+- [ ] **Form Validation**: Real-time validation working
+- [ ] **Toast Notifications**: Proper success/error feedback
+- [ ] **Action Buttons**: Consistent styling and behavior
+
+#### **Code Quality Standards**
+```javascript
+// File Header Template
+/*
+ * File: path/to/file.js
+ * Version: 1.0.0
+ * Description: Brief description of file purpose
+ * Dependencies: List of dependencies
+ * Author: Development Team
+ * Last Modified: 2025-09-09
+ */
+
+// Function Documentation
+/**
+ * Function description
+ * @param {string} param1 - Description of parameter
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.validate - Whether to validate input
+ * @returns {Promise<Object>} Description of return value
+ * @throws {Error} When validation fails
+ */
+async function myFunction(param1, options = {}) {
+  // Implementation
+}
+```
+
+### 🚀 **Performance Optimization Guidelines**
+
+#### **CSS Performance**
+- Use CSS custom properties for theme consistency
+- Minimize specificity conflicts
+- Use efficient selectors
+- Leverage browser caching with versioned assets
+
+#### **JavaScript Performance**
+- Use event delegation for dynamic content
+- Debounce expensive operations (auto-save, search)
+- Lazy load non-critical components
+- Optimize DOM queries with caching
+
+#### **Asset Optimization**
+- Compress images and use modern formats (WebP, AVIF)
+- Use CDN for external resources
+- Implement proper caching headers
+- Bundle and minify CSS/JS for production
+
+### 📱 **Mobile-First Implementation**
+```css
+/* Mobile-First Approach */
+.component {
+  /* Mobile styles first (default) */
+  padding: var(--space-4);
+  font-size: 0.875rem;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .component {
+    padding: var(--space-6);
+    font-size: 1rem;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  .component {
+    padding: var(--space-8);
+    font-size: 1.125rem;
+  }
+}
+```
+
+This comprehensive UI design standard ensures consistency, accessibility, and professional appearance across the entire Light Measurement Recording System.
 
 ### Firebase Integration Standards
 
