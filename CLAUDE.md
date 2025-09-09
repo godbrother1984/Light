@@ -153,33 +153,108 @@ This is a vanilla JavaScript/HTML/CSS project with no build step required. Files
 - **Performance**: Optimized for fast loading and smooth interactions
 - **Mobile-First**: Responsive design for all device types
 
-#### **Color System & Palette**
+#### **Color System & Palette (Modernized HSL Design Tokens)**
 ```css
-/* Primary Brand Colors */
+/* Modern HSL Design Token Architecture */
 :root {
-  --primary-blue: #007bff;      /* Main brand, links, primary actions */
-  --primary-dark: #0056b3;      /* Hover states, emphasis */
-  --secondary-gray: #6c757d;    /* Secondary text, borders */
-  --light-gray: #f8f9fa;       /* Backgrounds, subtle sections */
+  /* Primary Brand Colors - HSL Format */
+  --primary: 211 100% 50%;         /* #0080FF - Bright Professional Blue */
+  --primary-hover: 211 100% 45%;   /* Darker blue for hover states */
+  --primary-light: 211 70% 85%;    /* Light blue for highlights */
+  --primary-foreground: 0 0% 98%;  /* Text on primary backgrounds */
   
-  /* Semantic Colors */
-  --success-green: #28a745;     /* Success states, save actions */
-  --warning-orange: #ffc107;    /* Warnings, pending states */
-  --danger-red: #dc3545;        /* Errors, delete actions */
-  --info-teal: #17a2b8;         /* Information, view actions */
+  /* Secondary Colors */
+  --secondary: 210 15% 85%;        /* Light gray-blue for secondary elements */
+  --secondary-hover: 210 15% 80%;  /* Secondary hover states */
+  --secondary-foreground: 210 20% 20%; /* Text on secondary backgrounds */
   
-  /* Neutral Palette */
-  --white: #ffffff;
-  --gray-100: #f8f9fa;
-  --gray-200: #e9ecef;
-  --gray-300: #dee2e6;
-  --gray-400: #ced4da;
-  --gray-500: #adb5bd;
-  --gray-600: #6c757d;
-  --gray-700: #495057;
-  --gray-800: #343a40;
-  --gray-900: #212529;
-  --black: #000000;
+  /* Semantic Colors - HSL Format */
+  --success: 142 71% 45%;          /* #38A169 - Professional green */
+  --success-foreground: 0 0% 98%;  /* Text on success backgrounds */
+  --warning: 38 92% 50%;           /* #ED8936 - Professional orange */
+  --warning-foreground: 0 0% 10%;  /* Text on warning backgrounds */
+  --destructive: 0 84% 60%;        /* #F56565 - Professional red */
+  --destructive-foreground: 0 0% 98%; /* Text on destructive backgrounds */
+  --info: 195 90% 45%;             /* #1493C7 - Professional teal */
+  --info-foreground: 0 0% 98%;     /* Text on info backgrounds */
+  
+  /* Background & Surface Colors */
+  --background: 0 0% 100%;         /* Pure white background */
+  --foreground: 210 20% 20%;       /* Main text color - dark blue-gray */
+  --card: 0 0% 100%;               /* Card backgrounds */
+  --card-foreground: 210 20% 20%;  /* Text on cards */
+  
+  /* Interactive Elements */
+  --border: 210 20% 88%;           /* Border color - light blue-gray */
+  --input: 210 20% 88%;            /* Input field borders */
+  --ring: 211 100% 50%;            /* Focus ring color */
+  
+  /* Muted/Subtle Elements */
+  --muted: 210 20% 96%;            /* Subtle backgrounds */
+  --muted-foreground: 210 15% 45%; /* Muted text color */
+  
+  /* Accent Colors */
+  --accent: 0 75% 55%;             /* Red accent for important actions */
+  --accent-foreground: 0 0% 98%;   /* Text on accent backgrounds */
+  
+  /* Legacy HEX Support (for backward compatibility) */
+  --primary-blue: hsl(var(--primary));
+  --success-green: hsl(var(--success));
+  --warning-orange: hsl(var(--warning));
+  --danger-red: hsl(var(--destructive));
+  --info-teal: hsl(var(--info));
+}
+```
+
+#### **HSL Color Usage Guide**
+```css
+/* Using HSL Design Tokens */
+.primary-button {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.primary-button:hover {
+  background-color: hsl(var(--primary-hover));
+}
+
+.success-alert {
+  background-color: hsl(var(--success) / 0.1); /* 10% opacity */
+  border: 1px solid hsl(var(--success));
+  color: hsl(var(--success));
+}
+
+.card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+}
+```
+
+#### **Color Team Matrix & Usage Guidelines**
+
+| **Color Token** | **HSL Value** | **HEX Value** | **Usage** |
+|-----------------|---------------|---------------|-----------||
+| **Primary Blue** | `211 100% 50%` | `#0080FF` | Main brand, buttons, links, active states |
+| **Success Green** | `142 71% 45%` | `#38A169` | Success messages, save actions, positive indicators |
+| **Warning Orange** | `38 92% 50%` | `#ED8936` | Warning states, pending actions, caution indicators |
+| **Destructive Red** | `0 84% 60%` | `#F56565` | Error states, delete actions, danger alerts |
+| **Info Teal** | `195 90% 45%` | `#1493C7` | Information, view actions, neutral highlights |
+| **Background** | `0 0% 100%` | `#FFFFFF` | Page backgrounds, card backgrounds |
+| **Foreground** | `210 20% 20%` | `#293747` | Main text color, headings |
+| **Muted** | `210 20% 96%` | `#F4F7F9` | Subtle backgrounds, disabled states |
+| **Border** | `210 20% 88%` | `#D4DDE6` | Borders, dividers, outlines |
+
+#### **Dark Mode Support**
+```css
+.dark {
+  --background: 210 25% 8%;        /* Very dark blue background */
+  --foreground: 207 20% 95%;       /* Very light blue text */
+  --card: 210 25% 10%;             /* Dark card background */
+  --primary: 211 85% 60%;          /* Lighter primary for contrast */
+  --secondary: 210 25% 20%;        /* Darker secondary */
+  --muted: 210 25% 15%;            /* Dark muted background */
+  --border: 210 25% 25%;           /* Dark borders */
 }
 ```
 
@@ -1416,14 +1491,138 @@ When migrating legacy HTML files to module system:
 - ⚠️ **No Dashboard**: Missing overview and analytics
 - ⚠️ **No Backup System**: Risk of data loss
 
-## Development Roadmap 2025 - Template System Priority Focus
+## Development Roadmap 2025 - Modern UI Standards Implementation
 
 ### Current Status Overview (September 2025)
 ✅ **System Architecture**: Module-based system with 71% performance improvement  
 ✅ **UI/UX Standardization**: Complete action button consistency across all pages  
 ✅ **Firebase Integration**: Real-time updates with firebaseManager abstraction  
 🚧 **Template System**: Core foundation complete, integration features in progress  
+🔶 **Modern UI Standards**: HSL design tokens and modern components implementation  
 ⏳ **Authentication**: Design complete, implementation ready  
+
+---
+
+## 🎨 Priority 0: Modern UI Standards Implementation (Critical Priority)
+**Estimated Timeline**: 3-4 days | **Status**: 🔶 Ready for Implementation
+
+### Phase A: HSL Design Token Migration (1 day)
+**Current Status**: CSS variables modernization with HSL format
+
+**Implementation Tasks**:
+1. **Color System Migration**
+   ```css
+   /* Update main-styles.css */
+   :root {
+     /* Migrate from HEX to HSL design tokens */
+     --primary: 211 100% 50%;          /* #0080FF */
+     --success: 142 71% 45%;           /* #38A169 */
+     --destructive: 0 84% 60%;         /* #F56565 */
+   }
+   ```
+
+2. **Component CSS Updates**
+   - Update `components.css` to use HSL color functions
+   - Implement hover state transitions with HSL
+   - Add opacity support using HSL syntax
+
+3. **Action Button System Enhancement**
+   ```css
+   .action-btn {
+     background-color: hsl(var(--primary));
+     color: hsl(var(--primary-foreground));
+     transition: background-color var(--transition-base);
+   }
+   
+   .action-btn:hover {
+     background-color: hsl(var(--primary-hover));
+   }
+   ```
+
+**Files to Update**:
+- `assets/css/main-styles.css` → v2.0 (HSL design tokens)
+- `assets/css/components.css` → v2.0 (HSL color functions)
+
+### Phase B: Dark Mode Infrastructure (1 day)
+**Current Status**: No dark mode support, modern systems require it
+
+**Implementation Tasks**:
+1. **Dark Mode CSS Variables**
+   ```css
+   .dark {
+     --background: 210 25% 8%;        /* Dark blue background */
+     --foreground: 207 20% 95%;       /* Light text */
+     --card: 210 25% 10%;             /* Dark cards */
+   }
+   ```
+
+2. **Theme Toggle Component**
+   - Add theme switcher to navigation
+   - Implement localStorage theme persistence
+   - Add system preference detection
+
+3. **All Component Dark Mode Support**
+   - Update modals, cards, forms for dark mode
+   - Ensure proper contrast ratios (WCAG AA)
+   - Test readability in both modes
+
+**Files to Create/Update**:
+- `assets/js/theme-manager.js` (new file)
+- Update all HTML files with theme toggle option
+
+### Phase C: Modern Animation System (1 day)  
+**Current Status**: Basic CSS transitions, needs modern micro-interactions
+
+**Implementation Tasks**:
+1. **CSS Animation Library**
+   ```css
+   /* Add to main-styles.css */
+   @keyframes fadeIn {
+     from { opacity: 0; transform: translateY(10px); }
+     to { opacity: 1; transform: translateY(0); }
+   }
+   
+   @keyframes slideUp {
+     from { transform: translateY(100%); }
+     to { transform: translateY(0); }
+   }
+   
+   .animate-fade-in { animation: fadeIn 200ms ease-out; }
+   .animate-slide-up { animation: slideUp 300ms ease-out; }
+   ```
+
+2. **Loading State Animations**
+   - Modern skeleton loading components
+   - Button loading states with spinners
+   - Page transition effects
+
+3. **Micro-interactions**
+   - Button hover effects
+   - Form validation feedback animations
+   - Toast notification animations
+
+### Phase D: Component Modernization (0.5 day)
+**Current Status**: Bootstrap 5.3.3 components, needs modern variants
+
+**Implementation Tasks**:
+1. **Enhanced Card Components**
+   ```html
+   <div class="card modern-card">
+     <div class="card-header gradient-header">
+       <h5 class="card-title modern-title">Title</h5>
+     </div>
+   </div>
+   ```
+
+2. **Modern Form Components**
+   - Floating labels
+   - Enhanced validation states
+   - Better focus indicators
+
+3. **Advanced Table Components**
+   - Sticky headers
+   - Enhanced sorting indicators  
+   - Better responsive behavior
 
 ---
 
@@ -1629,7 +1828,114 @@ When migrating legacy HTML files to module system:
 
 ## Implementation Schedule & Resource Allocation
 
-### Sprint 1: Template System Priority (Week 1-2)
+### 🎯 Sprint 0: Modern UI Standards (Priority Week)
+**Estimated Duration**: 3-4 days | **Must Complete Before Other Development**
+
+#### **Day 1: HSL Design Token Migration**
+```bash
+# Morning (2-3 hours)
+1. Backup current CSS files
+   cp assets/css/main-styles.css assets/css/main-styles.css.backup
+   
+2. Update main-styles.css with HSL design tokens
+   - Migrate :root variables from HEX to HSL format
+   - Add new semantic color tokens
+   - Test color consistency across existing pages
+
+3. Update components.css  
+   - Convert action buttons to use HSL colors
+   - Add hover state transitions with HSL syntax
+   - Test all interactive elements
+
+# Afternoon (2-3 hours) 
+4. Test HSL migration on critical pages
+   - main.html, job-details.html, master-data-manager.html
+   - Verify color consistency and visual appearance
+   - Fix any color issues discovered
+
+5. Create color utility CSS classes
+   .text-primary { color: hsl(var(--primary)); }
+   .bg-primary { background-color: hsl(var(--primary)); }
+```
+
+#### **Day 2: Dark Mode Infrastructure**
+```bash  
+# Morning (3-4 hours)
+1. Create theme-manager.js module
+   - Theme toggle functionality
+   - localStorage persistence  
+   - System preference detection
+
+2. Add dark mode CSS variables to main-styles.css
+   - .dark class with all color overrides
+   - Ensure WCAG AA contrast ratios
+   - Test readability in dark mode
+
+# Afternoon (2-3 hours)
+3. Update HTML templates with theme toggle
+   - Add toggle button to navigation
+   - Update all page templates
+   - Test theme switching functionality
+
+4. Dark mode component testing
+   - Verify modals, cards, forms in dark mode
+   - Fix contrast issues
+   - Ensure consistent dark mode experience
+```
+
+#### **Day 3: Modern Animation System**
+```bash
+# Morning (2-3 hours)
+1. Add animation keyframes to main-styles.css
+   - fadeIn, slideUp, pulse animations
+   - Loading spinner variations
+   - Micro-interaction effects
+
+2. Update toast notification system  
+   - Enhanced slide-up animations
+   - Progress bar animations
+   - Better timing and easing
+
+# Afternoon (2-3 hours)
+3. Implement loading state animations
+   - Button loading states with spinners
+   - Skeleton loading for tables
+   - Page transition effects
+
+4. Add form validation animations
+   - Error state feedback animations  
+   - Success state micro-interactions
+   - Focus ring animations
+```
+
+#### **Day 4: Component Modernization & Testing**
+```bash
+# Morning (2-3 hours)
+1. Enhanced card components
+   - Gradient headers for important cards
+   - Better shadow and border-radius system
+   - Modern spacing and typography
+
+2. Advanced table components
+   - Sticky headers for long tables
+   - Enhanced sorting indicators
+   - Better responsive behavior on mobile
+
+# Afternoon (2-3 hours)
+3. Cross-browser testing
+   - Chrome, Firefox, Safari, Edge
+   - Mobile responsiveness testing
+   - Performance impact assessment
+
+4. Documentation updates
+   - Update CLAUDE.md with new standards
+   - Create component usage examples
+   - Performance benchmarking
+```
+
+---
+
+### 🚀 Sprint 1: Template System Integration (Week 2-3)
 **Days 1-3**: Report Finalizer → Template Editor Integration
 - Job data injection and context passing
 - Template selection and preview functionality
@@ -1644,7 +1950,7 @@ When migrating legacy HTML files to module system:
 - Preview system and advanced template operations
 - Quality assurance and testing
 
-### Sprint 2: Authentication & Security (Week 3)
+### 🔐 Sprint 2: Authentication & Security (Week 4)
 **Days 1-2**: Login system implementation
 **Days 3-4**: User management interface  
 **Days 5-6**: Access control and permissions
