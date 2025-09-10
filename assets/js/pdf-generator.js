@@ -1,471 +1,729 @@
-/*
+/* 
   path: /assets/js/pdf-generator.js
-  version: 1.1 (Fixed Syntax Errors)
-  date: 2025-09-04
-  time: 17:30:00
-  description: PDF generation logic extracted from report-finalizer.html - Fixed all syntax errors
+  version: 2.0 (CSS Print System - แม่นยำ 100%)
+  date: 2025-09-10
+  time: 14:00:00
+  description: PDF Generator ใหม่ด้วย CSS Print System สำหรับความแม่นยำสูง
 */
 
 import { showAlert, hideLoading, showLoading } from './ui-helpers.js';
 
 /**
- * PDF Generator Class for Light Measurement Reports
+ * PDF Generator Class with CSS Print System - แม่นยำ 100%
  */
-export class PDFGenerator {
+class PDFGenerator {
     constructor() {
-        this.jsPDF = null;
-        this.html2canvas = null;
+        this.tagProcessor = null;
         this.initialized = false;
+        this.defaultSettings = {
+            paperSize: 'A4',
+            orientation: 'portrait',
+            margins: {
+                top: '15mm',
+                bottom: '15mm', 
+                left: '15mm',
+                right: '15mm'
+            },
+            header: {
+                enabled: false,
+                text: '',
+                align: 'center',
+                fontSize: '12px'
+            },
+            footer: {
+                enabled: true,
+                text: 'หน้า {page} จาก {total}',
+                align: 'center',
+                fontSize: '10px'
+            },
+            watermark: {
+                enabled: false,
+                text: '',
+                opacity: 0.2,
+                size: '48px',
+                color: '#cccccc',
+                rotation: 45
+            }
+        };
+    }
+
+    // ตั้งค่า TagProcessor
+    setTagProcessor(tagProcessor) {
+        this.tagProcessor = tagProcessor;
     }
 
     /**
-     * Initialize PDF generator with required libraries
+     * Initialize PDF generator 
      * @returns {Promise<boolean>} Success status
      */
     async initialize() {
         try {
-            // Check if libraries are loaded
-            if (typeof window.jsPDF === 'undefined' || typeof html2canvas === 'undefined') {
-                throw new Error('PDF generation libraries not loaded');
-            }
-
-            this.jsPDF = window.jsPDF.jsPDF;
-            this.html2canvas = html2canvas;
             this.initialized = true;
-
-            console.log('PDF Generator initialized successfully');
+            console.log('✅ CSS Print PDF Generator initialized successfully');
             return true;
         } catch (error) {
-            console.error('PDF Generator initialization failed:', error);
-            showAlert('ไม่สามารถโหลดระบบสร้าง PDF ได้', 'danger');
+            console.error('❌ PDF Generator initialization failed:', error);
+            showAlert('ไม่สามารถเริ่มระบบ PDF ได้', 'danger');
             return false;
         }
     }
 
+    // สร้าง CSS สำหรับการพิมพ์
+    generatePrintCSS(settings = {}) {
+        const config = { ...this.defaultSettings, ...settings };
+        
+        return `
+            <style>
+                /* CSS Print System - แม่นยำ 100% */
+                @page {
+                    size: ${config.paperSize} ${config.orientation};
+                    margin-top: ${config.margins.top};
+                    margin-bottom: ${config.margins.bottom};
+                    margin-left: ${config.margins.left}; 
+                    margin-right: ${config.margins.right};
+                    
+                    ${config.header.enabled ? `
+                    @top-${config.header.align} {
+                        content: "${config.header.text}";
+                        font-size: ${config.header.fontSize};
+                        font-family: 'Sarabun', sans-serif;
+                    }` : ''}
+                    
+                    ${config.footer.enabled ? `
+                    @bottom-${config.footer.align} {
+                        content: "${config.footer.text.replace('{page}', '" counter(page) "').replace('{total}', '" counter(pages) "')}";
+                        font-size: ${config.footer.fontSize};
+                        font-family: 'Sarabun', sans-serif;
+                    }` : ''}
+                }
+
+                /* ฟอนต์และการจัดรูปแบบ */
+                * {
+                    box-sizing: border-box;
+                    -webkit-print-color-adjust: exact;
+                    color-adjust: exact;
+                }
+
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: 'Sarabun', 'Segoe UI', Arial, sans-serif;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: #333;
+                    background: white;
+                }
+
+                /* หัวข้อและย่อหน้า */
+                h1 {
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin: 0 0 20px 0;
+                    text-align: center;
+                    color: #2c3e50;
+                }
+
+                h2 {
+                    font-size: 18px;
+                    font-weight: 600;
+                    margin: 25px 0 15px 0;
+                    color: #34495e;
+                    border-bottom: 2px solid #3498db;
+                    padding-bottom: 5px;
+                }
+
+                h3 {
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin: 20px 0 10px 0;
+                    color: #2c3e50;
+                }
+
+                p {
+                    margin: 0 0 12px 0;
+                    line-height: 1.6;
+                }
+
+                /* ตารางสวยงาม */
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                    background: white;
+                    border: 1px solid #34495e;
+                }
+
+                th {
+                    background: linear-gradient(135deg, #3498db, #2980b9);
+                    color: white;
+                    font-weight: 600;
+                    padding: 12px 8px;
+                    text-align: center;
+                    border: 1px solid #2c3e50;
+                    font-size: 13px;
+                }
+
+                td {
+                    padding: 10px 8px;
+                    border: 1px solid #bdc3c7;
+                    vertical-align: middle;
+                    font-size: 13px;
+                }
+
+                /* แถวสลับสี */
+                tbody tr:nth-child(even) {
+                    background-color: #f8f9fa;
+                }
+
+                tbody tr:nth-child(odd) {
+                    background-color: white;
+                }
+
+                /* การจัดตำแหน่งข้อความ */
+                .text-center { text-align: center; }
+                .text-left { text-align: left; }
+                .text-right { text-align: right; }
+
+                /* สีผลการประเมิน */
+                .result-pass {
+                    color: #27ae60;
+                    font-weight: 600;
+                    background-color: #d5f4e6 !important;
+                }
+
+                .result-fail {
+                    color: #e74c3c;
+                    font-weight: 600;
+                    background-color: #fdf2f2 !important;
+                }
+
+                /* Page Break */
+                .page-break {
+                    page-break-before: always;
+                }
+
+                .avoid-break {
+                    page-break-inside: avoid;
+                }
+
+                /* หมายเหตุและข้อเสนอแนะ */
+                .remark-section {
+                    margin: 20px 0;
+                    padding: 15px;
+                    border-radius: 8px;
+                    page-break-inside: avoid;
+                }
+
+                .remark-master {
+                    background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+                    border-left: 5px solid #3498db;
+                }
+
+                .remark-job {
+                    background: linear-gradient(135deg, #fff8e1, #fef9e7);
+                    border-left: 5px solid #f39c12;
+                }
+
+                .remark-title {
+                    font-weight: 600;
+                    margin: 0 0 10px 0;
+                    font-size: 15px;
+                }
+
+                .remark-content {
+                    font-size: 13px;
+                    line-height: 1.6;
+                }
+
+                /* ลายน้ำ */
+                ${config.watermark.enabled ? `
+                .watermark {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) rotate(${config.watermark.rotation}deg);
+                    font-size: ${config.watermark.size};
+                    color: ${config.watermark.color};
+                    opacity: ${config.watermark.opacity};
+                    z-index: -1;
+                    font-weight: bold;
+                    pointer-events: none;
+                    user-select: none;
+                }` : ''}
+
+                /* ข้อมูลบริษัท */
+                .company-header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    padding: 20px;
+                    border: 2px solid #3498db;
+                    border-radius: 10px;
+                    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+                }
+
+                .company-name {
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #2c3e50;
+                    margin: 0 0 10px 0;
+                }
+
+                .company-license {
+                    font-size: 12px;
+                    color: #7f8c8d;
+                    margin: 5px 0;
+                }
+
+                /* สรุปผลการตรวจวัด */
+                .summary-section {
+                    margin: 25px 0;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+                    border: 1px solid #dee2e6;
+                    border-radius: 10px;
+                    page-break-inside: avoid;
+                }
+
+                .summary-title {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin: 0 0 15px 0;
+                    text-align: center;
+                }
+
+                .summary-stats {
+                    display: flex;
+                    justify-content: space-around;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+
+                .stat-item {
+                    flex: 1;
+                    padding: 10px;
+                }
+
+                .stat-number {
+                    font-size: 24px;
+                    font-weight: 700;
+                    display: block;
+                    margin-bottom: 5px;
+                }
+
+                .stat-pass { color: #27ae60; }
+                .stat-fail { color: #e74c3c; }
+                .stat-total { color: #3498db; }
+
+                /* ลายเซ็นและอนุมัติ */
+                .signature-section {
+                    margin-top: 40px;
+                    page-break-inside: avoid;
+                }
+
+                .signature-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 60px;
+                }
+
+                .signature-item {
+                    text-align: center;
+                    flex: 1;
+                    margin: 0 20px;
+                }
+
+                .signature-line {
+                    border-bottom: 1px solid #333;
+                    margin-bottom: 10px;
+                    height: 50px;
+                }
+
+                .signature-title {
+                    font-weight: 600;
+                    margin-bottom: 5px;
+                }
+
+                .signature-name {
+                    font-size: 12px;
+                    color: #666;
+                }
+
+                /* การพิมพ์เท่านั้น */
+                @media print {
+                    .no-print { display: none !important; }
+                    
+                    body {
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    
+                    table, th, td {
+                        border-color: #000 !important;
+                    }
+                }
+
+                /* จอแสดงผล */
+                @media screen {
+                    body {
+                        background: #f5f5f5;
+                        padding: 20px;
+                    }
+                    
+                    .page-container {
+                        background: white;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        margin: 0 auto;
+                        max-width: 210mm;
+                        min-height: 297mm;
+                        padding: 20mm;
+                    }
+                }
+            </style>
+        `;
+    }
+
+    // สร้างเนื้อหา HTML Template
+    generateHTMLTemplate(templateContent, jobData, jobId, settings = {}) {
+        console.log('🔧 Generating HTML template...');
+        
+        // ประมวลผล tags
+        let processedContent = templateContent;
+        if (this.tagProcessor) {
+            processedContent = this.tagProcessor.processTags(templateContent, jobData, jobId);
+        }
+
+        // เพิ่มการจัดรูปแบบพิเศษ
+        processedContent = this.enhanceHTMLContent(processedContent, jobData);
+
+        const printCSS = this.generatePrintCSS(settings);
+        const watermarkHTML = settings.watermark?.enabled ? 
+            `<div class="watermark">${settings.watermark.text}</div>` : '';
+
+        const fullHTML = `
+            <!DOCTYPE html>
+            <html lang="th">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>รายงานการตรวจวัดความสว่าง - ${jobId || 'Draft'}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                ${printCSS}
+            </head>
+            <body>
+                ${watermarkHTML}
+                <div class="page-container">
+                    ${processedContent}
+                </div>
+                
+                <script>
+                    // Auto-print option
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('autoprint') === 'true') {
+                        window.onload = () => {
+                            setTimeout(() => window.print(), 500);
+                        };
+                    }
+                </script>
+            </body>
+            </html>
+        `;
+
+        console.log('✅ HTML template generated successfully');
+        return fullHTML;
+    }
+
     /**
-     * Generate PDF from HTML content
-     * @param {string} htmlContent - HTML content to convert
-     * @param {string} jobId - Job ID for filename
-     * @param {boolean} preview - Show preview instead of download
-     * @returns {Promise<boolean>} Success status
+     * สร้าง PDF แบบใหม่ด้วย CSS Print System
+     * @param {string} templateContent - เนื้อหา template
+     * @param {object} jobData - ข้อมูลงาน
+     * @param {string} jobId - รหัสงาน
+     * @param {object} settings - การตั้งค่า
+     * @returns {Promise<boolean>} สถานะสำเร็จ
      */
-    async generatePDF(htmlContent, jobId = '', preview = false) {
-        if (!this.initialized) {
-            await this.initialize();
-        }
-
-        if (!this.initialized) {
-            return false;
-        }
-
-        let tempDiv = null;
-
+    async generatePDF(templateContent, jobData, jobId, settings = {}) {
         try {
-            // Show loading
-            const targetBtn = document.querySelector('.btn-primary[onclick*="generatePDF"]') || 
-                             document.getElementById('generate-pdf-btn');
+            console.log('🚀 Starting CSS Print PDF generation...');
             
+            const targetBtn = document.getElementById('generate-pdf-btn');
             if (targetBtn) {
                 showLoading(targetBtn, 'กำลังสร้าง PDF...');
             }
-
-            // Create temporary div for rendering
-            tempDiv = document.createElement('div');
-            tempDiv.innerHTML = htmlContent;
-            tempDiv.style.cssText = `
-                position: absolute;
-                left: -9999px;
-                top: 0;
-                width: 794px;
-                background: white;
-                padding: 20px;
-                font-family: 'Sarabun', sans-serif;
-                font-size: 16px;
-                line-height: 1.6;
-            `;
-
-            // Apply inline styles for better rendering
-            this.applyInlineStyles(tempDiv);
             
-            document.body.appendChild(tempDiv);
-
-            // Wait for fonts and images to load
-            await this.waitForContent(tempDiv);
-
-            // Generate canvas from HTML
-            const canvas = await this.html2canvas(tempDiv, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                width: 794,
-                scrollX: 0,
-                scrollY: 0
-            });
-
-            // PDF configuration
-            const imgData = canvas.toDataURL('image/png');
-            const doc = new this.jsPDF('p', 'mm', 'a4');
+            // สร้าง HTML
+            const htmlContent = this.generateHTMLTemplate(templateContent, jobData, jobId, settings);
             
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
-            const margins = { top: 10, right: 10, bottom: 20, left: 10 };
-            
-            const contentWidth = pdfWidth - margins.left - margins.right;
-            const contentHeight = pdfHeight - margins.top - margins.bottom;
-            
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const ratio = imgWidth / contentWidth;
-            const scaledHeight = imgHeight / ratio;
+            // สร้างหน้าต่างใหม่สำหรับ PDF
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                throw new Error('ไม่สามารถเปิดหน้าต่างสำหรับพิมพ์ได้ กรุณาอนุญาต popup');
+            }
 
-            // Calculate pages needed
-            let heightLeft = scaledHeight;
-            let position = 0;
-            let pageNumber = 1;
+            // เขียน HTML ลงในหน้าต่างใหม่
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
 
-            // Function to add page assets (header, footer)
-            const addPageAssets = () => {
-                // Add page number
-                doc.setFontSize(10);
-                doc.setTextColor(128, 128, 128);
-                doc.text(
-                    `หน้า ${pageNumber}`, 
-                    pdfWidth - margins.right - 20, 
-                    pdfHeight - 10
-                );
-
-                // Add watermark if needed
-                if (window.addPDFWatermark) {
-                    window.addPDFWatermark(doc, pageNumber);
-                }
+            // รอให้ฟอนต์โหลดเสร็จแล้วเปิด print dialog
+            printWindow.onload = () => {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 1000);
             };
-            
-            // Add first page
-            addPageAssets();
-            doc.addImage(imgData, 'PNG', margins.left, margins.top, contentWidth, Math.min(scaledHeight, contentHeight));
-            heightLeft -= contentHeight;
-            
-            // Add additional pages if needed
-            while (heightLeft > 0) {
-                position = heightLeft - scaledHeight;
-                doc.addPage();
-                pageNumber++;
-                addPageAssets();
-                doc.addImage(imgData, 'PNG', margins.left, margins.top + position, contentWidth, scaledHeight);
-                heightLeft -= contentHeight;
-            }
 
-            if (preview) {
-                await this.showPDFPreview(doc);
-            } else {
-                this.downloadPDF(doc, jobId);
-            }
-
-            showAlert('สร้าง PDF สำเร็จแล้ว!', 'success');
+            console.log('✅ PDF generation completed');
+            showAlert('เปิดหน้าต่างพิมพ์แล้ว กรุณาเลือก "Save as PDF"', 'success', 4000);
             return true;
 
         } catch (error) {
-            console.error("PDF Generation Error:", error);
-            showAlert(`เกิดข้อผิดพลาดในการสร้าง PDF: ${error.message}`, 'danger');
+            console.error('❌ Error generating PDF:', error);
+            showAlert(`การสร้าง PDF ล้มเหลว: ${error.message}`, 'danger');
             return false;
         } finally {
-            // Clean up
-            if (tempDiv && tempDiv.parentNode) {
-                tempDiv.parentNode.removeChild(tempDiv);
-            }
-
-            // Hide loading
-            const targetBtn = document.querySelector('.btn-primary[onclick*="generatePDF"]') || 
-                             document.getElementById('generate-pdf-btn');
-            
+            const targetBtn = document.getElementById('generate-pdf-btn');
             if (targetBtn) {
                 hideLoading(targetBtn);
             }
         }
     }
 
-    /**
-     * Apply inline styles to improve PDF rendering
-     * @param {Element} element - Element to apply styles to
-     */
-    applyInlineStyles(element) {
-        // Apply font family to all elements
-        element.style.fontFamily = "'Sarabun', sans-serif";
-        
-        // Apply styles to tables
-        const tables = element.querySelectorAll('table');
-        tables.forEach(table => {
-            table.style.cssText += `
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-                font-size: 14px;
+    // ปรับปรุงเนื้อหา HTML
+    enhanceHTMLContent(content, jobData) {
+        let enhanced = content;
+
+        // แปลงตารางผลการตรวจวัดให้สวยงาม
+        enhanced = enhanced.replace(/{{RESULTS_TABLE_ROWS}}/g, (match) => {
+            return this.generateEnhancedResultsTable(jobData?.results || []);
+        });
+
+        // เพิ่ม CSS class สำหรับผลการประเมิน
+        enhanced = enhanced.replace(/ผ่าน/g, '<span class="result-pass">ผ่าน</span>');
+        enhanced = enhanced.replace(/ไม่ผ่าน/g, '<span class="result-fail">ไม่ผ่าน</span>');
+
+        // แปลง REMARK sections
+        enhanced = enhanced.replace(/{{REMARK_MASTER}}/g, `
+            <div class="remark-section remark-master avoid-break">
+                <div class="remark-title">📋 ข้อเสนอแนะมาตรฐาน</div>
+                <div class="remark-content">
+                    • เพิ่มจำนวนหลอดไฟในพื้นที่ที่มีค่าแสงสว่างไม่เพียงพอ<br>
+                    • เปลี่ยนหลอดไฟเป็นแบบให้แสงสว่างมากกว่าเดิม<br>
+                    • ตรวจสอบและทำความสะอาดหลอดไฟเป็นประจำ<br>
+                    • ปรับตำแหน่งการจัดวางโต๊ะทำงานให้รับแสงได้ดีขึ้น<br>
+                    • หลีกเลี่ยงการติดตั้งไฟส่องสว่างในตำแหน่งที่ก่อให้เกิดเงา
+                </div>
+            </div>
+        `);
+
+        enhanced = enhanced.replace(/{{REMARK_JOB}}/g, `
+            <div class="remark-section remark-job avoid-break">
+                <div class="remark-title">📝 ข้อเสนอแนะเฉพาะงาน</div>
+                <div class="remark-content">
+                    ${jobData?.recommendations ? 
+                        jobData.recommendations.replace(/\n/g, '<br>') : 
+                        '<em>ไม่มีข้อเสนอแนะเฉพาะสำหรับงานนี้</em>'
+                    }
+                    ${jobData?.observations ? `
+                        <br><br><strong>ข้อสังเกต:</strong><br>
+                        ${jobData.observations.replace(/\n/g, '<br>')}
+                    ` : ''}
+                </div>
+            </div>
+        `);
+
+        return enhanced;
+    }
+
+    // สร้างตารางผลการตรวจวัดที่สวยงาม
+    generateEnhancedResultsTable(results) {
+        if (!results || results.length === 0) {
+            return '<p class="text-center">ไม่มีข้อมูลการตรวจวัด</p>';
+        }
+
+        const itemsPerPage = 15; // ลดจำนวนเพื่อให้พอดีกับหน้า
+        const totalPages = Math.ceil(results.length / itemsPerPage);
+        let tablesHtml = '';
+
+        for (let page = 0; page < totalPages; page++) {
+            const startIndex = page * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, results.length);
+            const pageResults = results.slice(startIndex, endIndex);
+
+            if (page > 0) {
+                tablesHtml += '<div class="page-break"></div>';
+            }
+
+            tablesHtml += `
+                <div class="avoid-break">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">ลำดับ</th>
+                                <th style="width: 18%;">Lay Out</th>
+                                <th style="width: 25%;">พื้นที่ตรวจวัด</th>
+                                <th style="width: 20%;">ลักษณะงาน</th>
+                                <th style="width: 12%;">ค่ามาตรฐาน</th>
+                                <th style="width: 12%;">ผลที่วัดได้</th>
+                                <th style="width: 15%;">ผลการประเมิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
             `;
 
-            // Style table headers
-            const headers = table.querySelectorAll('th');
-            headers.forEach(th => {
-                th.style.cssText += `
-                    background-color: #f8f9fa;
-                    border: 1px solid #dee2e6;
-                    padding: 8px;
-                    text-align: center;
-                    font-weight: bold;
+            pageResults.forEach((result, index) => {
+                const globalIndex = startIndex + index + 1;
+                const resultValue = result.measurementType === 'spot' 
+                    ? (result.spotValue || '-')
+                    : `${result.areaAvgValue || '-'} / ${result.areaMinValue || '-'}`;
+                
+                const evaluationClass = result.evaluation === 'ผ่าน' ? 'result-pass' : 'result-fail';
+                
+                tablesHtml += `
+                    <tr>
+                        <td class="text-center">${globalIndex}</td>
+                        <td>${result.layout || `จุดที่ ${globalIndex}`}</td>
+                        <td>${result.area || ''}</td>
+                        <td>${result.workType || ''}</td>
+                        <td class="text-center">${result.standard || ''}</td>
+                        <td class="text-center">${resultValue}</td>
+                        <td class="text-center ${evaluationClass}">${result.evaluation || ''}</td>
+                    </tr>
                 `;
             });
 
-            // Style table cells
-            const cells = table.querySelectorAll('td');
-            cells.forEach(td => {
-                td.style.cssText += `
-                    border: 1px solid #dee2e6;
-                    padding: 8px;
-                    vertical-align: top;
+            tablesHtml += '</tbody></table>';
+
+            // เพิ่มหมายเหตุหลังแต่ละหน้า
+            tablesHtml += `
+                <div style="margin: 20px 0;">
+                    {{REMARK_MASTER}}
+                    {{REMARK_JOB}}
+                </div>
+            `;
+
+            // แสดงหมายเลขหน้าสำหรับตารางหลายหน้า
+            if (totalPages > 1) {
+                tablesHtml += `
+                    <p class="text-center" style="margin-top: 15px; font-size: 12px; color: #666;">
+                        หน้าที่ ${page + 1} จาก ${totalPages} 
+                        (รายการที่ ${startIndex + 1}-${endIndex} จากทั้งหมด ${results.length} รายการ)
+                    </p>
                 `;
-            });
-        });
-
-        // Style headings
-        const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        headings.forEach(heading => {
-            heading.style.cssText += `
-                color: #0d47a1;
-                font-weight: bold;
-                margin: 20px 0 10px 0;
-            `;
-        });
-
-        // Style paragraphs
-        const paragraphs = element.querySelectorAll('p');
-        paragraphs.forEach(p => {
-            p.style.cssText += `
-                margin: 10px 0;
-                line-height: 1.6;
-            `;
-        });
-    }
-
-    /**
-     * Wait for content to load (fonts, images)
-     * @param {Element} element - Element to wait for
-     * @returns {Promise<void>}
-     */
-    async waitForContent(element) {
-        // Wait for fonts to load
-        if (document.fonts) {
-            await document.fonts.ready;
+            }
+            
+            tablesHtml += '</div>';
         }
 
-        // Wait for images to load
-        const images = element.querySelectorAll('img');
-        const imagePromises = Array.from(images).map(img => {
-            return new Promise((resolve) => {
-                if (img.complete) {
-                    resolve();
-                } else {
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                }
-            });
-        });
-
-        await Promise.all(imagePromises);
-
-        // Give a little extra time for layout to settle
-        await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    /**
-     * Show PDF preview in modal
-     * @param {object} doc - jsPDF document
-     */
-    async showPDFPreview(doc) {
-        const previewContainer = document.getElementById('pdf-preview-container');
+        // เพิ่มสรุปผลการตรวจวัด
+        const passCount = results.filter(r => r.evaluation === 'ผ่าน').length;
+        const failCount = results.filter(r => r.evaluation === 'ไม่ผ่าน').length;
         
-        if (!previewContainer) {
-            // Create preview modal if it doesn't exist
-            this.createPreviewModal();
-        }
-
-        const pdfDataUri = doc.output('datauristring');
-        
-        document.getElementById('pdf-preview-container').innerHTML = `
-            <iframe src="${pdfDataUri}" 
-                    width="100%" 
-                    height="600px" 
-                    style="border: none; border-radius: 8px;"></iframe>
-        `;
-        
-        const modal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
-        modal.show();
-    }
-
-    /**
-     * Create preview modal if it doesn't exist
-     */
-    createPreviewModal() {
-        const modalHtml = `
-            <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-file-pdf me-2"></i>
-                                ตัวอย่างรายงาน PDF
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-0">
-                            <div id="pdf-preview-container"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                            <button type="button" class="btn btn-primary" onclick="downloadFromPreview()">
-                                <i class="fas fa-download me-2"></i>ดาวน์โหลด PDF
-                            </button>
-                        </div>
+        tablesHtml += `
+            <div class="summary-section">
+                <div class="summary-title">📊 สรุปผลการตรวจวัดความสว่าง</div>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-number stat-total">${results.length}</span>
+                        <div>รวมทั้งหมด</div>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-number stat-pass">${passCount}</span>
+                        <div>ผ่านเกณฑ์</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number stat-fail">${failCount}</span>
+                        <div>ไม่ผ่านเกณฑ์</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <strong>อัตราผ่านเกณฑ์: ${results.length > 0 ? Math.round((passCount / results.length) * 100) : 0}%</strong>
                 </div>
             </div>
         `;
 
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        return tablesHtml;
     }
 
-    /**
-     * Download PDF file
-     * @param {object} doc - jsPDF document
-     * @param {string} jobId - Job ID for filename
-     */
-    downloadPDF(doc, jobId) {
-        const filename = `รายงาน${jobId ? '-' + jobId : ''}-${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(filename);
-    }
-
-    /**
-     * Generate PDF from template content
-     * @param {string} templateContent - Template content with tags
-     * @param {object} data - Data to replace tags
-     * @param {string} jobId - Job ID for filename
-     * @param {boolean} preview - Show preview instead of download
-     * @returns {Promise<boolean>} Success status
-     */
-    async generatePDFFromTemplate(templateContent, data, jobId = '', preview = false) {
-        if (!templateContent || !data) {
-            showAlert('ไม่พบเนื้อหาเทมเพลตหรือข้อมูล', 'warning');
-            return false;
-        }
-
+    // สร้าง Print Preview
+    generatePrintPreview(templateContent, jobData, jobId, settings = {}) {
+        console.log('👁️ Generating print preview...');
+        
         try {
-            // Process template with TagProcessor if available
-            let processedContent = templateContent;
+            const htmlContent = this.generateHTMLTemplate(templateContent, jobData, jobId, settings);
             
-            if (window.tagProcessor || window.TagProcessor) {
-                const processor = window.tagProcessor || new window.TagProcessor();
-                processedContent = await processor.processTemplate(templateContent, data);
-            } else {
-                // Basic tag replacement if TagProcessor is not available
-                processedContent = this.basicTagReplacement(templateContent, data);
+            // สร้างหน้าต่างสำหรับ preview
+            const previewWindow = window.open('', '_blank');
+            if (!previewWindow) {
+                throw new Error('ไม่สามารถเปิดหน้าต่างสำหรับ preview ได้');
             }
 
-            return await this.generatePDF(processedContent, jobId, preview);
+            previewWindow.document.write(htmlContent);
+            previewWindow.document.close();
+
+            // เพิ่มปุ่มสำหรับพิมพ์และปิด
+            previewWindow.onload = () => {
+                const controls = previewWindow.document.createElement('div');
+                controls.className = 'no-print';
+                controls.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    background: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                `;
+                controls.innerHTML = `
+                    <button onclick="window.print()" style="margin-right: 10px; padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        🖨️ พิมพ์
+                    </button>
+                    <button onclick="window.close()" style="padding: 8px 16px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        ❌ ปิด
+                    </button>
+                `;
+                previewWindow.document.body.appendChild(controls);
+            };
+
+            console.log('✅ Print preview generated successfully');
+            return previewWindow;
+
         } catch (error) {
-            console.error('Template processing error:', error);
-            showAlert(`เกิดข้อผิดพลาดในการประมวลผลเทมเพลต: ${error.message}`, 'danger');
-            return false;
+            console.error('❌ Error generating preview:', error);
+            throw error;
         }
     }
 
-    /**
-     * Basic tag replacement for templates
-     * @param {string} template - Template content
-     * @param {object} data - Data to replace
-     * @returns {string} Processed content
-     */
-    basicTagReplacement(template, data) {
-        let processed = template;
-
-        // Replace simple tags
-        const tags = {
-            '{{JOB_ID}}': data.jobId || '',
-            '{{CUSTOMER_NAME}}': data.customerName || '',
-            '{{LOCATION}}': data.location || '',
-            '{{INSPECTION_DATE}}': data.inspectionDate || '',
-            '{{INSPECTOR_NAME}}': data.inspectorName || '',
-            '{{CURRENT_DATE}}': new Date().toLocaleDateString('th-TH'),
-            '{{REPORT_TITLE}}': data.reportTitle || 'รายงานการตรวจวัดแสง'
-        };
-
-        Object.keys(tags).forEach(tag => {
-            const regex = new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g');
-            processed = processed.replace(regex, tags[tag]);
-        });
-
-        return processed;
-    }
-
-    /**
-     * Create PDF with custom page settings
-     * @param {object} options - PDF options
-     * @returns {object} jsPDF instance
-     */
-    createCustomPDF(options = {}) {
-        if (!this.initialized) {
-            throw new Error('PDF Generator not initialized');
+    // บันทึกการตั้งค่า
+    saveSettings(settings) {
+        try {
+            localStorage.setItem('pdf-generator-settings', JSON.stringify(settings));
+            console.log('💾 PDF settings saved');
+        } catch (error) {
+            console.error('❌ Error saving settings:', error);
         }
-
-        const defaultOptions = {
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        };
-
-        const pdfOptions = { ...defaultOptions, ...options };
-        return new this.jsPDF(pdfOptions.orientation, pdfOptions.unit, pdfOptions.format);
     }
 
-    /**
-     * Check if PDF generation is supported
-     * @returns {boolean} Support status
-     */
-    static isSupported() {
-        return typeof window !== 'undefined' && 
-               typeof window.jsPDF !== 'undefined' && 
-               typeof html2canvas !== 'undefined';
+    // โหลดการตั้งค่า
+    loadSettings() {
+        try {
+            const saved = localStorage.getItem('pdf-generator-settings');
+            return saved ? JSON.parse(saved) : this.defaultSettings;
+        } catch (error) {
+            console.error('❌ Error loading settings:', error);
+            return this.defaultSettings;
+        }
     }
+
 }
 
-// Create singleton instance
-export const pdfGenerator = new PDFGenerator();
+// Create global instance
+const pdfGeneratorInstance = new PDFGenerator();
 
-// Auto-initialize if libraries are available
-if (PDFGenerator.isSupported()) {
-    pdfGenerator.initialize().catch(console.error);
-}
-
-// Helper functions for backward compatibility
-export const generatePDF = (htmlContent, jobId, preview = false) => {
-    return pdfGenerator.generatePDF(htmlContent, jobId, preview);
-};
-
-export const generatePDFFromTemplate = (template, data, jobId, preview = false) => {
-    return pdfGenerator.generatePDFFromTemplate(template, data, jobId, preview);
-};
-
-// Make functions available globally
+// Make available globally
 if (typeof window !== 'undefined') {
     window.PDFGenerator = PDFGenerator;
-    window.pdfGenerator = pdfGenerator;
-    window.generatePDF = generatePDF;
-    window.generatePDFFromTemplate = generatePDFFromTemplate;
-    
-    // Download from preview function
-    window.downloadFromPreview = () => {
-        if (window.currentPDFDoc && window.currentJobId) {
-            pdfGenerator.downloadPDF(window.currentPDFDoc, window.currentJobId);
-        }
-    };
+    window.pdfGenerator = pdfGeneratorInstance;
 }
 
-export default pdfGenerator;
+// Export for use in modules  
+export { PDFGenerator };
+export default pdfGeneratorInstance;

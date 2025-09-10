@@ -556,6 +556,9 @@
         const setupTemplateMode = () => {
             const actionButtons = document.getElementById('action-buttons');
             actionButtons.innerHTML = `
+                <button class="action-btn action-view action-btn-sm" id="preview-template-btn">
+                    <i class="fas fa-eye me-1"></i>ดูตัวอย่าง
+                </button>
                 <button class="action-btn action-save action-btn-sm" id="save-template-btn">
                     <i class="fas fa-save me-1"></i>บันทึก
                 </button>
@@ -574,8 +577,8 @@
         const setupReportMode = () => {
             const actionButtons = document.getElementById('action-buttons');
             actionButtons.innerHTML = `
-                <button class="action-btn action-view action-btn-sm" id="refresh-preview-btn">
-                    <i class="fas fa-sync me-1"></i>อัปเดต
+                <button class="action-btn action-view action-btn-sm" id="preview-report-btn">
+                    <i class="fas fa-eye me-1"></i>ดูตัวอย่าง
                 </button>
                 <button class="action-btn action-save action-btn-sm" id="save-report-btn">
                     <i class="fas fa-save me-1"></i>บันทึก
@@ -926,6 +929,14 @@
         };
 
         const setupTemplateEvents = () => {
+            // Preview template button
+            const previewBtn = document.getElementById('preview-template-btn');
+            if (previewBtn) {
+                previewBtn.addEventListener('click', async () => {
+                    await previewTemplate();
+                });
+            }
+            
             // Save template button
             const saveBtn = document.getElementById('save-template-btn');
             if (saveBtn) {
@@ -954,8 +965,180 @@
         };
 
         const setupReportEvents = () => {
-            // Reserved for future Report Mode implementation
-            console.log('Report events setup - reserved for Report Mode');
+            // Preview report button
+            const previewBtn = document.getElementById('preview-report-btn');
+            if (previewBtn) {
+                previewBtn.addEventListener('click', async () => {
+                    await previewReport();
+                });
+            }
+            
+            // Generate PDF button
+            const pdfBtn = document.getElementById('generate-pdf-btn');
+            if (pdfBtn) {
+                pdfBtn.addEventListener('click', async () => {
+                    await generateReportPDF();
+                });
+            }
+            
+            console.log('✅ Report events setup completed');
+        };
+
+        // Preview template function
+        const previewTemplate = async () => {
+            try {
+                console.log('🔍 Starting template preview...');
+                
+                let content = '';
+                if (activeEditor) {
+                    content = activeEditor.getContent();
+                } else {
+                    const textarea = document.getElementById('template-editor');
+                    content = textarea ? textarea.value : '';
+                }
+                
+                if (!content.trim()) {
+                    showAlert('กรุณาเพิ่มเนื้อหา Template ก่อน', 'warning');
+                    return;
+                }
+                
+                // สร้างข้อมูลตัวอย่างสำหรับ preview
+                const sampleData = {
+                    jobId: 'JOB-2568-09-001',
+                    customerName: 'ธนาคารกรุงเทพ สาขาสีลม',
+                    location: 'อาคารธนาคารกรุงเทพ ชั้น 15',
+                    address: '333 ถนนสีลม แขวงสีลม เขตบางรัก กรุงเทพมหานคร 10500',
+                    date: new Date().toISOString(),
+                    inspectors: ['นายสมชาย ใจดี'],
+                    reportCreator: 'นายสมชาย ใจดี',
+                    results: [
+                        { layout: 'จุด 1', area: 'ห้องทำงานทั่วไป', workType: 'งานเอกสาร', measurementType: 'spot', spotValue: '420', standard: '300-500', evaluation: 'ผ่าน' },
+                        { layout: 'จุด 2', area: 'ห้องประชุม', workType: 'งานประชุม', measurementType: 'area', areaAvgValue: '480', areaMinValue: '350', standard: '300-500', evaluation: 'ผ่าน' },
+                        { layout: 'จุด 3', area: 'ทางเดิน', workType: 'ทางเดินทั่วไป', measurementType: 'spot', spotValue: '180', standard: '100-200', evaluation: 'ผ่าน' }
+                    ],
+                    recommendations: 'แนะนำให้ติดตั้งหลอดไฟเพิ่มเติมในบริเวณมุมห้องที่มีแสงน้อย',
+                    observations: 'พบว่าแสงธรรมชาติจากหน้าต่างมีผลต่อการวัดในช่วงเช้า'
+                };
+                
+                // โหลด PDF generator และ tag processor
+                if (!window.pdfGenerator) {
+                    showAlert('กำลังโหลดระบบ PDF...', 'info');
+                    await import('./assets/js/pdf-generator.js');
+                    await window.pdfGenerator.initialize();
+                }
+                
+                // ตั้งค่า TagProcessor
+                if (window.TagProcessor && !window.pdfGenerator.tagProcessor) {
+                    const tagProcessor = new window.TagProcessor();
+                    window.pdfGenerator.setTagProcessor(tagProcessor);
+                }
+                
+                // โหลดการตั้งค่า
+                const settings = window.pdfGenerator.loadSettings();
+                
+                // สร้าง preview
+                window.pdfGenerator.generatePrintPreview(content, sampleData, 'SAMPLE', settings);
+                showAlert('เปิดหน้าต่าง Preview แล้ว', 'success');
+                
+            } catch (error) {
+                console.error('❌ Preview error:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        };
+
+        // Preview report function
+        const previewReport = async () => {
+            try {
+                console.log('📊 Starting report preview...');
+                
+                if (!jobData || !jobId) {
+                    showAlert('ไม่พบข้อมูลงานสำหรับการ preview', 'warning');
+                    return;
+                }
+                
+                let content = '';
+                if (activeEditor) {
+                    content = activeEditor.getContent();
+                } else {
+                    const textarea = document.getElementById('template-editor');
+                    content = textarea ? textarea.value : '';
+                }
+                
+                if (!content.trim()) {
+                    showAlert('กรุณาเพิ่มเนื้อหา Template ก่อน', 'warning');
+                    return;
+                }
+                
+                // โหลด PDF generator
+                if (!window.pdfGenerator) {
+                    await import('./assets/js/pdf-generator.js');
+                    await window.pdfGenerator.initialize();
+                }
+                
+                // ตั้งค่า TagProcessor
+                if (window.TagProcessor && !window.pdfGenerator.tagProcessor) {
+                    const tagProcessor = new window.TagProcessor();
+                    window.pdfGenerator.setTagProcessor(tagProcessor);
+                }
+                
+                // โหลดการตั้งค่า
+                const settings = window.pdfGenerator.loadSettings();
+                
+                // สร้าง preview ด้วยข้อมูลจริง
+                window.pdfGenerator.generatePrintPreview(content, jobData, jobId, settings);
+                showAlert('เปิดหน้าต่าง Report Preview แล้ว', 'success');
+                
+            } catch (error) {
+                console.error('❌ Report preview error:', error);
+                showAlert(`เกิดข้อผิดพลาด: ${error.message}`, 'danger');
+            }
+        };
+
+        // Generate report PDF function
+        const generateReportPDF = async () => {
+            try {
+                console.log('🚀 Starting PDF generation...');
+                
+                if (!jobData || !jobId) {
+                    showAlert('ไม่พบข้อมูลงานสำหรับสร้าง PDF', 'warning');
+                    return;
+                }
+                
+                let content = '';
+                if (activeEditor) {
+                    content = activeEditor.getContent();
+                } else {
+                    const textarea = document.getElementById('template-editor');
+                    content = textarea ? textarea.value : '';
+                }
+                
+                if (!content.trim()) {
+                    showAlert('กรุณาเพิ่มเนื้อหา Template ก่อน', 'warning');
+                    return;
+                }
+                
+                // โหลด PDF generator
+                if (!window.pdfGenerator) {
+                    await import('./assets/js/pdf-generator.js');
+                    await window.pdfGenerator.initialize();
+                }
+                
+                // ตั้งค่า TagProcessor
+                if (window.TagProcessor && !window.pdfGenerator.tagProcessor) {
+                    const tagProcessor = new window.TagProcessor();
+                    window.pdfGenerator.setTagProcessor(tagProcessor);
+                }
+                
+                // โหลดการตั้งค่า
+                const settings = window.pdfGenerator.loadSettings();
+                
+                // สร้าง PDF
+                await window.pdfGenerator.generatePDF(content, jobData, jobId, settings);
+                
+            } catch (error) {
+                console.error('❌ PDF generation error:', error);
+                showAlert(`เกิดข้อผิดพลาดในการสร้าง PDF: ${error.message}`, 'danger');
+            }
         };
         
         // Save template function with enhanced debugging

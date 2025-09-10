@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+README.md
+CLAUDE.md
+
+# Development files
+.vscode/
+.idea/
+*.log
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules (ถ้ามี)
+node_modules/
+npm-debug.log
+
+# Backup files
+*.backup
+*.bak
+*~

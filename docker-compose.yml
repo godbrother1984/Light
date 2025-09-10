@@ -1,0 +1,44 @@
+services:
+  # Light Measurement System
+  light-app:
+    build: .
+    container_name: light-measurement-system
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount source code สำหรับ development (comment out สำหรับ production)
+      - .:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.conf
+    restart: unless-stopped
+    networks:
+      - light-network
+
+  # Optional: Nginx Reverse Proxy สำหรับ production
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: light-nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      # สำหรับ SSL certificates (ถ้ามี)
+      # - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - light-app
+    restart: unless-stopped
+    networks:
+      - light-network
+    profiles:
+      - production
+
+networks:
+  light-network:
+    driver: bridge
+
+# Optional: Volumes สำหรับ persistent data
+volumes:
+  nginx-cache:
+    driver: local
